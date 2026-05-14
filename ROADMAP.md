@@ -156,7 +156,7 @@
 - [ ] **K55.** CAPTCHA / honeypot на публичных формах. `(1)`
 - [ ] **K56.** Логирование: структурированный лог в файл + journalctl. `(1)`
 - [ ] **K57.** Мониторинг: uptime-чек на `/health`, алерт в Telegram при падении. `(2)`
-- [ ] **K58.** CI/CD: GitHub Actions на push в main → авто-деплой. Сейчас руками rsync. `(2)`
+- [x] **K58.** CI/CD · 2026-05-14. Репозиторий https://github.com/MaxAdmin000/sobrano (public). Workflow `.github/workflows/deploy.yml`: на каждый push в main и через workflow_dispatch — checkout → подключение deploy-ключа из secret `DEPLOY_KEY` → rsync статики в `/var/www/sobrano/` (исключая backend/components/.claude/ROADMAP.md/.git*) → rsync бэкенда в `/opt/sobrano-backend/` (исключая `.env`, `data/store.json`, `data/uploads/`) → chown+chmod → `systemctl restart sobrano-backend` → smoke-test `/health` 3 раза. Конкурентность ограничена через `concurrency.group: deploy` (не параллелит деплои). Отдельный ed25519 deploy-ключ (`~/.ssh/sobrano_deploy_ed25519`) прописан в `/root/.ssh/authorized_keys` с маркером `github-actions@sobrano.store`. Первый прогон через `workflow_dispatch` прошёл за 27 секунд — все 5 шагов зелёные.
 - [x] **K59.** Файрвол ufw · 2026-05-14. `ufw default deny incoming / allow outgoing` + allow 22/tcp (SSH), 80/tcp + 443/tcp (nginx) — IPv4 и IPv6. Бэкенд на 8787 был открыт наружу (listen `*:8787`) — теперь снаружи блокируется, nginx-прокси через 127.0.0.1:8787 продолжает работать. Проверено: SSH в свежей сессии открывается, `/` + `/health` отдают 200, `nc 8787` снаружи — timeout.
 
 ---
