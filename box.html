@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Конструктор бокса · СОБРАНО</title>
+<meta name="description" content="Соберите свой букет: выберите размер бокса и наполните любыми цветами. Цена фиксированная, не зависит от состава." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+.h2{font-family:var(--serif);font-weight:300;font-size:clamp(40px,5vw,72px);line-height:1;letter-spacing:-.02em}
+.h2 em{font-style:italic;color:var(--wine);font-weight:400}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft);transition:color .2s}
+.nav-links a:hover{color:var(--wine)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.cart-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px;font-weight:500;transition:all .2s}
+.cart-pill:hover{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.cart-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--terracotta)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;transition:all .2s}
+.btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+.hero-box{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(28px,4vw,72px);align-items:end;padding:28px 0 56px;border-bottom:1px solid var(--line)}
+.hero-box .visual{position:relative;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:5/4;background:#222}
+.hero-box .visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,.6,.2,1)}
+.hero-box:hover .visual img{transform:scale(1.04)}
+.hero-box .visual::after{content:"";position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(to top,rgba(0,0,0,.4),transparent)}
+.hero-box .visual .badge{position:absolute;left:20px;bottom:20px;color:var(--ivory);z-index:2;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+.hero-box .visual .badge::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--terracotta)}
+.hero-box .visual .meta{position:absolute;right:20px;top:20px;color:var(--ivory);background:rgba(26,20,16,.55);backdrop-filter:blur(6px);padding:10px 14px;border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;z-index:2}
+
+.hero-box h1{font-family:var(--serif);font-weight:300;font-size:clamp(72px,12vw,200px);line-height:.85;letter-spacing:-.04em;display:flex;align-items:flex-end;gap:14px;margin-top:20px}
+.hero-box h1 sup{font-size:.18em;font-family:var(--mono);font-weight:500;letter-spacing:.16em;text-transform:uppercase;align-self:flex-start;margin-top:.7em;color:var(--mute)}
+.tag-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:18px}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:6px 12px;border-radius:999px;border:1px solid var(--line-strong);transition:all .2s}
+.tag:hover{border-color:var(--ink);background:var(--ivory-2)}
+.tag.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.hero-box .lead{color:var(--ink-soft);font-size:16px;max-width:42ch;margin-bottom:22px;line-height:1.55}
+.price-row{display:flex;align-items:baseline;gap:20px;font-family:var(--serif);font-size:48px;letter-spacing:-.02em;font-weight:300}
+.price-row .small{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+
+.builder{display:grid;grid-template-columns:1fr 380px;gap:clamp(28px,3vw,56px);padding:48px 0 100px;align-items:start}
+.builder-l h3{font-family:var(--serif);font-weight:400;font-size:32px;letter-spacing:-.01em;margin-bottom:8px}
+.builder-l .sub{color:var(--ink-soft);font-size:15px;margin-bottom:32px;max-width:48ch}
+
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px}
+.chip{border:1px solid var(--line-strong);padding:8px 14px;border-radius:999px;font-size:13px;color:var(--ink-soft);transition:all .2s}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.chip.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+
+.fl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.fl-card{position:relative;background:var(--ivory-2);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
+.fl-img{position:relative;aspect-ratio:1/1;overflow:hidden}
+.fl-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.fl-card:hover .fl-img img{transform:scale(1.05)}
+.fl-tag{position:absolute;left:12px;top:12px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:var(--ivory);color:var(--ink);padding:6px 10px;border-radius:999px}
+.fl-tag.fresh{background:var(--sage);color:var(--ivory)}
+.fl-tag.exo{background:var(--wine);color:var(--ivory)}
+.fl-body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px}
+.fl-name{font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:-.01em;line-height:1.1}
+.fl-meta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.fl-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 18px;border-top:1px solid var(--line)}
+.fl-stem{font-family:var(--serif);font-size:18px;color:var(--ink-soft)}
+.qty{display:inline-flex;align-items:center;gap:0;border:1px solid var(--ink);border-radius:999px;overflow:hidden}
+.qty button{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--ivory);color:var(--ink);transition:all .2s}
+.qty button:hover{background:var(--ink);color:var(--ivory)}
+.qty .v{min-width:36px;text-align:center;font-family:var(--mono);font-size:14px;font-weight:600;background:var(--ivory)}
+.qty.has button.minus,.qty.has .v,.qty.has button.plus{background:var(--ink);color:var(--ivory)}
+
+.fl-card.full .qty button.plus{opacity:.3;cursor:not-allowed;pointer-events:none}
+.fl-card.full::before{content:"Бокс заполнен";position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:rgba(26,20,16,.85);color:var(--ivory);padding:6px 10px;border-radius:999px;z-index:2}
+
+.summary{position:sticky;top:96px;background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:28px;display:flex;flex-direction:column;gap:18px;box-shadow:0 30px 60px -20px rgba(26,20,16,.35)}
+.summary h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between}
+.summary h4 .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);font-weight:400}
+
+.progress-block{background:rgba(242,236,227,.06);border-radius:var(--r-md);padding:18px}
+.progress-meta{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.7);margin-bottom:12px}
+.progress-meta strong{color:var(--ivory);font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:-.01em}
+.progress-bar{height:8px;background:rgba(242,236,227,.14);border-radius:999px;overflow:hidden}
+.progress-bar div{width:48%;height:100%;background:linear-gradient(90deg,var(--terracotta),var(--ivory));border-radius:999px;transition:width .4s ease}
+
+.summary-list{display:flex;flex-direction:column;gap:0;max-height:300px;overflow-y:auto;margin:0 -28px;padding:0 28px}
+.summary-list::-webkit-scrollbar{width:4px}
+.summary-list::-webkit-scrollbar-thumb{background:rgba(242,236,227,.2);border-radius:999px}
+.s-row{display:grid;grid-template-columns:36px 1fr auto auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(242,236,227,.1);font-size:14px}
+.s-row:last-child{border-bottom:0}
+.s-row .thumb{width:36px;height:36px;border-radius:50%;overflow:hidden;background:rgba(242,236,227,.08)}
+.s-row .thumb img{width:100%;height:100%;object-fit:cover}
+.s-row .name{font-family:var(--serif);font-size:15px}
+.s-row .qty-mini{font-family:var(--mono);font-size:11px;color:rgba(242,236,227,.55);letter-spacing:.1em;text-transform:uppercase}
+.s-row .x{width:24px;height:24px;border-radius:50%;background:rgba(242,236,227,.1);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ivory);transition:all .2s}
+.s-row .x:hover{background:var(--wine);color:var(--ivory)}
+
+.divider{height:1px;background:rgba(242,236,227,.18)}
+.s-total{display:flex;flex-direction:column;gap:8px}
+.s-total-row{display:flex;align-items:baseline;justify-content:space-between;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(242,236,227,.65)}
+.s-total-row.big{font-family:var(--serif);font-size:32px;letter-spacing:-.01em;text-transform:none;color:var(--ivory);font-weight:300}
+.s-total-row.big span:first-child{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55)}
+
+.s-cta{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--ivory);color:var(--ink);padding:18px 22px;border-radius:999px;font-size:15px;font-weight:500;transition:all .2s}
+.s-cta:hover{background:var(--terracotta);color:var(--ivory)}
+.s-cta .arrow{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--ivory);display:inline-flex;align-items:center;justify-content:center;transition:transform .25s}
+.s-cta:hover .arrow{transform:rotate(-45deg);background:var(--ivory);color:var(--ink)}
+
+.tip{background:var(--wine);color:var(--ivory);border-radius:var(--r-lg);padding:20px;display:flex;gap:14px;align-items:flex-start;margin-top:8px}
+.tip .av{width:42px;height:42px;border-radius:50%;background:var(--terracotta);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--serif);color:var(--ivory);font-size:18px}
+.tip h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.6);margin-bottom:4px}
+.tip p{font-size:13px;color:var(--ivory);line-height:1.5}
+.tip a{display:inline-block;margin-top:8px;color:var(--terracotta);font-size:12px;font-weight:500;text-decoration:underline;text-decoration-color:rgba(201,123,92,.5);text-underline-offset:3px}
+
+.addons-section{padding:80px 0;border-top:1px solid var(--line)}
+.addons-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}
+.ao{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--ivory-2);aspect-ratio:4/3}
+.ao img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.ao:hover img{transform:scale(1.05)}
+.ao::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.6) 100%)}
+.ao .body{position:absolute;inset:auto 0 0 0;padding:18px 20px 20px;color:var(--ivory);z-index:2;display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.ao h5{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em}
+.ao .actions{display:flex;align-items:center;gap:10px}
+.ao .price-pill{font-family:var(--mono);font-size:12px;letter-spacing:.1em;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);padding:8px 12px;border-radius:999px}
+.ao .add-btn{width:40px;height:40px;border-radius:50%;background:var(--ivory);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s}
+.ao .add-btn:hover{background:var(--terracotta);color:var(--ivory)}
+
+.switch-box{display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--ivory-2);border-radius:var(--r-lg);padding:28px 32px;margin-top:24px}
+.switch-box p{font-family:var(--serif);font-size:22px;letter-spacing:-.01em;font-weight:400}
+.switch-box .actions{display:flex;gap:10px;flex-wrap:wrap}
+.switch-box .pill-btn{padding:10px 16px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px;font-weight:500;transition:all .2s}
+.switch-box .pill-btn:hover{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+
+footer{background:var(--ink);color:var(--ivory);padding:40px 0;margin-top:60px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.footer-mini{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;color:rgba(242,236,227,.55)}
+.footer-mini a{color:rgba(242,236,227,.85)}
+.footer-mini a:hover{color:var(--terracotta)}
+
+.float-consult{position:fixed;right:22px;bottom:22px;z-index:60;display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:14px 20px;border-radius:999px;font-size:13px;font-weight:500;box-shadow:0 18px 40px rgba(26,20,16,.25);transition:all .25s}
+.float-consult:hover{background:var(--wine);transform:translateY(-2px)}
+.float-consult .live{width:8px;height:8px;border-radius:50%;background:var(--terracotta);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(201,123,92,.6)}70%{box-shadow:0 0 0 12px rgba(201,123,92,0)}100%{box-shadow:0 0 0 0 rgba(201,123,92,0)}}
+
+@media (max-width:1100px){
+  .builder{grid-template-columns:1fr}
+  .summary{position:static;order:-1}
+  .hero-box{grid-template-columns:1fr}
+  .fl-grid{grid-template-columns:repeat(2,1fr)}
+  .addons-row{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .fl-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .fl-card .fl-name{font-size:18px}
+  .addons-row{grid-template-columns:1fr}
+  .switch-box{flex-direction:column;align-items:flex-start}
+  .float-consult span:not(.live){display:none}
+  .float-consult{padding:14px}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span data-box-marquee>Бокс L · 25 цветков · 4 490 ₽</span><span>Свежий завоз каждые 2 дня</span><span>Доставка от 60 минут</span><span>Гарантия пересборки</span>
+  <span data-box-marquee>Бокс L · 25 цветков · 4 490 ₽</span><span>Свежий завоз каждые 2 дня</span><span>Доставка от 60 минут</span><span>Гарантия пересборки</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="index.html#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="cart.html" class="cart-pill"><span class="dot"></span> Корзина · <strong>12</strong> · 4 490 ₽</a>
+      <a href="cart.html" class="btn-primary">Оформить →</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <a href="index.html#boxes">Боксы</a><span class="sep">/</span>
+    <span class="here" data-box-crumb>Бокс L</span>
+  </div>
+
+  <section class="hero-box">
+    <div class="visual">
+      <span class="meta" data-box-meta>25 цветков · 4 490 ₽</span>
+      <img src="https://images.unsplash.com/photo-1487530811176-3780de880c2d?auto=format&fit=crop&w=1400&q=80" alt="Бокс L" data-box-img>
+      <span class="badge" data-box-badge>Бокс · L</span>
+    </div>
+
+    <div>
+      <span class="eyebrow" data-box-eyebrow>Бокс · L</span>
+      <h1 data-box-h1>L<sup>large</sup></h1>
+      <div class="tag-row" style="margin-top:24px" data-box-tag-row></div>
+      <p class="lead" data-box-lead>Заметный жест — когда хочется, чтобы цветы говорили громче слов. Соберите бокс из 25 любых стеблей в наличии. Цена не меняется от выбора цветов.</p>
+      <div class="price-row">
+        <span data-box-price>4&nbsp;490&nbsp;₽</span>
+        <span class="small">Фиксированная цена</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="builder">
+    <div class="builder-l">
+      <span class="eyebrow">Шаг 02 · Витрина цветов</span>
+      <h3 style="margin-top:14px">Соберите свой букет.</h3>
+      <p class="sub">8 видов в наличии. Жмите «+» — стебли добавляются в бокс справа. Виджет считает, сколько ещё мест осталось.</p>
+
+      <div class="chips">
+        <button class="chip active">Все · 8</button>
+        <button class="chip">Розы</button>
+        <button class="chip">Пионы</button>
+        <button class="chip">Сезонные</button>
+        <button class="chip">Экзотика</button>
+        <button class="chip">Сухоцветы</button>
+      </div>
+
+      <div class="fl-grid">
+        <article class="fl-card" data-flower-id="peony-sara">
+          <div class="fl-img">
+            <span class="fl-tag fresh">В наличии</span>
+            <img src="https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=700&q=80" alt="Пион «Сара Бернар»">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Пион «Сара Бернар»</span>
+            <span class="fl-meta">Душистый · розовый · 60 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty has" data-stems="3">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">3</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="rose-yumilia">
+          <div class="fl-img">
+            <span class="fl-tag fresh">В наличии</span>
+            <img src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?auto=format&fit=crop&w=700&q=80" alt="Роза кустовая «Юмилия»">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Роза кустовая «Юмилия»</span>
+            <span class="fl-meta">Кремовая · 50 см · 5 бутонов</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty has" data-stems="5">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">5</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="tulip-french">
+          <div class="fl-img">
+            <span class="fl-tag fresh">В наличии</span>
+            <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=700&q=80" alt="Тюльпан Французский">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Тюльпан Французский</span>
+            <span class="fl-meta">Бордовый · пионовидный · 55 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty " data-stems="0">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">0</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="eustoma-rosita">
+          <div class="fl-img">
+            <span class="fl-tag fresh">В наличии</span>
+            <img src="https://images.unsplash.com/photo-1530092285049-1c42085fd395?auto=format&fit=crop&w=700&q=80" alt="Эустома «Розита»">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Эустома «Розита»</span>
+            <span class="fl-meta">Белая · кустовая · 45 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty has" data-stems="4">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">4</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="gypsophila">
+          <div class="fl-img">
+            <span class="fl-tag ">Сезон</span>
+            <img src="https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&w=700&q=80" alt="Гипсофила «Облако»">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Гипсофила «Облако»</span>
+            <span class="fl-meta">Воздушная · 50 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty " data-stems="0">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">0</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="anthurium">
+          <div class="fl-img">
+            <span class="fl-tag exo">Экзотика</span>
+            <img src="https://images.unsplash.com/photo-1502977249166-824b3a8a4d6d?auto=format&fit=crop&w=700&q=80" alt="Антуриум «Тропик»">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Антуриум «Тропик»</span>
+            <span class="fl-meta">Бордовый · глянец · 45 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty " data-stems="0">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">0</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="cotton">
+          <div class="fl-img">
+            <span class="fl-tag ">Сухоцвет</span>
+            <img src="https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=700&q=80" alt="Хлопок натуральный">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Хлопок натуральный</span>
+            <span class="fl-meta">Сухоцвет · 40 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty " data-stems="0">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">0</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+        <article class="fl-card" data-flower-id="ranunculus">
+          <div class="fl-img">
+            <span class="fl-tag fresh">В наличии</span>
+            <img src="https://images.unsplash.com/photo-1469259943454-aa100abba749?auto=format&fit=crop&w=700&q=80" alt="Ранункулюс">
+          </div>
+          <div class="fl-body">
+            <span class="fl-name">Ранункулюс</span>
+            <span class="fl-meta">Персиковый · 35 см</span>
+          </div>
+          <div class="fl-foot">
+            <span class="fl-stem">×&nbsp;1 стебель</span>
+            <div class="qty " data-stems="0">
+              <button class="minus" aria-label="−">−</button>
+              <span class="v">0</span>
+              <button class="plus" aria-label="+">+</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="switch-box">
+        <p>Не уверены в составе?</p>
+        <div class="actions">
+          <a href="index.html#picks" class="pill-btn">Подборки флориста →</a>
+          <a href="#" class="pill-btn">Собрать «как у вас на фото»</a>
+        </div>
+      </div>
+    </div>
+
+    <aside class="summary">
+      <h4>Ваш бокс <span class="lbl">id&nbsp;#SBR-204</span></h4>
+
+      <div class="progress-block">
+        <div class="progress-meta">
+          <span>Бокс L · вместимость</span>
+          <strong><span id="filled">12</span>&nbsp;/&nbsp;25</strong>
+        </div>
+        <div class="progress-bar"><div id="bar" style="width:48%"></div></div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.55)">
+          Осталось <strong id="left" style="color:var(--terracotta);font-weight:500">13</strong> мест
+        </div>
+      </div>
+
+      <div class="summary-list" id="list">
+        <div class="s-row">
+          <div class="thumb"><img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=200&q=70" alt=""></div>
+          <div>
+            <div class="name">Пион «Сара Бернар»</div>
+            <div class="qty-mini">×3 стебля</div>
+          </div>
+          <span></span>
+          <button class="x" aria-label="Убрать">×</button>
+        </div>
+
+        <div class="s-row">
+          <div class="thumb"><img src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?auto=format&fit=crop&w=200&q=70" alt=""></div>
+          <div>
+            <div class="name">Роза кустовая «Юмилия»</div>
+            <div class="qty-mini">×5 стеблей</div>
+          </div>
+          <span></span>
+          <button class="x" aria-label="Убрать">×</button>
+        </div>
+
+        <div class="s-row">
+          <div class="thumb"><img src="https://images.unsplash.com/photo-1530092285049-1c42085fd395?auto=format&fit=crop&w=200&q=70" alt=""></div>
+          <div>
+            <div class="name">Эустома «Розита»</div>
+            <div class="qty-mini">×4 стебля</div>
+          </div>
+          <span></span>
+          <button class="x" aria-label="Убрать">×</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="s-total">
+        <div class="s-total-row"><span>Бокс L</span><span>4 490 ₽</span></div>
+        <div class="s-total-row"><span>Цветы внутри</span><span>включено</span></div>
+        <div class="s-total-row"><span>Допы</span><span>не выбраны</span></div>
+        <div class="s-total-row big"><span>Итого</span><span>4 490 ₽</span></div>
+      </div>
+
+      <a href="cart.html" class="s-cta">Перейти в корзину <span class="arrow">→</span></a>
+
+      <div class="tip">
+        <div class="av">К</div>
+        <div>
+          <h6>Совет флориста</h6>
+          <p>Добавьте 2 стебля гипсофилы и 1 ранункулюс — букет станет воздушнее без потери объёма.</p>
+          <a href="#">Применить совет →</a>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="addons-section">
+    <span class="eyebrow">Шаг 03 · По желанию</span>
+    <h2 class="h2" style="margin-top:18px">Добавить <em>к боксу</em>.</h2>
+
+    <div class="addons-row">
+      <div class="ao" data-addon-id="vase">
+        <img src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?auto=format&fit=crop&w=900&q=80" alt="Ваза">
+        <div class="body">
+          <h5>Классическая ваза</h5>
+          <div class="actions">
+            <span class="price-pill">+ 690 ₽</span>
+            <button class="add-btn" aria-label="Добавить">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="ao" data-addon-id="green">
+        <img src="https://images.unsplash.com/photo-1483794344563-d27a8d18014e?auto=format&fit=crop&w=900&q=80" alt="Зелень">
+        <div class="body">
+          <h5>Декоративная зелень</h5>
+          <div class="actions">
+            <span class="price-pill">+ 290 ₽</span>
+            <button class="add-btn" aria-label="Добавить">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="ao" data-addon-id="feed">
+        <img src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=900&q=80" alt="Подкормка">
+        <div class="body">
+          <h5>Подкормка для цветов</h5>
+          <div class="actions">
+            <span class="price-pill">+ 90 ₽</span>
+            <button class="add-btn" aria-label="Добавить">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container footer-mini">
+    <span>© 2026 СОБРАНО · ИП Горбулёв А. Ю. · ИНН 781700477351</span>
+    <div style="display:flex;gap:18px">
+      <a href="privacy-policy.html">Политика</a><a href="offer.html">Оферта</a><a href="requisites.html">Реквизиты</a>
+    </div>
+  </div>
+</footer>
+
+<a href="contacts.html" class="float-consult"><span class="live"></span><span>Получить консультацию</span></a>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/page-box.js" defer></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

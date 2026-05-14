@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Согласие на обработку персональных данных — СОБРАНО</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.6}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;transition:all .2s}
+.btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+.doc-head{padding:20px 0 56px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:end}
+.doc-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(48px,7vw,96px);line-height:.95;letter-spacing:-.025em;margin-top:18px}
+.doc-head h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.doc-meta{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.doc-meta-row{display:flex;gap:18px;align-items:center}
+.doc-meta-row .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);min-width:100px}
+.doc-meta-row .val{font-family:var(--serif);font-size:18px;letter-spacing:-.01em;font-weight:400}
+.doc-pdf{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line-strong);padding:10px 16px;border-radius:999px;font-size:13px;color:var(--ink-soft);transition:all .2s;margin-top:6px}
+.doc-pdf:hover{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.doc{display:grid;grid-template-columns:280px 1fr;gap:clamp(28px,4vw,80px);padding:48px 0 100px;align-items:start}
+.toc{position:sticky;top:96px;border-left:1px solid var(--line);padding-left:18px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 120px);overflow-y:auto}
+.toc::-webkit-scrollbar{width:3px}.toc::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:999px}
+.toc h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+.toc a{font-size:13px;color:var(--ink-soft);padding:6px 0;line-height:1.4;transition:color .2s;display:block;border-left:2px solid transparent;padding-left:10px;margin-left:-12px}
+.toc a:hover{color:var(--ink)}
+.toc a.active{color:var(--wine);border-left-color:var(--wine);font-weight:500}
+.content section{padding:36px 0;border-bottom:1px solid var(--line)}
+.content section:first-child{padding-top:0}
+.content section:last-child{border-bottom:0}
+.content h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.015em;line-height:1.1;margin-bottom:24px;display:flex;align-items:baseline;gap:18px}
+.content h2 .num{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.1em;color:var(--terracotta);min-width:48px}
+.content h3{font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:-.01em;margin:28px 0 12px}
+.content p{margin:14px 0;color:var(--ink-soft);max-width:72ch}
+.content p strong{color:var(--ink);font-weight:600}
+.content ul,.content ol{margin:14px 0 14px 24px;color:var(--ink-soft);max-width:72ch}
+.content li{margin:6px 0;padding-left:6px}
+.content li::marker{color:var(--terracotta)}
+.content a{color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px}
+.content a:hover{text-decoration-color:var(--wine)}
+.callout{background:var(--ivory-2);border-left:3px solid var(--terracotta);padding:20px 24px;border-radius:0 var(--r-md) var(--r-md) 0;margin:22px 0;font-size:14.5px;color:var(--ink-soft);line-height:1.65}
+.callout strong{color:var(--ink)}
+.req-card{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:32px 36px;margin-top:24px}
+.req-card h3{font-family:var(--serif);font-size:24px;font-weight:400;color:var(--ivory);margin:0 0 18px;letter-spacing:-.01em}
+.req-card .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 28px}
+.req-card .row{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid rgba(242,236,227,.14)}
+.req-card .row .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.55)}
+.req-card .row .val{font-family:var(--serif);font-size:17px;letter-spacing:-.01em}
+.req-card .row.full{grid-column:span 2}
+.to-top{position:fixed;right:22px;bottom:22px;z-index:60;display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:14px 18px;border-radius:999px;font-size:12px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 18px 40px rgba(26,20,16,.25);transition:all .25s;opacity:0;pointer-events:none;transform:translateY(8px)}
+.to-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.to-top:hover{background:var(--wine);transform:translateY(-2px)}
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+.footer-bot a{color:rgba(242,236,227,.7)}.footer-bot a:hover{color:var(--terracotta)}
+@media (max-width:1100px){
+  .doc{grid-template-columns:1fr}
+  .toc{position:static;border-left:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0;margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:none}
+  .doc-head{grid-template-columns:1fr}
+  .req-card .grid{grid-template-columns:1fr}
+  .req-card .row.full{grid-column:span 1}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .toc{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .to-top span:not(:first-child){display:none}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Правовой документ · ред. от 30.03.2026</span>  <span>152-ФЗ</span>  <span>Согласие субъекта персональных данных</span>  <span>Прозрачные правила</span>
+  <span>Правовой документ · ред. от 30.03.2026</span>  <span>152-ФЗ</span>  <span>Согласие субъекта персональных данных</span>  <span>Прозрачные правила</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <a href="documents.html">Документы</a><span class="sep">/</span>
+    <span class="here">Согласие на обработку персональных данных</span>
+  </div>
+
+  <header class="doc-head">
+    <div>
+      <span class="eyebrow">Правовой документ № 03</span>
+      <h1>Согласие <em>на обработку</em> персональных данных</h1>
+    </div>
+    <div class="doc-meta">
+      <div class="doc-meta-row"><span class="lbl">Редакция</span><span class="val">от 30 марта 2026 г.</span></div>
+      <div class="doc-meta-row"><span class="lbl">Документ</span><span class="val">№ 03 / 2026</span></div>
+      <div class="doc-meta-row"><span class="lbl">Оператор</span><span class="val">ИП Горбулёв А. Ю.</span></div>
+      
+    </div>
+  </header>
+
+  <div class="doc">
+    <aside class="toc" id="toc">
+      <h6>Оглавление</h6>
+      <a href="#s1" class="active">1. Общие положения</a>
+      <a href="#s2">2. Оператор персональных данных</a>
+      <a href="#s3">3. Перечень персональных данных</a>
+      <a href="#s4">4. Цели обработки</a>
+      <a href="#s5">5. Перечень действий</a>
+      <a href="#s6">6. Сроки обработки и хранения</a>
+      <a href="#s7">7. Передача третьим лицам</a>
+      <a href="#s8">8. Cookie и автоматизированная обработка</a>
+      <a href="#s9">9. Право на отзыв</a>
+      <a href="#s10">10. Заключительные положения</a>
+      <a href="#s11">11. Реквизиты Оператора</a>
+    </aside>
+
+    <main class="content">
+      <section id="s1">
+        <h2><span class="num">1.</span> Общие положения</h2>
+        <p>Настоящее Согласие на обработку персональных данных (далее — «<strong>Согласие</strong>») является документом, в соответствии с которым физическое лицо (далее — «<strong>Субъект персональных данных</strong>», «<strong>Пользователь</strong>») предоставляет Индивидуальному предпринимателю <strong>Горбулёву Андрею Юрьевичу</strong> (далее — «<strong>Оператор</strong>») согласие на обработку его персональных данных в соответствии с Федеральным законом от 27.07.2006 г. № 152-ФЗ «О персональных данных».</p>
+<p>Согласие даётся свободно, своей волей и в своём интересе путём проставления отметки в чек-боксе «Согласен с обработкой персональных данных» при оформлении заказа или отправке формы обратной связи на сайте <a href="https://sobrano.store" target="_blank" rel="noopener">sobrano.store</a>, а также путём направления данных любым иным способом, указанным на Сайте.</p>
+<p>Действующая редакция Согласия размещена по адресу <a href="https://sobrano.store/consent.html" target="_blank" rel="noopener">sobrano.store/consent.html</a>.</p>
+<div class="callout"><strong>Кратко:</strong> заполняя формы и оформляя заказ, вы даёте Оператору согласие на использование ваших данных для исполнения заказа и связи с вами. Согласие можно в любой момент отозвать.</div>
+      </section>
+
+      <section id="s2">
+        <h2><span class="num">2.</span> Оператор персональных данных</h2>
+        <p>Оператором персональных данных является Индивидуальный предприниматель <strong>Горбулёв Андрей Юрьевич</strong> (ИНН 781700477351, ОГРНИП 321784700154873, адрес: г. Санкт-Петербург).</p>
+<p>Контактные данные для запросов по вопросам обработки персональных данных:</p>
+<ul>
+<li>Email: <a href="mailto:hello@sobrano.store">hello@sobrano.store</a></li>
+<li>Телефон: +7 800 000-00-00</li>
+</ul>
+      </section>
+
+      <section id="s3">
+        <h2><span class="num">3.</span> Перечень обрабатываемых персональных данных</h2>
+        <p>Согласие даётся в отношении следующих персональных данных Пользователя:</p>
+<ul>
+<li>фамилия, имя, отчество;</li>
+<li>контактный номер телефона;</li>
+<li>адрес электронной почты;</li>
+<li>адрес доставки заказа;</li>
+<li>идентификатор в мессенджерах (Telegram, WhatsApp), если указан;</li>
+<li>текст комментария к заказу или открытке;</li>
+<li>сведения о составе, сумме и параметрах заказа;</li>
+<li>технические данные: IP-адрес, тип устройства, тип браузера, идентификаторы cookie, источник перехода, действия на Сайте.</li>
+</ul>
+<p>Оператор не запрашивает и не обрабатывает специальные категории персональных данных и биометрические персональные данные.</p>
+      </section>
+
+      <section id="s4">
+        <h2><span class="num">4.</span> Цели обработки персональных данных</h2>
+        <p>Согласие даётся на обработку персональных данных в следующих целях:</p>
+<ul>
+<li>заключение и исполнение договора розничной купли-продажи цветочной продукции и сопутствующих товаров;</li>
+<li>оформление заказа, его сборка, доставка и взаиморасчёты с Пользователем;</li>
+<li>связь с Пользователем по вопросам заказа: подтверждение, уточнение, согласование адреса и времени;</li>
+<li>предоставление чека и иных документов, предусмотренных законодательством РФ;</li>
+<li>рассмотрение претензий и обращений;</li>
+<li>информирование о новых продуктах, акциях и специальных предложениях (только при отдельном явном согласии);</li>
+<li>улучшение работы Сайта и анализ обезличенной статистики посещений;</li>
+<li>исполнение иных требований законодательства РФ.</li>
+</ul>
+      </section>
+
+      <section id="s5">
+        <h2><span class="num">5.</span> Перечень действий с персональными данными</h2>
+        <p>Согласие даётся на совершение Оператором следующих действий с персональными данными Пользователя:</p>
+<ul>
+<li>сбор, запись, систематизация, накопление, хранение;</li>
+<li>уточнение (обновление, изменение), извлечение, использование;</li>
+<li>передача (предоставление, доступ) — в случаях, прямо предусмотренных в разделе 7 настоящего Согласия;</li>
+<li>обезличивание, блокирование, удаление, уничтожение.</li>
+</ul>
+<p>Обработка персональных данных осуществляется как с использованием средств автоматизации, так и без их использования (смешанный способ).</p>
+      </section>
+
+      <section id="s6">
+        <h2><span class="num">6.</span> Сроки обработки и хранения</h2>
+        <p>Согласие действует с момента его предоставления Пользователем и до момента его отзыва либо до достижения целей обработки.</p>
+<p>Сроки хранения персональных данных:</p>
+<ul>
+<li>в течение срока действия договора с Пользователем и в течение 3 (трёх) лет после его прекращения — для целей претензионной работы и налогового учёта;</li>
+<li>до отзыва Пользователем согласия — в иных случаях.</li>
+</ul>
+<p>По истечении срока хранения или при отзыве согласия персональные данные подлежат уничтожению, если иное не предусмотрено законодательством РФ.</p>
+      </section>
+
+      <section id="s7">
+        <h2><span class="num">7.</span> Передача персональных данных третьим лицам</h2>
+        <p>Оператор вправе передавать персональные данные Пользователя следующим третьим лицам исключительно для целей исполнения заказа:</p>
+<ul>
+<li><strong>ООО «Робокасса»</strong> — для проведения онлайн-платежей и формирования фискального чека;</li>
+<li><strong>ООО «Яндекс.Такси»</strong> или собственная курьерская служба — для организации доставки заказа Получателю;</li>
+<li>сервисы рассылки уведомлений — для отправки информации о статусе заказа на email, в Telegram и WhatsApp;</li>
+<li>государственные органы — в случаях, предусмотренных законодательством РФ.</li>
+</ul>
+<p>Оператор не передаёт персональные данные Пользователя третьим лицам в маркетинговых, рекламных или иных коммерческих целях без отдельного явного согласия Пользователя.</p>
+<p>Трансграничная передача персональных данных Оператором не осуществляется.</p>
+      </section>
+
+      <section id="s8">
+        <h2><span class="num">8.</span> Cookie-файлы и автоматизированная обработка</h2>
+        <p>Пользователь даёт согласие на использование Оператором файлов cookie и аналогичных технологий для:</p>
+<ul>
+<li>обеспечения корректной работы Сайта (сохранение состояния корзины, авторизации);</li>
+<li>сохранения предпочтений Пользователя (выбранный размер бокса, состав);</li>
+<li>сбора обезличенной статистики посещений с использованием сервиса Яндекс Метрика.</li>
+</ul>
+<p>Пользователь может в любой момент отключить использование cookie в настройках своего браузера. При отключении cookie ряд функций Сайта может работать некорректно.</p>
+      </section>
+
+      <section id="s9">
+        <h2><span class="num">9.</span> Право на отзыв согласия</h2>
+        <p>Пользователь вправе в любой момент отозвать настоящее Согласие путём направления соответствующего письменного уведомления Оператору по адресу электронной почты <a href="mailto:hello@sobrano.store">hello@sobrano.store</a> с указанием своих ФИО и контактных данных, по которым было дано согласие.</p>
+<p>Отзыв согласия рассматривается Оператором в течение 30 (тридцати) календарных дней с момента получения уведомления.</p>
+<p>Оператор вправе продолжить обработку персональных данных без согласия Пользователя в случаях, предусмотренных Федеральным законом № 152-ФЗ (исполнение договора, требования законодательства, защита прав и законных интересов Оператора).</p>
+<div class="callout"><strong>Важно:</strong> отзыв согласия может повлечь невозможность исполнения заказа, по которому такое согласие было получено.</div>
+      </section>
+
+      <section id="s10">
+        <h2><span class="num">10.</span> Заключительные положения</h2>
+        <p>Принимая настоящее Согласие, Пользователь подтверждает, что:</p>
+<ul>
+<li>ознакомлен с <a href="privacy-policy.html">Политикой конфиденциальности</a> Оператора;</li>
+<li>осведомлён о целях, способах, сроках и порядке обработки своих персональных данных;</li>
+<li>осведомлён о праве отозвать настоящее Согласие в любой момент;</li>
+<li>осведомлён об обязанности Оператора прекратить обработку персональных данных при отзыве согласия;</li>
+<li>предоставленные персональные данные являются достоверными.</li>
+</ul>
+<p>Все неурегулированные настоящим Согласием вопросы регулируются законодательством Российской Федерации.</p>
+
+      </section>
+
+      <section id="s11">
+        <h2><span class="num">11.</span> Реквизиты Оператора</h2>
+        <p>Все запросы и уведомления, связанные с обработкой персональных данных, направляются по реквизитам, указанным ниже.</p>
+<div class="req-card">
+  <h3>ИП Горбулёв Андрей Юрьевич</h3>
+  <div class="grid">
+    <div class="row"><span class="lbl">ИНН</span><span class="val">781700477351</span></div>
+    <div class="row"><span class="lbl">ОГРНИП</span><span class="val">321784700154873</span></div>
+    <div class="row"><span class="lbl">Адрес</span><span class="val">г. Санкт-Петербург</span></div>
+    <div class="row"><span class="lbl">Должность</span><span class="val">Директор</span></div>
+    <div class="row"><span class="lbl">Расчётный счёт</span><span class="val">40802810355000126858</span></div>
+    <div class="row"><span class="lbl">Корр. счёт</span><span class="val">30101810500000000653</span></div>
+    <div class="row"><span class="lbl">БИК</span><span class="val">044030653</span></div>
+    <div class="row"><span class="lbl">Банк</span><span class="val">Северо-Западный банк ПАО Сбербанк</span></div>
+    <div class="row full"><span class="lbl">Email</span><span class="val">hello@sobrano.store</span></div>
+    <div class="row full"><span class="lbl">Телефон</span><span class="val">+7 800 000-00-00</span></div>
+  </div>
+</div>
+<p style="margin-top:24px">Уполномоченный орган по защите прав субъектов персональных данных — <strong>Роскомнадзор</strong>: <a href="https://rkn.gov.ru" target="_blank" rel="noopener">rkn.gov.ru</a>.</p>
+      </section>
+        <article class="cms-md-doc" data-cms-markdown="consent" style="font-size:15px;line-height:1.65;color:var(--ink-soft);max-width:680px;margin:32px auto 0;font-family:var(--sans)"></article>
+    </main>
+  </div>
+</div>
+
+<a href="#" class="to-top" id="toTop"><span aria-hidden="true">↑</span><span>К оглавлению</span></a>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span> · ОГРНИП <span data-cms-text="requisites.ogrnip">321784700154873</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const sections = document.querySelectorAll('.content section');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        tocLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -50% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+  const toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 600) toTop.classList.add('visible');
+    else toTop.classList.remove('visible');
+  });
+  toTop.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('toc')?.scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+[
+  {
+    "sku": "box-s",
+    "name": "Бокс S",
+    "price": "1990.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "box-m",
+    "name": "Бокс M",
+    "price": "2990.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "box-l",
+    "name": "Бокс L",
+    "price": "4490.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "box-xl",
+    "name": "Бокс XL",
+    "price": "5990.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "pick-morning-light",
+    "name": "Подборка Утренний свет",
+    "price": "3490.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "pick-gift-day",
+    "name": "Подборка День, который запомнят",
+    "price": "5290.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "pick-velvet-evening",
+    "name": "Подборка Бархатный вечер",
+    "price": "6590.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "addon-vase",
+    "name": "Классическая ваза",
+    "price": "690.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "addon-greenery",
+    "name": "Декоративная зелень",
+    "price": "290.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  },
+  {
+    "sku": "addon-flower-food",
+    "name": "Подкормка для цветов",
+    "price": "90.00",
+    "tax": "none",
+    "payment_method": "full_prepayment",
+    "payment_object": "commodity"
+  }
+]

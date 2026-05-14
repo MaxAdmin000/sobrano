@@ -1,0 +1,14 @@
+{
+  "name": "robokassa-tilda-cart-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Secure backend for a custom Tilda cart with Robokassa payments.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  }
+}

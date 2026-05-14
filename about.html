@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>О бренде — СОБРАНО</title>
+<meta name="description" content="Зачем мы делаем фиксированную цену на цветочные боксы. История, ценности, команда, склад." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+/* HERO */
+.hero{padding:48px 0 96px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(28px,5vw,96px);align-items:center}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(72px,11vw,184px);line-height:.85;letter-spacing:-.04em;margin:24px 0 28px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero h1 .out{-webkit-text-stroke:1.5px var(--wine);color:transparent;font-style:italic;font-weight:400}
+.hero p{color:var(--ink-soft);font-size:17px;max-width:50ch;line-height:1.65}
+.hero-vis{
+  position:relative;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:4/5;background:#222
+}
+.hero-vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-vis::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(26,20,16,.45) 100%)}
+.hero-vis .badge{position:absolute;left:20px;bottom:20px;color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;z-index:2;display:flex;align-items:center;gap:10px}
+.hero-vis .badge::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--terracotta)}
+
+/* PRINCIPLE / why */
+.why{padding:80px 0;border-bottom:1px solid var(--line)}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,96px);align-items:start}
+.why-l{position:sticky;top:96px}
+.why h2{font-family:var(--serif);font-weight:300;font-size:clamp(40px,6vw,80px);line-height:.95;letter-spacing:-.025em;margin:18px 0 28px}
+.why h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.why .lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.65}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:36px}
+.cmp{
+  background:var(--ivory-2);border-radius:var(--r-md);padding:22px;
+  border-left:3px solid var(--mute)
+}
+.cmp.us{background:var(--ink);color:var(--ivory);border-left-color:var(--terracotta)}
+.cmp h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+.cmp.us h6{color:rgba(242,236,227,.55)}
+.cmp ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px}
+.cmp li{font-size:14px;line-height:1.5;padding-left:22px;position:relative;color:var(--ink-soft)}
+.cmp.us li{color:rgba(242,236,227,.85)}
+.cmp li::before{
+  content:"×";position:absolute;left:0;top:0;color:var(--mute);font-family:var(--serif);font-size:18px
+}
+.cmp.us li::before{content:"✓";color:var(--terracotta)}
+
+.principles{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+.principle{display:grid;grid-template-columns:60px 1fr auto;gap:22px;padding:28px 0;border-bottom:1px solid var(--line);align-items:start;transition:padding .2s}
+.principle:hover{padding-left:14px}
+.principle .num{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--terracotta);font-weight:500}
+.principle h3{font-family:var(--serif);font-weight:400;font-size:clamp(22px,2.4vw,28px);letter-spacing:-.01em;margin-bottom:8px;line-height:1.2}
+.principle p{font-size:14px;color:var(--ink-soft);max-width:46ch;line-height:1.55}
+.principle .ic{
+  width:48px;height:48px;border-radius:50%;background:var(--ivory-2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:20px;font-style:italic;color:var(--wine);flex:none
+}
+
+/* TIMELINE */
+.timeline{padding:80px 0;border-bottom:1px solid var(--line)}
+.timeline-head{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:48px}
+.timeline-head h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-top:14px}
+.timeline-head h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.timeline-head p{color:var(--ink-soft);max-width:42ch;font-size:15px}
+
+.tl-track{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tl-mark{padding:32px 24px 32px 0;border-right:1px solid var(--line);position:relative}
+.tl-mark:last-child{border-right:0}
+.tl-mark .y{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terracotta);font-weight:500}
+.tl-mark h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;margin:14px 0 10px;line-height:1.15}
+.tl-mark p{font-size:14px;color:var(--ink-soft);line-height:1.55;max-width:26ch}
+.tl-mark .stat{display:block;font-family:var(--serif);font-size:36px;font-weight:300;letter-spacing:-.02em;margin-top:14px;color:var(--wine);font-style:italic}
+
+/* TEAM */
+.team{padding:80px 0;border-bottom:1px solid var(--line)}
+.team-head{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:36px}
+.team-head h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-top:14px}
+.team-head h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.team-head p{color:var(--ink-soft);max-width:42ch;font-size:15px}
+
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.member{background:var(--ivory-2);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;transition:transform .25s}
+.member:hover{transform:translateY(-3px)}
+.member .img{position:relative;aspect-ratio:1/1;background:#222;display:flex;align-items:center;justify-content:center}
+.member .img.placeholder{background:radial-gradient(circle at 50% 50%,var(--ivory-2),var(--mute));font-family:var(--serif);font-size:64px;color:var(--ink);font-weight:300}
+.member .img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.member .body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:6px}
+.member h4{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em;line-height:1.1}
+.member .role{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terracotta)}
+.member p{font-size:13px;color:var(--ink-soft);line-height:1.55;margin-top:6px}
+
+/* WAREHOUSE */
+.warehouse{padding:80px 0;border-bottom:1px solid var(--line)}
+.wh-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,72px);align-items:center}
+.wh-grid h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1.05;letter-spacing:-.02em;margin-top:14px}
+.wh-grid h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.wh-grid p{color:var(--ink-soft);font-size:16px;margin-top:18px;max-width:46ch;line-height:1.65}
+.wh-stats{margin-top:36px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.wh-stat{padding:18px 22px;border-right:1px solid var(--line)}
+.wh-stat:last-child{border-right:0}
+.wh-stat .num{font-family:var(--serif);font-size:clamp(28px,3.4vw,42px);line-height:1;font-weight:400;letter-spacing:-.02em;display:block;margin-bottom:6px}
+.wh-stat .num em{font-style:italic;color:var(--wine)}
+.wh-stat .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+.wh-vis{
+  position:relative;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:4/5;background:#222
+}
+.wh-vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wh-vis::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.4) 100%)}
+.wh-vis .label{
+  position:absolute;left:20px;bottom:20px;color:var(--ivory);z-index:2;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase
+}
+
+/* CTA */
+.cta{padding:80px 0;background:var(--wine-deep);color:var(--ivory);position:relative;overflow:hidden;border-radius:var(--r-lg);margin:60px 0}
+.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(201,123,92,.35),transparent 50%);pointer-events:none}
+.cta-inner{display:grid;grid-template-columns:1.4fr auto;gap:32px;align-items:center;position:relative}
+.cta h2{font-family:var(--serif);font-weight:300;font-size:clamp(40px,6vw,84px);line-height:1.05;letter-spacing:-.025em;color:var(--ivory)}
+.cta h2 em{font-style:italic;color:var(--terracotta);font-weight:400}
+.cta p{margin-top:14px;color:rgba(242,236,227,.78);font-size:15px;max-width:46ch}
+.cta .btn-xl{display:inline-flex;align-items:center;gap:14px;background:var(--ivory);color:var(--ink);padding:22px 30px;border-radius:999px;font-size:15px;font-weight:500;transition:all .25s}
+.cta .btn-xl:hover{background:var(--terracotta);color:var(--ivory);transform:translateY(-2px)}
+.cta .btn-xl .arrow{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .why-grid{grid-template-columns:1fr}
+  .why-l{position:static}
+  .compare{grid-template-columns:1fr}
+  .tl-track{grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+  .tl-mark{border-bottom:1px solid var(--line)}
+  .tl-mark:nth-child(2n){border-right:0}
+  .team-grid{grid-template-columns:1fr 1fr}
+  .wh-grid{grid-template-columns:1fr}
+  .cta-inner{grid-template-columns:1fr}
+  .timeline-head,.team-head{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .principle{grid-template-columns:48px 1fr;gap:14px}
+  .principle .ic{width:32px;height:32px;font-size:16px}
+  .team-grid{grid-template-columns:1fr 1fr}
+  .wh-stats{grid-template-columns:1fr;border-bottom:0}
+  .wh-stat{border-right:0;border-bottom:1px solid var(--line)}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>О бренде СОБРАНО</span><span>с 2024 года</span><span>Цветочная коробочка с фиксированной ценой</span><span>Санкт-Петербург</span>
+  <span>О бренде СОБРАНО</span><span>с 2024 года</span><span>Цветочная коробочка с фиксированной ценой</span><span>Санкт-Петербург</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span class="here">О бренде</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" data-cms-text="content.about.hero.eyebrow">О бренде · СОБРАНО · с 2024</span>
+        <h1 data-cms-html="content.about.hero.titleHtml">Честный<br><span class="out">флористический</span><br>сервис.</h1>
+        <p data-cms-text="content.about.hero.sub">Мы появились, потому что устали от непрозрачных цен на цветы.</p>
+      </div>
+      <div class="hero-vis">
+        <img src="https://images.unsplash.com/photo-1487530811176-3780de880c2d?auto=format&fit=crop&w=1100&q=80" alt="Букет">
+        <span class="badge">Студия СОБРАНО · Санкт-Петербург</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why">
+  <div class="container">
+    <div class="why-grid">
+      <div class="why-l">
+        <span class="eyebrow">№ 01 — Зачем мы это делаем</span>
+        <h2>Цена — <em>фиксирована</em>. Точка.</h2>
+        <p class="lead">В цветочном бизнесе принято накручивать цену на «сорт». Один и тот же бутон в одном букете стоит 200 ₽, а в «премиальной авторской композиции» — 700 ₽. Мы перестали так делать.</p>
+
+        <div class="compare">
+          <div class="cmp">
+            <h6>Классические магазины</h6>
+            <ul>
+              <li>Цена зависит от «премиальности» сорта</li>
+              <li>«Авторская сборка» — наценка 30–50%</li>
+              <li>Дорогая упаковка в стоимости</li>
+              <li>Витрина в торговом центре — в стоимости</li>
+              <li>На кассе сумма всегда больше ожидаемой</li>
+            </ul>
+          </div>
+          <div class="cmp us">
+            <h6>СОБРАНО</h6>
+            <ul>
+              <li>Цена зависит только от размера бокса</li>
+              <li>Любой цветок внутри — одна цена</li>
+              <li>Упаковка минималистичная, без переплат</li>
+              <li>Только онлайн — нет аренды торгового зала</li>
+              <li>Сумма в корзине = сумма в чеке</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="principles">
+        <div class="principle">
+          <span class="num">/01</span>
+          <span class="ic">⊹</span>
+          <div>
+            <h3>Прозрачность</h3>
+            <p>Никаких скрытых сборов и «премиальных» накруток. Цена в каталоге = цена в чеке. Бокс L всегда 25 стеблей, какие бы вы ни выбрали.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <span class="num">/02</span>
+          <span class="ic">∞</span>
+          <div>
+            <h3>Свобода выбора</h3>
+            <p>Хотите бокс из одних пионов? Или микс из 8 видов? Решаете вы. Мы только подсказываем, если попросите. Готовые подборки тоже есть — но это альтернатива, а не правило.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <span class="num">/03</span>
+          <span class="ic">●</span>
+          <div>
+            <h3>Свежесть</h3>
+            <p>Завоз каждые 2 дня. Цветы напрямую от проверенных поставщиков, без перекупов. Каждый стебель проходит ручной отбор перед сборкой.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <span class="num">/04</span>
+          <span class="ic">→</span>
+          <div>
+            <h3>Скорость</h3>
+            <p>Сборка — 60–90 минут. Доставка от 60 минут с Яндекс Go или в выбранный слот со своим курьером. Перед отправкой — фото на согласование.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <span class="num">/05</span>
+          <span class="ic">©</span>
+          <div>
+            <h3>Гарантия</h3>
+            <p>Если букет не понравился — пересоберём бесплатно или вернём деньги. Цветы — товар нежный, поэтому всё проверяем дважды и оставляем за собой ответственность за результат.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline">
+  <div class="container">
+    <div class="timeline-head">
+      <div>
+        <span class="eyebrow">№ 02 — История</span>
+        <h2>Как мы <em>дошли</em> до этого.</h2>
+      </div>
+      <p>От идеи в чате с подругой — до студии в Петербурге, которая ежедневно отправляет десятки боксов по городу.</p>
+    </div>
+
+    <div class="tl-track">
+      <div class="tl-mark">
+        <span class="y">Зима 2024</span>
+        <h4>Идея</h4>
+        <p>Друг купил букет в подарок и обнаружил, что заплатил +1000 ₽ за «премиальную упаковку». Подумали — должен быть способ проще.</p>
+      </div>
+      <div class="tl-mark">
+        <span class="y">Весна 2024</span>
+        <h4>Первые боксы</h4>
+        <p>Запустили продажу через инстаграм. Цена за размер — без надбавок за сорта. За месяц — 80 заказов от знакомых и подруг.</p>
+        <span class="stat">80</span>
+      </div>
+      <div class="tl-mark">
+        <span class="y">Осень 2024</span>
+        <h4>Своя студия</h4>
+        <p>Открыли студию-склад в Петербурге. Наняли первого штатного флориста, наладили доставку с Яндекс Go и своими курьерами.</p>
+      </div>
+      <div class="tl-mark">
+        <span class="y">2026</span>
+        <h4>Сегодня</h4>
+        <p>Полноценный сайт, 16 видов цветов в каталоге, гарантия пересборки, обслужили больше 4 тысяч клиентов.</p>
+        <span class="stat">4,2K</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team">
+  <div class="container">
+    <div class="team-head">
+      <div>
+        <span class="eyebrow">№ 03 — Команда</span>
+        <h2>Те, кто <em>собирает</em>.</h2>
+      </div>
+      <p>Маленькая команда из 6 человек. Каждый отвечает за свой кусок — от закупки и сборки до общения с клиентами.</p>
+    </div>
+
+    <div class="team-grid">
+      <article class="member">
+        <div class="img placeholder">К</div>
+        <div class="body">
+          <h4>Катя Иванова</h4>
+          <span class="role">Главный флорист</span>
+          <p>9 лет с цветами. Собирает все подборки, отвечает за стиль. Любит пионы и «Дэвид Остин».</p>
+        </div>
+      </article>
+      <article class="member">
+        <div class="img placeholder">А</div>
+        <div class="body">
+          <h4>Андрей Г.</h4>
+          <span class="role">Основатель</span>
+          <p>Идеолог фиксированной цены. Следит, чтобы концепция не размывалась — даже когда «выгодно» добавить наценок.</p>
+        </div>
+      </article>
+      <article class="member">
+        <div class="img placeholder">М</div>
+        <div class="body">
+          <h4>Маша П.</h4>
+          <span class="role">Менеджер сервиса</span>
+          <p>Отвечает в Telegram и WhatsApp. Если у вас вопрос — скорее всего, ответит именно она.</p>
+        </div>
+      </article>
+      <article class="member">
+        <div class="img placeholder">+3</div>
+        <div class="body">
+          <h4>Ещё трое</h4>
+          <span class="role">Флористы и курьеры</span>
+          <p>Сменная команда сборщиков и наши курьеры. С ними вы пересекаетесь, когда букет приезжает к двери.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- WAREHOUSE -->
+<section class="warehouse">
+  <div class="container">
+    <div class="wh-grid">
+      <div>
+        <span class="eyebrow">№ 04 — Студия и склад</span>
+        <h2>Один <em>склад-студия</em>. Без витрин.</h2>
+        <p>У нас нет физической точки продаж — мы работаем как онлайн-сервис. Это позволяет не платить за аренду торгового центра и не перекладывать эти расходы на покупателя. Сборка идёт прямо на складе, фото — оттуда же, оттуда же забирает курьер.</p>
+
+        <div class="wh-stats">
+          <div class="wh-stat"><span class="num">120<span style="font-family:var(--mono);font-size:.42em;color:var(--mute);font-weight:500;letter-spacing:.06em">&nbsp;м²</span></span><span class="lbl">Площадь склада</span></div>
+          <div class="wh-stat"><span class="num"><em>+8</em>°C</span><span class="lbl">Температура хранения</span></div>
+          <div class="wh-stat"><span class="num">300<span style="font-family:var(--mono);font-size:.42em;color:var(--mute);font-weight:500;letter-spacing:.06em">&nbsp;шт</span></span><span class="lbl">Стеблей в день</span></div>
+        </div>
+      </div>
+
+      <div class="wh-vis">
+        <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1100&q=80" alt="Студия">
+        <span class="label">Санкт-Петербург · 2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="container">
+  <section class="cta">
+    <div class="container cta-inner">
+      <div>
+        <span class="eyebrow" style="color:rgba(242,236,227,.7)">Согласны с подходом?</span>
+        <h2>Соберите <em>свой бокс</em>.</h2>
+        <p>Один клик — и вы в каталоге. Цена бокса фиксированная, состав — на ваше усмотрение. Никаких сюрпризов на кассе.</p>
+      </div>
+      <a href="index.html#boxes" class="btn-xl">Выбрать бокс <span class="arrow">→</span></a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

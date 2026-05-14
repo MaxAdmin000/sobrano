@@ -1,0 +1,22 @@
+# robots.txt для sobrano.store
+
+User-agent: *
+Allow: /
+
+# Закрыть от индексации служебные / технические разделы
+Disallow: /assets/
+Disallow: /components/
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /thank-you.html
+Disallow: /404.html
+Disallow: /index-dark.html
+
+# Поисковые движки могут индексировать всё остальное
+Sitemap: https://sobrano.store/sitemap.xml
+
+# Хост — основной домен (директива Yandex)
+Host: sobrano.store
+
+# Crawl-delay — рекомендация по интервалу обращений (секунды)
+Crawl-delay: 2

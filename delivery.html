@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Доставка и оплата — СОБРАНО</title>
+<meta name="description" content="Зоны доставки в Санкт-Петербурге, тарифы, временные интервалы и способы оплаты. Своя курьерская служба и Яндекс Go." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+/* HERO */
+.hero{padding:32px 0 64px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,80px);align-items:end}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,8vw,128px);line-height:.92;letter-spacing:-.03em;margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero .lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.6}
+.stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat{padding:18px 22px;flex:1;min-width:140px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat .num{font-family:var(--serif);font-size:clamp(28px,3.4vw,42px);line-height:1;font-weight:400;letter-spacing:-.02em;display:block;margin-bottom:6px}
+.stat .num em{font-style:italic;color:var(--wine)}
+.stat .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+/* TWO TYPES */
+.types{padding:60px 0;border-bottom:1px solid var(--line)}
+.section-h{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:36px}
+.section-h h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-top:14px}
+.section-h h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.section-h p{color:var(--ink-soft);max-width:42ch;font-size:15px}
+
+.types-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.type{
+  border-radius:var(--r-lg);padding:36px clamp(24px,3vw,40px);
+  display:flex;flex-direction:column;gap:18px;
+  position:relative;overflow:hidden
+}
+.type.own{background:var(--ink);color:var(--ivory)}
+.type.gо{background:var(--ivory-2)}
+.type::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 0%, rgba(201,123,92,.18), transparent 50%);
+  pointer-events:none
+}
+.type .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;position:relative}
+.type.own .label{color:rgba(242,236,227,.7)}
+.type.gо .label{color:var(--ink-soft)}
+.type .label::before{content:"";width:10px;height:10px;border-radius:50%;flex:none}
+.type.own .label::before{background:var(--terracotta)}
+.type.gо .label::before{background:var(--ink)}
+.type h3{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3vw,40px);letter-spacing:-.015em;line-height:1.05;position:relative}
+.type.own h3{color:var(--ivory)}
+.type h3 em{font-style:italic;color:var(--terracotta);font-weight:500}
+.type p{font-size:15px;line-height:1.6;max-width:38ch;position:relative}
+.type.own p{color:rgba(242,236,227,.7)}
+.type.gо p{color:var(--ink-soft)}
+
+.type-feats{display:flex;flex-direction:column;gap:0;position:relative}
+.type-feat{display:grid;grid-template-columns:1fr auto;gap:14px;padding:14px 0;border-top:1px solid;align-items:baseline}
+.type.own .type-feat{border-top-color:rgba(242,236,227,.18)}
+.type.gо .type-feat{border-top-color:var(--line)}
+.type-feat .l{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.type-feat .r{font-family:var(--serif);font-size:18px;letter-spacing:-.01em}
+
+/* ZONES TABLE */
+.zones{padding:60px 0;border-bottom:1px solid var(--line)}
+.zone-table{margin-top:32px;border-top:1px solid var(--line)}
+.zr{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:24px;padding:22px 0;border-bottom:1px solid var(--line);align-items:center}
+.zr .ix{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terracotta);min-width:40px}
+.zr .name{font-family:var(--serif);font-size:20px;letter-spacing:-.005em;font-weight:400}
+.zr .name small{display:block;font-family:var(--sans);font-size:13px;color:var(--mute);font-weight:400;margin-top:4px;line-height:1.4}
+.zr .price{font-family:var(--mono);font-size:13px;letter-spacing:.06em;background:var(--ivory-2);padding:8px 14px;border-radius:999px;color:var(--ink)}
+.zr .time{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.zr .icon{
+  width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-style:italic;font-size:18px
+}
+
+/* TIME SLOTS */
+.slots{padding:60px 0;border-bottom:1px solid var(--line)}
+.slot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:32px}
+.slot{
+  background:var(--ivory-2);border-radius:var(--r-md);padding:22px 18px;
+  display:flex;flex-direction:column;gap:6px;text-align:left;
+  transition:all .25s;cursor:default
+}
+.slot:hover{background:var(--ink);color:var(--ivory);transform:translateY(-2px)}
+.slot .t{font-family:var(--serif);font-size:22px;letter-spacing:-.01em;font-weight:400}
+.slot .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.slot:hover .lbl{color:rgba(242,236,227,.6)}
+.slot.peak{background:var(--wine);color:var(--ivory)}
+.slot.peak .lbl{color:rgba(242,236,227,.7)}
+
+/* PAYMENT METHODS */
+.payment{padding:60px 0;border-bottom:1px solid var(--line)}
+.pay-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:32px}
+.pay-card{
+  background:var(--ivory-2);border-radius:var(--r-lg);padding:28px;
+  display:flex;flex-direction:column;gap:14px;
+  transition:all .2s;cursor:default
+}
+.pay-card:hover{transform:translateY(-3px)}
+.pay-card .ic{
+  width:50px;height:50px;border-radius:12px;background:var(--ink);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;font-weight:600
+}
+.pay-card.dark{background:var(--ink);color:var(--ivory)}
+.pay-card.dark .ic{background:var(--terracotta);color:var(--ink)}
+.pay-card h4{font-family:var(--serif);font-weight:400;font-size:20px;letter-spacing:-.01em;line-height:1.1}
+.pay-card p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+.pay-card.dark p{color:rgba(242,236,227,.65)}
+
+/* RULES (FAQ-LITE) */
+.rules{padding:60px 0;border-bottom:1px solid var(--line)}
+.rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:32px}
+.rule{
+  display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:flex-start;
+  padding:24px 28px;background:var(--ivory-2);border-radius:var(--r-md);
+  transition:background .2s
+}
+.rule:hover{background:var(--ink);color:var(--ivory)}
+.rule .ic{
+  width:38px;height:38px;border-radius:50%;background:var(--terracotta);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:18px;flex:none
+}
+.rule h5{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.01em;margin-bottom:6px;line-height:1.2}
+.rule p{font-size:14px;color:var(--ink-soft);line-height:1.55}
+.rule:hover p{color:rgba(242,236,227,.7)}
+
+/* FINAL CTA */
+.cta{padding:80px 0;background:var(--wine);color:var(--ivory);position:relative;overflow:hidden;border-radius:var(--r-lg);margin:60px 0}
+.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(201,123,92,.4),transparent 50%);pointer-events:none}
+.cta-inner{display:grid;grid-template-columns:1.4fr auto;gap:32px;align-items:center;position:relative}
+.cta h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,68px);line-height:1.05;letter-spacing:-.02em;color:var(--ivory)}
+.cta h2 em{font-style:italic;color:var(--terracotta);font-weight:400}
+.cta p{margin-top:14px;color:rgba(242,236,227,.78);font-size:15px;max-width:46ch}
+.cta .btn-xl{display:inline-flex;align-items:center;gap:14px;background:var(--ivory);color:var(--ink);padding:20px 28px;border-radius:999px;font-size:15px;font-weight:500;transition:all .25s}
+.cta .btn-xl:hover{background:var(--terracotta);color:var(--ivory);transform:translateY(-2px)}
+.cta .btn-xl .arrow{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center;transition:transform .25s}
+.cta .btn-xl:hover .arrow{background:var(--ivory);color:var(--ink);transform:rotate(-45deg)}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .types-grid{grid-template-columns:1fr}
+  .zr{grid-template-columns:auto 1fr;gap:14px}
+  .zr .icon,.zr .price,.zr .time{grid-column:2}
+  .slot-grid{grid-template-columns:repeat(3,1fr)}
+  .pay-grid{grid-template-columns:1fr 1fr}
+  .rule-grid{grid-template-columns:1fr}
+  .cta-inner{grid-template-columns:1fr}
+  .section-h{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .slot-grid{grid-template-columns:1fr 1fr}
+  .pay-grid{grid-template-columns:1fr}
+  .stats{flex-direction:column}
+  .stat{border-right:0;border-bottom:1px solid var(--line);width:100%}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Доставка по Петербургу</span><span>От 500 ₽</span><span>Сборка 60–90 минут</span><span>Доставка от 60 минут · Яндекс Go</span>
+  <span>Доставка по Петербургу</span><span>От 500 ₽</span><span>Сборка 60–90 минут</span><span>Доставка от 60 минут · Яндекс Go</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span style="color:var(--mute)">Помощь</span><span class="sep">/</span>
+    <span class="here">Доставка и оплата</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" data-cms-text="content.delivery.hero.eyebrow">Доставка · оплата · сроки</span>
+        <h1 data-cms-html="content.delivery.hero.titleHtml">До двери — <em>в день заказа</em>.</h1>
+        <p class="lead" data-cms-text="content.delivery.hero.lead">Доставляем по Санкт-Петербургу в пределах КАД. Своя курьерская служба и Яндекс Go — выбираете сами при оформлении. Сборка занимает 60–90 минут с момента оплаты, дальше — в дорогу.</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="num">500&nbsp;₽</span><span class="lbl">Минимальная стоимость</span></div>
+        <div class="stat"><span class="num">60&nbsp;<em>мин</em></span><span class="lbl">Доставка от</span></div>
+        <div class="stat"><span class="num">22:00</span><span class="lbl">Последний слот</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- TYPES -->
+<section class="types">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 01 — Способы доставки</span>
+        <h2>Два варианта: <em>свой</em> курьер или <em>Яндекс</em>.</h2>
+      </div>
+      <p>Свой курьер — для запланированной доставки в выбранный временной интервал. Яндекс Go — если нужно срочно, в течение часа.</p>
+    </div>
+
+    <div class="types-grid">
+      <div class="type own">
+        <span class="label">Вариант 01</span>
+        <h3>Своя курьерская <em>служба</em></h3>
+        <p>Наш курьер с термосумкой и аккуратной упаковкой. Заранее предупреждает о приезде. Подходит, когда заказ нужен на конкретное время.</p>
+        <div class="type-feats">
+          <div class="type-feat"><span class="l">Стоимость</span><span class="r">от 500 ₽</span></div>
+          <div class="type-feat"><span class="l">Время доставки</span><span class="r">в выбранный интервал</span></div>
+          <div class="type-feat"><span class="l">Зона</span><span class="r">в пределах КАД</span></div>
+          <div class="type-feat"><span class="l">Минимальный заказ</span><span class="r">не ограничен</span></div>
+        </div>
+      </div>
+
+      <div class="type gо">
+        <span class="label">Вариант 02</span>
+        <h3>Экспресс через <em>Яндекс Go</em></h3>
+        <p>Подключаем сервис Яндекс Go — курьер забирает букет от нас и едет напрямую к получателю. Хорошо, когда букет нужен прямо сейчас.</p>
+        <div class="type-feats">
+          <div class="type-feat"><span class="l">Стоимость</span><span class="r">по тарифу Яндекс</span></div>
+          <div class="type-feat"><span class="l">Время доставки</span><span class="r">от 60 минут</span></div>
+          <div class="type-feat"><span class="l">Зона</span><span class="r">по карте Яндекс Go</span></div>
+          <div class="type-feat"><span class="l">Минимальный заказ</span><span class="r">не ограничен</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ZONES -->
+<section class="zones">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 02 — Зоны и тарифы</span>
+        <h2>Тариф зависит <em>от района</em>.</h2>
+      </div>
+      <p>Шесть зон в Петербурге. Чем дальше от центра — тем больше времени на доставку. Точная стоимость рассчитывается автоматически в корзине, как только вы укажете адрес.</p>
+    </div>
+
+    <div class="zone-table">
+      <div class="zr">
+        <span class="ix">/01</span>
+        <div class="name">Центральный район<small>Адмиралтейский, Петроградский, Василеостровский</small></div>
+        <span class="time">от 60 мин</span>
+        <span class="price">500 ₽</span>
+        <span class="icon">→</span>
+      </div>
+      <div class="zr">
+        <span class="ix">/02</span>
+        <div class="name">Ближняя зона<small>Калининский, Невский, Московский, Кировский</small></div>
+        <span class="time">от 90 мин</span>
+        <span class="price">650 ₽</span>
+        <span class="icon">→</span>
+      </div>
+      <div class="zr">
+        <span class="ix">/03</span>
+        <div class="name">Средняя зона<small>Фрунзенский, Красногвардейский, Приморский</small></div>
+        <span class="time">от 120 мин</span>
+        <span class="price">800 ₽</span>
+        <span class="icon">→</span>
+      </div>
+      <div class="zr">
+        <span class="ix">/04</span>
+        <div class="name">Дальняя зона<small>Выборгский, Курортный, Колпинский, Красносельский</small></div>
+        <span class="time">от 150 мин</span>
+        <span class="price">1 100 ₽</span>
+        <span class="icon">→</span>
+      </div>
+      <div class="zr">
+        <span class="ix">/05</span>
+        <div class="name">За КАД<small>Только по согласованию</small></div>
+        <span class="time">по запросу</span>
+        <span class="price">от 1 500 ₽</span>
+        <span class="icon">→</span>
+      </div>
+      <div class="zr">
+        <span class="ix">/06</span>
+        <div class="name">Яндекс Go<small>Любой адрес в зоне сервиса</small></div>
+        <span class="time">от 60 мин</span>
+        <span class="price">по тарифу</span>
+        <span class="icon">⌗</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIME SLOTS -->
+<section class="slots">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 03 — Временные интервалы</span>
+        <h2>Когда привезти <em>букет</em>.</h2>
+      </div>
+      <p>Слоты по 2 часа. В пиковые часы (вечер, праздники) запись может быть плотнее — собираем по очереди. Точное время сообщит курьер за 30 минут до выезда.</p>
+    </div>
+
+    <div class="slot-grid">
+      <div class="slot"><span class="t">10:00 — 12:00</span><span class="lbl">Утренний слот</span></div>
+      <div class="slot"><span class="t">12:00 — 14:00</span><span class="lbl">Дневной слот</span></div>
+      <div class="slot"><span class="t">14:00 — 16:00</span><span class="lbl">Дневной слот</span></div>
+      <div class="slot"><span class="t">16:00 — 18:00</span><span class="lbl">Послеобеденный</span></div>
+      <div class="slot peak"><span class="t">18:00 — 20:00</span><span class="lbl">Пик · вечерний</span></div>
+      <div class="slot"><span class="t">20:00 — 22:00</span><span class="lbl">Поздний вечер</span></div>
+      <div class="slot"><span class="t">К конкретному часу</span><span class="lbl">+ 300 ₽ · точно по часу</span></div>
+      <div class="slot"><span class="t">Срочно · 60 мин</span><span class="lbl">Только Яндекс Go</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PAYMENT -->
+<section class="payment">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 04 — Способы оплаты</span>
+        <h2>Только <em>онлайн</em>.</h2>
+      </div>
+      <p>Оплата через защищённый шлюз Robokassa. Чек приходит на email сразу после оплаты. Наличными при получении — пока не работаем.</p>
+    </div>
+
+    <div class="pay-grid">
+      <div class="pay-card dark">
+        <span class="ic">CARD</span>
+        <h4>Банковская карта</h4>
+        <p>Visa, Mastercard, Mir любого банка. Защита 3-D Secure.</p>
+      </div>
+      <div class="pay-card">
+        <span class="ic">СБП</span>
+        <h4>Система быстрых платежей</h4>
+        <p>QR-код в приложении банка. Без комиссии.</p>
+      </div>
+      <div class="pay-card">
+        <span class="ic">A·G</span>
+        <h4>Apple Pay / Google Pay</h4>
+        <p>Касанием с устройства. Самый быстрый путь.</p>
+      </div>
+      <div class="pay-card">
+        <span class="ic">B2B</span>
+        <h4>Безнал по счёту</h4>
+        <p>Для юр. лиц и корпоративных заказов от 5 боксов. Запрос на <a href="mailto:hello@sobrano.store" style="color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px">hello@sobrano.store</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section class="rules">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 05 — Что важно знать</span>
+        <h2>Тонкости, которые <em>спасут заказ</em>.</h2>
+      </div>
+      <p>Шесть случаев, в которых что-то может пойти не так. Лучше проверить сейчас, чем потом разбираться — наши курьеры тоже люди.</p>
+    </div>
+
+    <div class="rule-grid">
+      <div class="rule">
+        <span class="ic">!</span>
+        <div>
+          <h5>Получателя нет дома</h5>
+          <p>Курьер позвонит и подождёт 15 минут. Если связи нет — букет вернётся к нам, повторная доставка по тарифу.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">⌗</span>
+        <div>
+          <h5>Адрес был указан неверно</h5>
+          <p>Если курьер уже выехал — повторная доставка платная. До выезда — меняем адрес бесплатно, напишите в Telegram.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">⏱</span>
+        <div>
+          <h5>Сюрприз — не предупреждать получателя</h5>
+          <p>Курьер не звонит заранее, только нажимает домофон. Укажите это в комментарии к заказу — и пометьте «сюрприз».</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">✿</span>
+        <div>
+          <h5>Бизнес-центр или офис</h5>
+          <p>Курьер не пройдёт через ресепшен с букетом без сопровождения. Договоритесь, что вы или коллега встретите внизу.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">8</span>
+        <div>
+          <h5>8 марта и 14 февраля</h5>
+          <p>В пиковые дни слоты заполняются быстро. Лучше оформить за 1–2 дня. Иначе ближайший свободный слот может быть только вечером.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">©</span>
+        <div>
+          <h5>Изменения после оплаты</h5>
+          <p>Состав и адрес можно поменять до начала сборки. Напишите в Telegram сразу после заказа — успеем поправить.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="container">
+  <section class="cta">
+    <div class="container cta-inner">
+      <div>
+        <span class="eyebrow" style="color:rgba(242,236,227,.7)">Готовы заказать?</span>
+        <h2>Соберите бокс <em>за 3 минуты</em>.</h2>
+        <p>Размер · цветы · адрес · оплата. Дальше нам, вы получите фото перед отправкой.</p>
+      </div>
+      <a href="index.html#boxes" class="btn-xl">Выбрать бокс <span class="arrow">→</span></a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

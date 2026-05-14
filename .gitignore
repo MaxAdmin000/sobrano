@@ -1,0 +1,21 @@
+# Чувствительные данные сервера — НИКОГДА не комитим
+backend/.env
+backend/data/store.json
+backend/data/store.json.bak-*
+backend/data/uploads/
+
+# Node modules (на сервере подтягиваются отдельно, в проекте нет внешних деп)
+node_modules/
+
+# Локальные служебные файлы
+.DS_Store
+.claude/
+.vscode/
+.idea/
+*.log
+*.swp
+.env
+.env.local
+
+# Sentry, etc.
+.env.production

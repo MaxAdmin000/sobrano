@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Каталог цветов — СОБРАНО</title>
+<meta name="description" content="Свежий завоз каждые 2 дня: пионы, розы, тюльпаны, эустома, гипсофила, сухоцветы и экзотика. Все позиции с указанием сезонности и наличия." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+.hero{padding:32px 0 48px}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,80px);align-items:end;border-bottom:1px solid var(--line);padding-bottom:48px}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,8vw,128px);line-height:.92;letter-spacing:-.03em;margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero .lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.6}
+.hero .meta{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.hero .meta .cell{padding:18px 20px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.hero .meta .cell:last-child{border-right:0}
+.hero .meta .num{font-family:var(--serif);font-size:clamp(28px,3.4vw,42px);line-height:1;font-weight:400;letter-spacing:-.02em}
+.hero .meta .num em{font-style:italic;color:var(--wine)}
+.hero .meta .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+/* FILTER BAR */
+.filter-bar{
+  position:sticky;top:72px;z-index:30;
+  background:rgba(242,236,227,.92);backdrop-filter:blur(14px);
+  padding:18px 0;margin:0 calc(-1 * var(--gut));
+  border-bottom:1px solid var(--line);
+}
+.filter-inner{padding:0 var(--gut);max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:1px solid var(--line-strong);padding:8px 14px;border-radius:999px;
+  font-size:13px;color:var(--ink-soft);transition:all .2s;cursor:pointer
+}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.chip.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.chip .count{font-family:var(--mono);font-size:10px;color:var(--mute);margin-left:6px;letter-spacing:.06em}
+.chip.active .count{color:rgba(242,236,227,.55)}
+.sort{
+  display:flex;align-items:center;gap:10px;font-family:var(--mono);
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)
+}
+.sort select{
+  background:var(--ivory);border:1px solid var(--line-strong);padding:8px 14px;border-radius:999px;
+  font-family:var(--sans);font-size:13px;color:var(--ink);outline:none
+}
+
+/* CATALOG GRID */
+.catalog{padding:48px 0 80px}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.flower{
+  background:var(--ivory-2);border-radius:var(--r-lg);overflow:hidden;
+  display:flex;flex-direction:column;transition:transform .25s
+}
+.flower:hover{transform:translateY(-3px)}
+.flower .img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#222}
+.flower .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.flower:hover .img img{transform:scale(1.07)}
+.flower .tags{position:absolute;left:14px;top:14px;display:flex;gap:6px;z-index:2}
+.flower .tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:var(--ivory);color:var(--ink);padding:5px 10px;border-radius:999px}
+.flower .tag.fresh{background:var(--sage);color:var(--ivory)}
+.flower .tag.exo{background:var(--wine);color:var(--ivory)}
+.flower .tag.sale{background:var(--terracotta);color:var(--ivory)}
+.flower .tag.out{background:var(--ink);color:rgba(242,236,227,.7)}
+.flower .body{padding:18px 20px 14px;display:flex;flex-direction:column;gap:6px}
+.flower .name{font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:-.01em;line-height:1.1}
+.flower .meta{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+.flower .desc{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-top:4px}
+.flower .colors{display:flex;gap:6px;margin-top:6px}
+.flower .colors span{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.08)}
+.flower .foot{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 18px;border-top:1px solid var(--line);margin-top:auto}
+.flower .price{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:-.01em;color:var(--ink-soft)}
+.flower .price em{font-style:italic;color:var(--wine);font-weight:500}
+.flower .add{
+  display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--ivory);
+  padding:8px 14px;border-radius:999px;font-size:12px;font-weight:500;
+  transition:background .2s
+}
+.flower .add:hover{background:var(--wine)}
+.flower.out-of-stock{opacity:.5}
+.flower.out-of-stock .add{pointer-events:none;background:var(--mute)}
+
+/* SEASONALITY HINT */
+.season-row{
+  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+  padding:18px 24px;background:var(--ivory-2);border-radius:var(--r-md);
+  margin:32px 0;font-size:14px;color:var(--ink-soft);line-height:1.55
+}
+.season-row .ic{
+  width:38px;height:38px;border-radius:50%;background:var(--terracotta);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;flex:none
+}
+.season-row strong{color:var(--ink)}
+
+/* CTA */
+.cta{padding:80px 0;background:var(--ink);color:var(--ivory);position:relative;overflow:hidden;border-radius:var(--r-lg);margin:60px 0}
+.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(201,123,92,.3),transparent 50%);pointer-events:none}
+.cta-inner{display:grid;grid-template-columns:1.4fr auto;gap:32px;align-items:center;position:relative}
+.cta h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,68px);line-height:1.05;letter-spacing:-.02em;color:var(--ivory)}
+.cta h2 em{font-style:italic;color:var(--terracotta);font-weight:400}
+.cta p{margin-top:14px;color:rgba(242,236,227,.78);font-size:15px;max-width:46ch}
+.cta .btn-xl{display:inline-flex;align-items:center;gap:14px;background:var(--ivory);color:var(--ink);padding:20px 28px;border-radius:999px;font-size:15px;font-weight:500;transition:all .25s}
+.cta .btn-xl:hover{background:var(--terracotta);color:var(--ivory)}
+.cta .btn-xl .arrow{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .cta-inner{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:780px){
+  .cat-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .flower .name{font-size:18px}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .filter-inner{flex-direction:column;align-items:stretch}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Каталог цветов</span><span>Свежий завоз каждые 2 дня</span><span>16 видов в каталоге · 12 в наличии</span><span>Только сезонные стебли</span>
+  <span>Каталог цветов</span><span>Свежий завоз каждые 2 дня</span><span>16 видов в каталоге · 12 в наличии</span><span>Только сезонные стебли</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span style="color:var(--mute)">Магазин</span><span class="sep">/</span>
+    <span class="here">Каталог цветов</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Каталог · витрина</span>
+        <h1>Каталог<br><em>цветов</em>.</h1>
+        <p class="lead">Свежий завоз каждые 2 дня — берём напрямую у проверенных поставщиков. В каталоге 16 видов: пионы, розы, тюльпаны, эустома, гипсофила, экзотика и сухоцветы. Цена указана за 1 стебель — но в боксе цветы бесплатные, цена бокса фиксированная.</p>
+      </div>
+      <div class="meta">
+        <div class="cell"><span class="num">16</span><span class="lbl">Всего в каталоге</span></div>
+        <div class="cell"><span class="num"><em>12</em></span><span class="lbl">В наличии сейчас</span></div>
+        <div class="cell"><span class="num">2&nbsp;дня</span><span class="lbl">Между завозами</span></div>
+        <div class="cell"><span class="num">5—7&nbsp;<span style="font-family:var(--mono);font-size:.5em;letter-spacing:.06em;color:var(--mute);font-weight:500">дней</span></span><span class="lbl">Стоят дома</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FILTER BAR -->
+<div class="container">
+  <div class="filter-bar">
+    <div class="filter-inner">
+      <div class="chips" id="chips">
+        <button class="chip active" data-filter="all">Все <span class="count">16</span></button>
+        <button class="chip" data-filter="rose">Розы <span class="count">3</span></button>
+        <button class="chip" data-filter="peony">Пионы <span class="count">2</span></button>
+        <button class="chip" data-filter="seasonal">Сезонные <span class="count">5</span></button>
+        <button class="chip" data-filter="exo">Экзотика <span class="count">2</span></button>
+        <button class="chip" data-filter="dry">Сухоцветы <span class="count">3</span></button>
+        <button class="chip" data-filter="green">Зелень <span class="count">1</span></button>
+      </div>
+      <div class="sort">
+        <span>Сортировка</span>
+        <select>
+          <option>По умолчанию</option>
+          <option>Сначала в наличии</option>
+          <option>По цене ↑</option>
+          <option>По цене ↓</option>
+          <option>По названию</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATALOG -->
+  <section class="catalog">
+    <div class="cat-grid" id="grid">
+
+      <article class="flower" data-cat="peony">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=700&q=80" alt="Пион «Сара Бернар»">
+        </div>
+        <div class="body">
+          <span class="name">Пион «Сара Бернар»</span>
+          <span class="meta">Душистый · 60 см · бутон 8 см</span>
+          <p class="desc">Классический розовый пион. Высокий, ароматный — букет сразу выглядит дорого.</p>
+          <div class="colors"><span style="background:#F4C9CB"></span><span style="background:#E89BA8"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>320 ₽</em></span>
+          <button class="add" data-flower-id="peony-sara" data-name="Пион «Сара Бернар»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="peony">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span><span class="tag sale">−15%</span></div>
+          <img src="https://images.unsplash.com/photo-1495231916356-a86217efff12?auto=format&fit=crop&w=700&q=80" alt="Пион белый">
+        </div>
+        <div class="body">
+          <span class="name">Пион «Дюшес»</span>
+          <span class="meta">Белый · 55 см · кустовой</span>
+          <p class="desc">Чисто-белый пион с лёгким лимонным оттенком в сердцевине. Универсальная база для микса.</p>
+          <div class="colors"><span style="background:#FFFFFF;border-color:#ccc"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>280 ₽</em></span>
+          <button class="add" data-flower-id="peony-duchess" data-name="Пион «Дюшес»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="rose">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?auto=format&fit=crop&w=700&q=80" alt="Кустовая роза">
+        </div>
+        <div class="body">
+          <span class="name">Роза «Юмилия»</span>
+          <span class="meta">Кремовая · 50 см · 5 бутонов</span>
+          <p class="desc">Мульти-бутонная кустовая роза. Один стебель = 5 цветков, идеально для объёмных боксов.</p>
+          <div class="colors"><span style="background:#F8E8D8"></span><span style="background:#F2C8B8"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>240 ₽</em></span>
+          <button class="add" data-flower-id="rose-yumilia" data-name="Роза «Юмилия»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="rose">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=700&q=80" alt="Роза одиночная">
+        </div>
+        <div class="body">
+          <span class="name">Роза «Эквадор»</span>
+          <span class="meta">Красная · 70 см · крупная</span>
+          <p class="desc">Высокая эквадорская роза с большим бутоном. Самая «классическая» позиция в каталоге.</p>
+          <div class="colors"><span style="background:#8E1F26"></span><span style="background:#C73E47"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>290 ₽</em></span>
+          <button class="add" data-flower-id="rose-ecuador" data-name="Роза «Эквадор»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="rose">
+        <div class="img">
+          <div class="tags"><span class="tag exo">Premium</span></div>
+          <img src="https://images.unsplash.com/photo-1495231916356-a86217efff12?auto=format&fit=crop&w=700&q=80" alt="Пионовидная роза">
+        </div>
+        <div class="body">
+          <span class="name">Роза «Дэвид Остин»</span>
+          <span class="meta">Пионовидная · 45 см</span>
+          <p class="desc">Пионовидная садовая роза с десятками лепестков. Аромат — с нотками персика.</p>
+          <div class="colors"><span style="background:#F4C9CB"></span><span style="background:#E89BA8"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>380 ₽</em></span>
+          <button class="add" data-flower-id="rose-austin" data-name="Роза «Дэвид Остин»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="seasonal">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=700&q=80" alt="Тюльпан">
+        </div>
+        <div class="body">
+          <span class="name">Тюльпан Французский</span>
+          <span class="meta">Бордовый · пионовидный · 55 см</span>
+          <p class="desc">Двойной тюльпан, по форме — почти пион. Доступен с конца января по апрель.</p>
+          <div class="colors"><span style="background:#5C1F25"></span><span style="background:#8C2C36"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>180 ₽</em></span>
+          <button class="add" data-flower-id="tulip-french" data-name="Тюльпан Французский">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="seasonal">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1530092285049-1c42085fd395?auto=format&fit=crop&w=700&q=80" alt="Эустома">
+        </div>
+        <div class="body">
+          <span class="name">Эустома «Розита»</span>
+          <span class="meta">Белая · кустовая · 45 см</span>
+          <p class="desc">Многобутонная эустома. Долго стоит в воде — до 10 дней при правильном уходе.</p>
+          <div class="colors"><span style="background:#FFFFFF;border-color:#ccc"></span><span style="background:#F4C9CB"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>210 ₽</em></span>
+          <button class="add" data-flower-id="eustoma-rosita" data-name="Эустома «Розита»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="seasonal">
+        <div class="img">
+          <div class="tags"><span class="tag">Сезон</span></div>
+          <img src="https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&w=700&q=80" alt="Гипсофила">
+        </div>
+        <div class="body">
+          <span class="name">Гипсофила «Облако»</span>
+          <span class="meta">Воздушная · 50 см</span>
+          <p class="desc">Мелкие белые соцветия облаком. Создаёт объём без увеличения «массы» букета.</p>
+          <div class="colors"><span style="background:#FFFFFF;border-color:#ccc"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>140 ₽</em></span>
+          <button class="add" data-flower-id="gypsophila" data-name="Гипсофила «Облако»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="seasonal">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1469259943454-aa100abba749?auto=format&fit=crop&w=700&q=80" alt="Ранункулюс">
+        </div>
+        <div class="body">
+          <span class="name">Ранункулюс</span>
+          <span class="meta">Персиковый · 35 см</span>
+          <p class="desc">Слоистый цветок с десятками тонких лепестков. Эффектен один в вазе или в миксе с пионами.</p>
+          <div class="colors"><span style="background:#F2A878"></span><span style="background:#FFFFFF;border-color:#ccc"></span><span style="background:#F4C9CB"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>260 ₽</em></span>
+          <button class="add" data-flower-id="ranunculus" data-name="Ранункулюс">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="seasonal out-of-stock">
+        <div class="img">
+          <div class="tags"><span class="tag out">Ждём завоз</span></div>
+          <img src="https://images.unsplash.com/photo-1487530811176-3780de880c2d?auto=format&fit=crop&w=700&q=80" alt="Гортензия">
+        </div>
+        <div class="body">
+          <span class="name">Гортензия</span>
+          <span class="meta">Голубая · 55 см · крупная шапка</span>
+          <p class="desc">Большой шапкообразный цветок. Крайне эффектен и заметен. Будет в наличии со среды.</p>
+          <div class="colors"><span style="background:#A8C0D8"></span><span style="background:#C8B8D8"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>340 ₽</em></span>
+          <button class="add" disabled>Скоро</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="exo">
+        <div class="img">
+          <div class="tags"><span class="tag exo">Экзотика</span></div>
+          <img src="https://images.unsplash.com/photo-1502977249166-824b3a8a4d6d?auto=format&fit=crop&w=700&q=80" alt="Антуриум">
+        </div>
+        <div class="body">
+          <span class="name">Антуриум «Тропик»</span>
+          <span class="meta">Бордовый · глянец · 45 см</span>
+          <p class="desc">Глянцевый «лопаточный» цветок. Один в вазе уже букет — настолько графичный.</p>
+          <div class="colors"><span style="background:#5C1F25"></span><span style="background:#1A1410"></span><span style="background:#8C2C36"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>360 ₽</em></span>
+          <button class="add" data-flower-id="anthurium" data-name="Антуриум «Тропик»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="exo">
+        <div class="img">
+          <div class="tags"><span class="tag exo">Экзотика</span></div>
+          <img src="https://images.unsplash.com/photo-1530092285049-1c42085fd395?auto=format&fit=crop&w=700&q=80" alt="Протея">
+        </div>
+        <div class="body">
+          <span class="name">Протея «Кинг»</span>
+          <span class="meta">Розовая · 40 см · артишок</span>
+          <p class="desc">Африканская протея. Одна штука уже акцентный букет. Для сильных характером композиций.</p>
+          <div class="colors"><span style="background:#E89BA8"></span><span style="background:#C97B5C"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>520 ₽</em></span>
+          <button class="add" data-flower-id="protea" data-name="Протея «Кинг»">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="dry">
+        <div class="img">
+          <div class="tags"><span class="tag">Сухоцвет</span></div>
+          <img src="https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=700&q=80" alt="Хлопок">
+        </div>
+        <div class="body">
+          <span class="name">Хлопок натуральный</span>
+          <span class="meta">Сухоцвет · 40 см · 3 коробочки</span>
+          <p class="desc">Полностью раскрытые коробочки хлопка. Стоит годами, тёплая фактура.</p>
+          <div class="colors"><span style="background:#F2ECE3"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>180 ₽</em></span>
+          <button class="add" data-flower-id="cotton" data-name="Хлопок натуральный">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="dry">
+        <div class="img">
+          <div class="tags"><span class="tag">Сухоцвет</span></div>
+          <img src="https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=700&q=80" alt="Лагурус">
+        </div>
+        <div class="body">
+          <span class="name">Лагурус «Заячий хвост»</span>
+          <span class="meta">Сухоцвет · 35 см · бежевый</span>
+          <p class="desc">Мягкие пушистые соцветия. Добавляет фактуры в любой микс.</p>
+          <div class="colors"><span style="background:#E8DDD0"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>120 ₽</em></span>
+          <button class="add" data-flower-id="lagurus" data-name="Лагурус">+ В бокс</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="dry out-of-stock">
+        <div class="img">
+          <div class="tags"><span class="tag out">Ждём завоз</span></div>
+          <img src="https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&w=700&q=80" alt="Пампасная трава">
+        </div>
+        <div class="body">
+          <span class="name">Пампасная трава</span>
+          <span class="meta">Сухоцвет · 80 см</span>
+          <p class="desc">Высокие пушистые соцветия. Драматичный акцент в больших боксах L и XL.</p>
+          <div class="colors"><span style="background:#E8DDD0"></span><span style="background:#FAF3E8"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>240 ₽</em></span>
+          <button class="add" disabled>Скоро</button>
+        </div>
+      </article>
+
+      <article class="flower" data-cat="green">
+        <div class="img">
+          <div class="tags"><span class="tag fresh">В наличии</span></div>
+          <img src="https://images.unsplash.com/photo-1483794344563-d27a8d18014e?auto=format&fit=crop&w=700&q=80" alt="Эвкалипт">
+        </div>
+        <div class="body">
+          <span class="name">Эвкалипт «Цинерея»</span>
+          <span class="meta">Зелень · 50 см · ароматная</span>
+          <p class="desc">Серо-зелёные округлые листья. Лёгкий ментоловый аромат, добавляет объёма и фактуры.</p>
+          <div class="colors"><span style="background:#8C9A7B"></span><span style="background:#A8C0A4"></span></div>
+        </div>
+        <div class="foot">
+          <span class="price">от <em>140 ₽</em></span>
+          <button class="add" data-flower-id="eucalyptus" data-name="Эвкалипт">+ В бокс</button>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="season-row">
+      <span class="ic">i</span>
+      <p>Цена за стебель указана для справки — <strong>в боксе любой цветок стоит одинаково</strong>. Цена бокса фиксированная, она не зависит от того, что вы выберете внутри. <a href="index.html#concept" style="color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px">Подробнее о концепции</a>.</p>
+    </div>
+  </section>
+</div>
+
+<!-- CTA -->
+<div class="container">
+  <section class="cta">
+    <div class="container cta-inner">
+      <div>
+        <span class="eyebrow" style="color:rgba(242,236,227,.7)">Готовы собрать букет?</span>
+        <h2>Откройте <em>бокс</em> и кликайте «+».</h2>
+        <p>Один клик — стебель в боксе. Виджет посчитает остаток. Цена фиксированная — что бы вы ни выбрали.</p>
+      </div>
+      <a href="index.html#boxes" class="btn-xl">Выбрать бокс <span class="arrow">→</span></a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script>
+  // Filter chips
+  const chips = document.querySelectorAll('.chip');
+  chips.forEach(c => {
+    c.addEventListener('click', () => {
+      chips.forEach(cc => cc.classList.remove('active'));
+      c.classList.add('active');
+      applyFilterAndSort();
+    });
+  });
+
+  const sortSelect = document.querySelector('.sort select');
+  if (sortSelect) sortSelect.addEventListener('change', applyFilterAndSort);
+
+  function getActiveFilter() {
+    const active = document.querySelector('.chip.active');
+    return active ? (active.dataset.filter || 'all') : 'all';
+  }
+
+  function applyFilterAndSort() {
+    const filter = getActiveFilter();
+    const grid = document.getElementById('grid');
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll('.flower'));
+
+    // Filter
+    cards.forEach(card => {
+      const cats = (card.dataset.cat || '').split(' ');
+      const show = filter === 'all' || cats.includes(filter);
+      card.style.display = show ? '' : 'none';
+    });
+
+    // Sort
+    const order = sortSelect ? sortSelect.value : '';
+    const C = window.SOBRANO_CATALOG;
+    const visible = cards.filter(c => c.style.display !== 'none');
+    function priceOf(card) {
+      const fid = card.querySelector('.add[data-flower-id]')?.dataset.flowerId;
+      const f = C && C.getFlower(fid);
+      return f ? f.priceFrom : 9999;
+    }
+    function nameOf(card) { return (card.querySelector('.name')?.textContent || '').toLowerCase(); }
+    function inStock(card) { return !card.classList.contains('out-of-stock'); }
+    let sorter = null;
+    if (order.includes('наличии')) sorter = (a, b) => Number(inStock(b)) - Number(inStock(a));
+    else if (order.includes('по цене ↑')) sorter = (a, b) => priceOf(a) - priceOf(b);
+    else if (order.includes('по цене ↓')) sorter = (a, b) => priceOf(b) - priceOf(a);
+    else if (order.includes('названию')) sorter = (a, b) => nameOf(a).localeCompare(nameOf(b), 'ru');
+    if (sorter) {
+      visible.sort(sorter).forEach(card => grid.appendChild(card));
+    }
+  }
+
+  // Add to box (с модальным выбором бокса, если он ещё не выбран)
+  document.querySelectorAll('.add[data-flower-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const Cart = window.SOBRANO_CART;
+      const C = window.SOBRANO_CATALOG;
+      if (!Cart || !C) return;
+      const fid = btn.dataset.flowerId;
+      const flower = C.getFlower(fid);
+      const name = btn.dataset.name || (flower ? flower.name : 'Цветок');
+
+      Cart.pickBoxIfNeeded(() => {
+        const r = Cart.addFlower(fid);
+        if (r.ok) {
+          const left = Cart.getRemainingCapacity();
+          const meta = Cart.getBoxMeta();
+          const msg = left > 0
+            ? `«${name}» в боксе ${meta ? meta.size : ''} · осталось ${left} мест`
+            : `«${name}» — бокс ${meta ? meta.size : ''} собран!`;
+          if (window.showToast) window.showToast(msg, 'success', 2800);
+        } else if (r.error === 'full' && window.showToast) {
+          window.showToast('Бокс заполнен — освободите место или перейдите в корзину', 'warning', 3500);
+        } else if (r.error === 'out-of-stock' && window.showToast) {
+          window.showToast(`«${name}» сейчас не в наличии`, 'warning');
+        }
+      });
+    });
+  });
+</script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

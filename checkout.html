@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Оформление заказа — СОБРАНО</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.help-link{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:8px}
+.help-link::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--terracotta)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+/* STEPPER */
+.stepper{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:8px}
+.stepper .step{display:flex;align-items:center;gap:16px;padding:24px 0;border-right:1px solid var(--line);padding-right:24px}
+.stepper .step:last-child{border-right:0}
+.stepper .step .n{width:36px;height:36px;border-radius:50%;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;color:var(--ink-soft);flex:none}
+.stepper .step.active .n{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.stepper .step.done .n{background:var(--sage);color:var(--ivory);border-color:var(--sage)}
+.stepper .step h6{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:2px}
+.stepper .step p{font-family:var(--serif);font-size:18px;letter-spacing:-.01em}
+
+/* PAGE */
+.page{display:grid;grid-template-columns:1fr 420px;gap:clamp(28px,3vw,56px);padding:48px 0 100px;align-items:start}
+
+.page-head{margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.page-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(48px,7vw,92px);line-height:.95;letter-spacing:-.02em;margin-top:14px}
+.page-head h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.page-head p{color:var(--ink-soft);max-width:54ch;margin-top:14px}
+
+/* FORM CARD */
+.card{background:var(--ivory);border:1px solid var(--line);border-radius:var(--r-lg);padding:36px clamp(24px,3vw,40px);margin-bottom:18px}
+.card h3{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.card h3 .num{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;flex:none}
+.card .sub{color:var(--mute);font-size:14px;margin-bottom:24px}
+
+/* FORM FIELDS */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.row.full{grid-template-columns:1fr}
+.field{position:relative}
+.field label{position:absolute;top:14px;left:18px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);pointer-events:none;transition:all .2s}
+.field label .req{color:var(--wine)}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--ivory-2);border:1.5px solid transparent;border-radius:var(--r-md);
+  padding:32px 18px 14px;font-size:15px;color:var(--ink);outline:none;
+  transition:all .2s;font-family:var(--sans)
+}
+.field textarea{padding-top:38px;min-height:96px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink);background:var(--ivory)}
+.field.has input + label,.field.has textarea + label,.field.has select + label,
+.field input:focus + label,.field textarea:focus + label,.field select:focus + label{
+  top:8px;font-size:9px;color:var(--ink-soft)
+}
+.field input::placeholder,.field textarea::placeholder{color:transparent}
+
+/* CHANNEL CHOOSER */
+.channels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+.ch{padding:14px;border:1.5px solid var(--line-strong);border-radius:var(--r-md);background:var(--ivory);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.ch .ic{width:34px;height:34px;border-radius:50%;background:var(--ivory-2);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;color:var(--ink-soft)}
+.ch:hover{border-color:var(--ink)}
+.ch.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.ch.active .ic{background:rgba(242,236,227,.12);color:var(--terracotta)}
+.ch span{font-size:13px;font-weight:500}
+
+/* DELIVERY DATE */
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.timeslots{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.ts{padding:10px 16px;border:1px solid var(--line-strong);border-radius:999px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;cursor:pointer;transition:all .2s}
+.ts:hover{border-color:var(--ink)}
+.ts.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+
+/* PAYMENT */
+.pay-list{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
+.pay{display:flex;align-items:center;gap:18px;padding:18px 22px;border:1.5px solid var(--line-strong);border-radius:var(--r-md);cursor:pointer;transition:all .2s;background:var(--ivory)}
+.pay:hover{border-color:var(--ink)}
+.pay.active{border-color:var(--ink);background:var(--ink);color:var(--ivory)}
+.pay .radio{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink);position:relative;flex:none}
+.pay.active .radio{border-color:var(--ivory)}
+.pay.active .radio::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--terracotta)}
+.pay .pl{flex:1}
+.pay h5{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:-.01em;line-height:1.1;margin-bottom:4px}
+.pay p{font-size:13px;color:var(--ink-soft)}
+.pay.active p{color:rgba(242,236,227,.7)}
+.pay .logo{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:var(--ivory-2);padding:8px 12px;border-radius:8px;color:var(--ink-soft)}
+.pay.active .logo{background:rgba(242,236,227,.12);color:var(--terracotta)}
+
+/* CONSENT */
+.consent{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;background:var(--ivory-2);border-radius:var(--r-md);font-size:13px;color:var(--ink-soft);line-height:1.6}
+.checkbox{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--ink);position:relative;flex:none;cursor:pointer}
+.checkbox.checked{background:var(--ink)}
+.checkbox.checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ivory);font-size:14px;font-weight:600}
+.consent a{color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px}
+
+/* SUMMARY */
+.summary{position:sticky;top:96px;background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:30px;display:flex;flex-direction:column;gap:18px}
+.summary h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between}
+.summary h4 .id{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);font-weight:400}
+
+.s-mini{display:flex;flex-direction:column;gap:10px;max-height:240px;overflow-y:auto;margin:0 -30px;padding:0 30px}
+.s-mini::-webkit-scrollbar{width:4px}
+.s-mini::-webkit-scrollbar-thumb{background:rgba(242,236,227,.2);border-radius:999px}
+.sm-row{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(242,236,227,.1)}
+.sm-row:last-child{border-bottom:0}
+.sm-row .t{width:46px;height:46px;border-radius:10px;overflow:hidden;background:rgba(242,236,227,.06)}
+.sm-row .t img{width:100%;height:100%;object-fit:cover}
+.sm-row .name{font-family:var(--serif);font-size:15px;line-height:1.2}
+.sm-row .qty{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:rgba(242,236,227,.55);text-transform:uppercase;margin-top:2px}
+.sm-row .p{font-family:var(--serif);font-size:16px}
+
+.divider{height:1px;background:rgba(242,236,227,.18)}
+
+.s-rows{display:flex;flex-direction:column;gap:10px}
+.s-rrow{display:flex;align-items:baseline;justify-content:space-between;font-size:14px}
+.s-rrow .l{color:rgba(242,236,227,.65);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.s-rrow .r{font-family:var(--serif);font-size:16px;letter-spacing:-.01em}
+.s-rrow.discount .r{color:var(--terracotta)}
+
+.s-total{display:flex;align-items:baseline;justify-content:space-between}
+.s-total .l{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55)}
+.s-total .r{font-family:var(--serif);font-size:42px;letter-spacing:-.02em;font-weight:300}
+
+.pay-cta{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--terracotta);color:var(--ivory);padding:20px 24px;border-radius:999px;font-size:15px;font-weight:500;transition:all .2s;width:100%}
+.pay-cta:hover{background:var(--ivory);color:var(--ink)}
+.pay-cta .arrow{width:36px;height:36px;border-radius:50%;background:var(--ivory);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;transition:transform .25s}
+.pay-cta:hover .arrow{background:var(--ink);color:var(--ivory)}
+
+.guarantee{padding:14px;background:rgba(242,236,227,.06);border-radius:var(--r-md);font-size:12px;color:rgba(242,236,227,.7);line-height:1.5}
+.guarantee strong{color:var(--ivory);font-weight:500}
+
+.legal{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(242,236,227,.45);text-align:center;line-height:1.6}
+
+footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.footer-mini{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;color:rgba(242,236,227,.55)}
+.footer-mini a{color:rgba(242,236,227,.85)}
+.footer-mini a:hover{color:var(--terracotta)}
+
+@media (max-width:1100px){
+  .page{grid-template-columns:1fr}
+  .summary{position:static}
+  .stepper{grid-template-columns:1fr;border:0}
+  .stepper .step{border-right:0;border-bottom:1px solid var(--line)}
+  .row{grid-template-columns:1fr}
+  .channels{grid-template-columns:1fr 1fr}
+  .date-row{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Безопасная оплата</span><span>Сборка 60–90 минут</span><span>Гарантия пересборки</span><span>Чек на email</span>
+  <span>Безопасная оплата</span><span>Сборка 60–90 минут</span><span>Гарантия пересборки</span><span>Чек на email</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <a href="contacts.html" class="help-link">Нужна помощь? +7 800 000-00-00</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <a href="cart.html">Корзина</a><span class="sep">/</span>
+    <span class="here">Оформление</span>
+  </div>
+
+  <div class="stepper">
+    <div class="step done"><span class="n">✓</span><div><h6>Шаг 1</h6><p id="step-1-info">Корзина</p></div></div>
+    <div class="step active"><span class="n">2</span><div><h6>Шаг 2</h6><p>Контакты и доставка</p></div></div>
+    <div class="step"><span class="n">3</span><div><h6>Шаг 3</h6><p>Оплата</p></div></div>
+  </div>
+
+  <div class="page">
+    <div>
+      <div class="page-head">
+        <span class="eyebrow" id="checkout-eyebrow">Оформление</span>
+        <h1>Оформление <em>заказа</em></h1>
+        <p>Заполните контакты, выберите дату доставки и удобный способ связи. После оплаты пришлём подтверждение и фото бокса перед отправкой.</p>
+      </div>
+
+      <!-- 1. CONTACT -->
+      <section class="card">
+        <h3><span class="num">1</span> Контактные данные</h3>
+        <p class="sub">Чтобы подтвердить заказ и сообщить, что цветы уже в пути.</p>
+
+        <div class="row">
+          <div class="field">
+            <input type="text" id="name" placeholder=" " required>
+            <label for="name">ФИО <span class="req">*</span></label>
+          </div>
+          <div class="field">
+            <input type="tel" id="phone" placeholder=" " required>
+            <label for="phone">Телефон <span class="req">*</span></label>
+          </div>
+        </div>
+
+        <div class="row full">
+          <div class="field">
+            <input type="email" id="email" placeholder=" ">
+            <label for="email">Email · сюда придёт чек</label>
+          </div>
+        </div>
+
+        <h6 style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:24px 0 6px">Канал для связи <span style="color:var(--wine)">*</span></h6>
+        <div class="channels">
+          <div class="ch active" data-channel="phone"><div class="ic">☎</div><span>Звонок</span></div>
+          <div class="ch" data-channel="email"><div class="ic">✉</div><span>Email</span></div>
+          <div class="ch" data-channel="telegram"><div class="ic">T</div><span>Telegram</span></div>
+          <div class="ch" data-channel="whatsapp"><div class="ic">W</div><span>WhatsApp</span></div>
+        </div>
+      </section>
+
+      <!-- 2. DELIVERY -->
+      <section class="card">
+        <h3><span class="num">2</span> Адрес и время доставки</h3>
+        <p class="sub" id="delivery-sub">Доставляем сами от 500 ₽ или через Яндекс Go.</p>
+
+        <div class="row full">
+          <div class="field">
+            <input type="text" id="addr" placeholder=" " required>
+            <label for="addr">Адрес доставки <span class="req">*</span></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <input type="text" id="apt" placeholder=" ">
+            <label for="apt">Квартира, домофон, этаж</label>
+          </div>
+          <div class="field">
+            <input type="text" id="recip" placeholder=" ">
+            <label for="recip">Получатель (если не вы)</label>
+          </div>
+        </div>
+
+        <div class="date-row" style="margin-top:18px">
+          <div class="field">
+            <input type="date" id="date" required>
+            <label for="date">Дата доставки <span class="req">*</span></label>
+          </div>
+          <div class="field">
+            <select id="time"></select>
+            <label for="time">Временной интервал <span class="req">*</span></label>
+          </div>
+        </div>
+
+        <div class="row full" style="margin-top:18px">
+          <div class="field">
+            <textarea id="note" placeholder=" "></textarea>
+            <label for="note">Комментарий курьеру или текст открытки</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. PAYMENT -->
+      <section class="card">
+        <h3><span class="num">3</span> Способ оплаты</h3>
+        <p class="sub" id="pay-sub">Загружаем доступные способы…</p>
+
+        <div class="pay-list" id="pay-list">
+          <div style="padding:18px 22px;color:var(--mute);font-style:italic;font-family:var(--serif)">Загружаем…</div>
+        </div>
+
+        <div class="consent" style="margin-top:24px">
+          <span class="checkbox checked" id="cb"></span>
+          <span>Я согласен с <a href="privacy-policy.html">политикой конфиденциальности</a>, <a href="terms.html">пользовательским соглашением</a> и <a href="offer.html">публичной офертой</a>. Даю согласие на обработку персональных данных в соответствии с 152-ФЗ.</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- SUMMARY -->
+    <aside class="summary">
+      <h4>Ваш заказ <span class="id" id="order-id-label">—</span></h4>
+
+      <div class="s-mini" id="checkout-mini-list"></div>
+
+      <div class="divider"></div>
+
+      <div class="s-rows" id="checkout-rows"></div>
+
+      <div class="divider"></div>
+
+      <div class="s-total">
+        <span class="l">К оплате</span>
+        <span class="r" id="checkout-total">0 ₽</span>
+      </div>
+
+      <button type="button" class="pay-cta" id="pay-btn">Оплатить <span class="arrow">→</span></button>
+
+      <div class="guarantee">
+        <strong>Гарантия пересборки.</strong> Перед отправкой пришлём фото вашего бокса. Если что-то не так — пересоберём бесплатно или вернём деньги.
+      </div>
+
+      <div class="legal">
+        Нажимая «Оплатить», вы соглашаетесь с офертой и политикой конфиденциальности.
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="container footer-mini">
+    <span>© 2026 СОБРАНО · ИП Горбулёв А. Ю.</span>
+    <div style="display:flex;gap:18px">
+      <a href="privacy-policy.html">Политика</a><a href="offer.html">Оферта</a><a href="requisites.html">Реквизиты</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script>
+(function () {
+  const Cart = window.SOBRANO_CART;
+  const C = window.SOBRANO_CATALOG;
+  if (!Cart || !C) return;
+
+  function escape(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[ch])); }
+
+  // Если корзина пуста — отправляем обратно
+  if (Cart.getItemCount() === 0) {
+    location.replace("cart.html");
+    return;
+  }
+  // Бокс выбран, но не наполнен — не пускаем на чекаут
+  if (Cart.getState().box && Cart.getFilledStems() === 0) {
+    try { sessionStorage.setItem('sob_flash', 'Сначала наполните бокс цветами'); } catch (e) {}
+    location.replace("cart.html");
+    return;
+  }
+
+  // ----- Floating labels -----
+  function refreshFieldStates() {
+    document.querySelectorAll('.field input, .field textarea, .field select').forEach(el => {
+      el.closest('.field').classList.toggle('has', !!(el.value && el.value.length > 0));
+    });
+  }
+  document.querySelectorAll('.field input, .field textarea, .field select').forEach(el => {
+    el.addEventListener('input', () => el.closest('.field').classList.toggle('has', !!(el.value && el.value.length > 0)));
+    el.addEventListener('change', () => el.closest('.field').classList.toggle('has', !!(el.value && el.value.length > 0)));
+  });
+
+  // ----- Channel selection -----
+  document.querySelectorAll('.ch[data-channel]').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.ch').forEach(cc => cc.classList.remove('active'));
+      c.classList.add('active');
+      Cart.setCustomer({ channel: c.dataset.channel });
+    });
+  });
+
+  // ----- Payment methods (dynamic from /api/payments) -----
+  function escHtml(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[ch])); }
+  function renderPayList(methods, robokassaReady){
+    const list = document.getElementById('pay-list');
+    const sub = document.getElementById('pay-sub');
+    if (!methods.length) {
+      list.innerHTML = '<div style="padding:18px 22px;background:rgba(92,31,37,.06);border:1px solid rgba(92,31,37,.2);border-radius:var(--r-md);color:var(--wine);font-size:13px">Нет доступных способов оплаты. Свяжитесь с поддержкой — мы оформим заказ вручную.</div>';
+      sub.textContent = "Свяжитесь с нами для оформления заказа.";
+      return;
+    }
+    sub.textContent = robokassaReady
+      ? "Оплата через защищённый шлюз Robokassa или альтернативным способом по согласованию."
+      : "Выберите удобный способ — после подтверждения мы пришлём детали для оплаты.";
+    let html = '';
+    const curPayment = (Cart.getState().customer || {}).payment || methods[0].id;
+    methods.forEach((m, i) => {
+      const isActive = m.id === curPayment;
+      html += '<label class="pay'+(isActive?' active':'')+'" data-pay="'+escHtml(m.id)+'">'
+            + '<span class="radio"></span>'
+            + '<div class="pl">'
+            +   '<h5>'+escHtml(m.title || m.id)+'</h5>'
+            +   (m.description ? '<p>'+escHtml(m.description)+'</p>' : '')
+            + '</div>'
+            + (m.icon ? '<span class="logo">'+escHtml(m.icon)+'</span>' : '')
+            + '</label>';
+    });
+    list.innerHTML = html;
+    // Если сохранённый payment не доступен (например, метод выключен админом) — выбираем первый
+    if (!methods.find(m => m.id === curPayment)) {
+      Cart.setCustomer({ payment: methods[0].id });
+      list.querySelector('.pay').classList.add('active');
+    }
+    list.querySelectorAll('.pay[data-pay]').forEach(p => {
+      p.addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('.pay').forEach(pp => pp.classList.remove('active'));
+        p.classList.add('active');
+        Cart.setCustomer({ payment: p.dataset.pay });
+      });
+    });
+  }
+  fetch('/api/payments', { credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.ok || !Array.isArray(data.methods)) throw new Error('bad response');
+      renderPayList(data.methods, !!data.robokassaReady);
+    })
+    .catch(() => {
+      // Фоллбэк на случай, если API недоступен — показываем минимальный список
+      renderPayList([
+        { id: 'card', type: 'robokassa-card', title: 'Картой онлайн', description: 'Visa, Mastercard, Mir — через Robokassa, безопасно.', icon: 'CARD' },
+        { id: 'sbp', type: 'robokassa-sbp', title: 'СБП — Система быстрых платежей', description: 'Перевод по QR-коду из приложения банка.', icon: 'СБП · QR' },
+      ], false);
+    });
+
+  // ----- Checkbox -----
+  const cb = document.getElementById('cb');
+  function syncConsent() { Cart.setCustomer({ consent: cb.classList.contains('checked') }); }
+  cb.addEventListener('click', () => { cb.classList.toggle('checked'); syncConsent(); });
+  syncConsent();
+
+  // ----- Restore + persist customer fields -----
+  const FIELD_IDS = ['name','phone','email','addr','apt','recip','date','time','note'];
+  const cur = Cart.getState().customer || {};
+  FIELD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (cur[id] != null && cur[id] !== '') el.value = cur[id];
+    el.addEventListener('input', () => Cart.setCustomer({ [id]: el.value }));
+    el.addEventListener('change', () => Cart.setCustomer({ [id]: el.value }));
+  });
+  // ----- Дата и слоты -----
+  // Логика: на сегодня доступны только те слоты, в окно которых попадает "сейчас + 1 час"
+  // (т.е. конец слота должен быть позже now+1h). На будущие даты — все слоты.
+  const ALL_SLOTS = [
+    { start: 10, end: 12, label: '10:00 — 12:00' },
+    { start: 12, end: 14, label: '12:00 — 14:00' },
+    { start: 14, end: 16, label: '14:00 — 16:00' },
+    { start: 16, end: 18, label: '16:00 — 18:00' },
+    { start: 18, end: 20, label: '18:00 — 20:00' },
+    { start: 20, end: 22, label: '20:00 — 22:00' },
+  ];
+  function todayStr() {
+    const t = new Date();
+    return new Date(t.getTime() - t.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  }
+  function tomorrowStr() {
+    const t = new Date();
+    t.setDate(t.getDate() + 1);
+    return new Date(t.getTime() - t.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  }
+  function availableSlotsFor(dateStr) {
+    const today = todayStr();
+    if (!dateStr || dateStr < today) return [];
+    if (dateStr > today) return ALL_SLOTS.slice();
+    // Для сегодняшней даты гейтим по now+1h
+    const now = new Date();
+    const cutoff = now.getHours() + now.getMinutes() / 60 + 1;
+    return ALL_SLOTS.filter((s) => s.end > cutoff);
+  }
+  function renderTimeSlots() {
+    const sel = document.getElementById('time');
+    const dEl = document.getElementById('date');
+    const prev = sel.value;
+    const slots = availableSlotsFor(dEl.value);
+    if (!slots.length) {
+      sel.innerHTML = '<option value="" disabled selected>На эту дату слотов нет</option>';
+      Cart.setCustomer({ time: '' });
+      sel.closest('.field').classList.toggle('has', false);
+      return;
+    }
+    sel.innerHTML = slots.map((s) => '<option value="' + s.label + '">' + s.label + '</option>').join('');
+    if (slots.find((s) => s.label === prev)) sel.value = prev;
+    Cart.setCustomer({ time: sel.value });
+    sel.closest('.field').classList.toggle('has', !!sel.value);
+  }
+
+  const dateEl = document.getElementById('date');
+  dateEl.min = todayStr();
+  // Восстановленная из localStorage дата в прошлом → корректируем на ближайшую валидную
+  if (!dateEl.value || dateEl.value < todayStr()) {
+    const todayHasSlots = availableSlotsFor(todayStr()).length > 0;
+    dateEl.value = todayHasSlots ? todayStr() : tomorrowStr();
+    Cart.setCustomer({ date: dateEl.value });
+  }
+  renderTimeSlots();
+
+  dateEl.addEventListener('change', () => {
+    if (dateEl.value && dateEl.value < todayStr()) {
+      if (window.showToast) window.showToast('Дата доставки не может быть в прошлом', 'warning');
+      dateEl.value = todayStr();
+      Cart.setCustomer({ date: dateEl.value });
+    }
+    renderTimeSlots();
+  });
+  document.getElementById('time').addEventListener('change', (e) => {
+    Cart.setCustomer({ time: e.target.value });
+  });
+  // Restore channel & payment
+  if (cur.channel) {
+    document.querySelectorAll('.ch[data-channel]').forEach(c => c.classList.toggle('active', c.dataset.channel === cur.channel));
+  } else {
+    Cart.setCustomer({ channel: 'phone' });
+  }
+  // Способ оплаты восстанавливается внутри renderPayList после fetch /api/payments
+  refreshFieldStates();
+
+  // ----- Render summary -----
+  function pluralize(n, one, few, many) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+  function renderSummary() {
+    const s = Cart.getState();
+    const subtotal = Cart.getSubtotal();
+    const delivery = Cart.getDeliveryPrice();
+    const discount = Cart.getDiscount();
+    const total = Cart.getTotal();
+
+    // mini list
+    const mini = [];
+    if (s.box) {
+      const meta = Cart.getBoxMeta();
+      if (meta) {
+        const filled = Object.values(s.box.flowers || {}).reduce((a, b) => a + b, 0);
+        mini.push(`<div class="sm-row">
+          <div class="t"><img src="${escape((meta.image || '').replace(/w=\d+/, 'w=200'))}" alt=""></div>
+          <div>
+            <div class="name">Бокс ${escape(meta.size)} · ${meta.capacity} цветков</div>
+            <div class="qty">${filled === meta.capacity ? "авторская сборка" : `собрано ${filled} из ${meta.capacity}`}</div>
+          </div>
+          <span class="p">${escape(Cart.formatPrice(meta.price))}</span>
+        </div>`);
+      }
+    }
+    Object.entries(s.addons).forEach(([id, qty]) => {
+      const a = C.getAddon(id);
+      if (!a) return;
+      const thumb = a.image
+        ? `<div class="t"><img src="${escape(a.image.replace(/w=\d+/, 'w=200'))}" alt=""></div>`
+        : `<div class="t" style="display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;color:rgba(242,236,227,.6)">${escape(a.placeholder || '•')}</div>`;
+      mini.push(`<div class="sm-row">
+        ${thumb}
+        <div>
+          <div class="name">${escape(a.title)}</div>
+          <div class="qty">×${qty}</div>
+        </div>
+        <span class="p">${escape(Cart.formatPrice(a.price * qty))}</span>
+      </div>`);
+    });
+    document.getElementById('checkout-mini-list').innerHTML = mini.join('');
+
+    // rows
+    const rows = [];
+    rows.push(`<div class="s-rrow"><span class="l">Подытог</span><span class="r">${escape(Cart.formatPrice(subtotal))}</span></div>`);
+    const dLabel = s.delivery === 'yandex' ? 'Яндекс Go' : 'своя';
+    rows.push(`<div class="s-rrow"><span class="l">Доставка · ${escape(dLabel)}</span><span class="r">${delivery > 0 ? escape(Cart.formatPrice(delivery)) : 'по тарифу'}</span></div>`);
+    if (s.promo) rows.push(`<div class="s-rrow discount"><span class="l">Промокод ${escape(s.promo)}</span><span class="r">− ${escape(Cart.formatPrice(discount))}</span></div>`);
+    document.getElementById('checkout-rows').innerHTML = rows.join('');
+    document.getElementById('checkout-total').textContent = Cart.formatPrice(total);
+
+    // CTA label
+    document.getElementById('pay-btn').innerHTML = `Оплатить ${escape(Cart.formatPrice(total))} <span class="arrow">→</span>`;
+
+    // step 1 info + eyebrow + order id (preview)
+    document.getElementById('step-1-info').textContent = `Корзина · ${Cart.formatPrice(total)}`;
+    const ep = document.getElementById('checkout-eyebrow');
+    const positions = (s.box ? 1 : 0) + Object.values(s.addons).reduce((a, b) => a + b, 0);
+    ep.textContent = `Оформление · ${positions} ${pluralize(positions, 'позиция', 'позиции', 'позиций')}`;
+    document.getElementById('order-id-label').textContent = '— ' + (s.box ? `бокс ${Cart.getBoxMeta().size}` : 'допы');
+  }
+
+  renderSummary();
+  Cart.subscribe(renderSummary);
+
+  // ----- Submit (оплата) -----
+  function validate() {
+    // Защита от обхода через devtools: бокс должен быть наполнен
+    if (Cart.getState().box && Cart.getFilledStems() === 0) {
+      if (window.showToast) window.showToast('Бокс пуст — добавьте цветы перед оформлением', 'warning');
+      try { sessionStorage.setItem('sob_flash', 'Сначала наполните бокс цветами'); } catch (e) {}
+      location.replace('cart.html');
+      return false;
+    }
+    const required = [
+      ['name', 'имя'],
+      ['phone', 'телефон'],
+      ['addr', 'адрес'],
+      ['date', 'дату'],
+    ];
+    for (const [id, label] of required) {
+      const el = document.getElementById(id);
+      if (!el || !el.value || !el.value.trim()) {
+        if (window.showToast) window.showToast(`Укажите ${label}`, 'warning');
+        if (el) el.focus();
+        return false;
+      }
+    }
+    // Дата не в прошлом
+    const dEl = document.getElementById('date');
+    if (dEl.value < todayStr()) {
+      if (window.showToast) window.showToast('Дата доставки не может быть в прошлом', 'warning');
+      dEl.focus();
+      return false;
+    }
+    // Слот должен быть из текущего списка доступных
+    const tEl = document.getElementById('time');
+    const slots = availableSlotsFor(dEl.value);
+    if (!slots.length) {
+      if (window.showToast) window.showToast('На выбранную дату нет доступных слотов — выберите другой день', 'warning');
+      dEl.focus();
+      return false;
+    }
+    if (!tEl.value || !slots.find((s) => s.label === tEl.value)) {
+      if (window.showToast) window.showToast('Выберите доступный временной интервал', 'warning');
+      tEl.focus();
+      return false;
+    }
+    if (!cb.classList.contains('checked')) {
+      if (window.showToast) window.showToast('Поставьте галочку согласия с документами', 'warning');
+      return false;
+    }
+    return true;
+  }
+  document.getElementById('pay-btn').addEventListener('click', async () => {
+    if (!validate()) return;
+    const btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    const origLabel = btn.innerHTML;
+    btn.innerHTML = 'Оформляем…';
+    // Сохраняем все поля в customer (на случай, если не было input event)
+    const customer = { channel: (Cart.getState().customer || {}).channel || 'phone', payment: (Cart.getState().customer || {}).payment || '', consent: cb.classList.contains('checked') };
+    FIELD_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) customer[id] = el.value;
+    });
+    Cart.setCustomer(customer);
+    const order = Cart.finalize();
+    if (!order) {
+      if (window.showToast) window.showToast('Корзина пуста', 'error');
+      btn.disabled = false;
+      btn.innerHTML = origLabel;
+      return;
+    }
+    // POST в бэкенд — чтобы заказ был виден в админке. Если бэкенд не отвечает — продолжаем (заказ остался в localStorage).
+    // Маппим orderId → id, потому что бэкенд ждёт поле `id`.
+    const payload = Object.assign({}, order, { id: order.id || order.orderId });
+    try {
+      const r = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'same-origin',
+      });
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        console.warn('POST /api/orders failed:', r.status, data && data.error);
+      }
+    } catch (e) {
+      console.warn('POST /api/orders network error:', e);
+    }
+    // Robokassa интеграция позже — пока просто уходим на thank-you
+    location.href = 'thank-you.html';
+  });
+})();
+</script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

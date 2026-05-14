@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Возврат и гарантия — СОБРАНО</title>
+<meta name="description" content="Гарантия пересборки букета, порядок претензий, возврат средств. Что делать если получили не то, что ожидали." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+.hero{padding:32px 0 64px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,80px);align-items:end}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,8vw,128px);line-height:.92;letter-spacing:-.03em;margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero .lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.6}
+.guarantee-card{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:32px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.guarantee-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(140,154,123,.35),transparent 50%);pointer-events:none}
+.guarantee-card .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);position:relative}
+.guarantee-card h3{font-family:var(--serif);font-weight:400;font-size:32px;letter-spacing:-.01em;color:var(--ivory);line-height:1.05;position:relative}
+.guarantee-card h3 em{font-style:italic;color:var(--sage);font-weight:500}
+.guarantee-card p{color:rgba(242,236,227,.72);font-size:14px;position:relative}
+.gc-stat{display:flex;align-items:baseline;gap:18px;border-top:1px solid rgba(242,236,227,.18);padding-top:14px;position:relative;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.6)}
+.gc-stat strong{font-family:var(--serif);font-size:36px;letter-spacing:-.02em;color:var(--ivory);font-weight:300;text-transform:none;line-height:1}
+
+/* OPTIONS */
+.opts{padding:60px 0;border-bottom:1px solid var(--line)}
+.section-h{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:36px}
+.section-h h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-top:14px}
+.section-h h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.section-h p{color:var(--ink-soft);max-width:42ch;font-size:15px}
+
+.opts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.opt{
+  background:var(--ivory-2);border-radius:var(--r-lg);padding:28px;
+  display:flex;flex-direction:column;gap:14px;
+  transition:all .25s
+}
+.opt:hover{transform:translateY(-3px);background:var(--ink);color:var(--ivory)}
+.opt.featured{background:var(--wine);color:var(--ivory)}
+.opt .ic{
+  width:46px;height:46px;border-radius:14px;background:var(--ink);color:var(--terracotta);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:20px;font-style:italic
+}
+.opt:hover .ic,.opt.featured .ic{background:var(--terracotta);color:var(--ink)}
+.opt h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;line-height:1.1}
+.opt p{font-size:14px;color:var(--ink-soft);line-height:1.55}
+.opt:hover p,.opt.featured p{color:rgba(242,236,227,.7)}
+.opt .meta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-top:auto;padding-top:12px;border-top:1px solid var(--line-strong)}
+.opt:hover .meta,.opt.featured .meta{color:rgba(242,236,227,.55);border-top-color:rgba(242,236,227,.18)}
+
+/* PROCESS TIMELINE */
+.process{padding:60px 0;border-bottom:1px solid var(--line)}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:32px}
+.p-step{padding:32px 24px 32px 0;border-right:1px solid var(--line);position:relative}
+.p-step:last-child{border-right:0}
+.p-step .n{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terracotta);display:flex;align-items:center;gap:10px}
+.p-step .n::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--terracotta);flex:none}
+.p-step h4{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em;margin:14px 0 8px;line-height:1.15}
+.p-step p{font-size:14px;color:var(--ink-soft);line-height:1.55;max-width:28ch}
+.p-step .when{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;margin-top:14px}
+
+/* WHAT TO DO */
+.checklist{padding:60px 0;border-bottom:1px solid var(--line)}
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px}
+.cl-card{
+  background:var(--ivory-2);border-radius:var(--r-md);padding:24px 28px;
+  display:flex;gap:16px;align-items:flex-start
+}
+.cl-card .num{
+  width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:18px;flex:none
+}
+.cl-card h5{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.01em;margin-bottom:6px;line-height:1.2}
+.cl-card p{font-size:14px;color:var(--ink-soft);line-height:1.55}
+.cl-card p strong{color:var(--ink)}
+
+/* RULES */
+.rules{padding:60px 0;border-bottom:1px solid var(--line)}
+.rules-table{margin-top:32px;border-top:1px solid var(--line)}
+.rrow{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px;padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.rrow .what{font-family:var(--serif);font-size:18px;letter-spacing:-.005em;font-weight:400}
+.rrow .what small{display:block;font-family:var(--sans);font-size:13px;color:var(--mute);margin-top:4px;line-height:1.4;font-weight:400}
+.rrow .ans{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);background:var(--ivory-2);padding:8px 14px;border-radius:999px;display:inline-block;justify-self:start}
+.rrow .ans.no{background:var(--wine);color:var(--ivory)}
+.rrow .ans.yes{background:var(--sage);color:var(--ivory)}
+.rrow .ans.maybe{background:var(--ivory-2);color:var(--ink-soft)}
+.rrow .basis{font-size:12px;color:var(--mute);font-family:var(--mono);letter-spacing:.05em}
+
+/* CTA */
+.cta{padding:80px 0;background:var(--wine);color:var(--ivory);position:relative;overflow:hidden;border-radius:var(--r-lg);margin:60px 0}
+.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(201,123,92,.4),transparent 50%);pointer-events:none}
+.cta-inner{display:grid;grid-template-columns:1.4fr auto;gap:32px;align-items:center;position:relative}
+.cta h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,68px);line-height:1.05;letter-spacing:-.02em;color:var(--ivory)}
+.cta h2 em{font-style:italic;color:var(--terracotta);font-weight:400}
+.cta p{margin-top:14px;color:rgba(242,236,227,.78);font-size:15px;max-width:46ch}
+.cta .btn-xl{display:inline-flex;align-items:center;gap:14px;background:var(--ivory);color:var(--ink);padding:20px 28px;border-radius:999px;font-size:15px;font-weight:500;transition:all .25s}
+.cta .btn-xl:hover{background:var(--terracotta);color:var(--ivory);transform:translateY(-2px)}
+.cta .btn-xl .arrow{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .opts-grid{grid-template-columns:1fr}
+  .process-grid{grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+  .p-step{border-bottom:1px solid var(--line)}
+  .p-step:nth-child(2n){border-right:0}
+  .cl-grid{grid-template-columns:1fr}
+  .rrow{grid-template-columns:1fr;gap:8px}
+  .rrow .ans,.rrow .basis{justify-self:start}
+  .cta-inner{grid-template-columns:1fr}
+  .section-h{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Гарантия пересборки</span><span>24 часа на претензию</span><span>Возврат за 10 рабочих дней</span><span>Фото перед отправкой</span>
+  <span>Гарантия пересборки</span><span>24 часа на претензию</span><span>Возврат за 10 рабочих дней</span><span>Фото перед отправкой</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span style="color:var(--mute)">Помощь</span><span class="sep">/</span>
+    <span class="here">Возврат и гарантия</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" data-cms-text="content.returns.hero.eyebrow">Гарантия · возврат · претензии</span>
+        <h1 data-cms-html="content.returns.hero.titleHtml">Букет должен <em>радовать</em>.</h1>
+        <p class="lead" data-cms-text="content.returns.hero.lead">Если букет не оправдал ожиданий — мы пересоберём его за свой счёт или вернём деньги. Перед отправкой каждый бокс фотографируется, поэтому неприятных сюрпризов почти не бывает. Но если случилось — у нас есть процесс на этот случай.</p>
+      </div>
+      <div class="guarantee-card">
+        <span class="label">Наша гарантия</span>
+        <h3>Гарантия <em>пересборки</em></h3>
+        <p>Пересобираем букет бесплатно с повторной доставкой, если есть подтверждённые недостатки.</p>
+        <div class="gc-stat">
+          <strong>24<span style="font-family:var(--mono);font-size:.32em;color:rgba(242,236,227,.6);font-weight:500;letter-spacing:.06em">&nbsp;Ч</span></strong>
+          <span>На претензию с момента получения</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- OPTIONS -->
+<section class="opts">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 01 — Что мы можем сделать</span>
+        <h2>Три <em>варианта</em> на выбор.</h2>
+      </div>
+      <p>В рамках гарантии вы выбираете, какое решение вам ближе. Мы подстроимся под любой из трёх сценариев — без споров и затягивания.</p>
+    </div>
+
+    <div class="opts-grid">
+      <div class="opt featured">
+        <span class="ic">↻</span>
+        <h4>Пересборка<br>и повторная доставка</h4>
+        <p>Соберём новый букет того же размера за свой счёт и привезём в ближайший доступный слот. Самый частый выбор клиентов.</p>
+        <span class="meta">Бесплатно · 60–90 минут</span>
+      </div>
+      <div class="opt">
+        <span class="ic">−</span>
+        <h4>Соразмерное<br>уменьшение цены</h4>
+        <p>Если недостатки незначительные — вернём часть стоимости и оставим букет вам. Сумму обсуждаем индивидуально.</p>
+        <span class="meta">До 50% стоимости заказа</span>
+      </div>
+      <div class="opt">
+        <span class="ic">⌫</span>
+        <h4>Полный возврат<br>денежных средств</h4>
+        <p>Если ничего не подошло — вернём 100% оплаты на ту же карту, с которой пришла оплата. Без вычета комиссий.</p>
+        <span class="meta">10 рабочих дней</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 02 — Как подать претензию</span>
+        <h2>Четыре <em>простых шага</em>.</h2>
+      </div>
+      <p>Чем быстрее вы напишете — тем проще нам пересобрать букет, пока цветы ещё свежие в работе. SLA на ответ — 30 минут в рабочее время.</p>
+    </div>
+
+    <div class="process-grid">
+      <div class="p-step">
+        <span class="n">Шаг 01</span>
+        <h4>Сделайте фото</h4>
+        <p>Снимите букет в момент получения — общим планом и крупно проблемные места.</p>
+        <span class="when">сразу при приёмке</span>
+      </div>
+      <div class="p-step">
+        <span class="n">Шаг 02</span>
+        <h4>Напишите нам</h4>
+        <p>Лучше всего в Telegram или WhatsApp — приложите фото и опишите, что не так.</p>
+        <span class="when">в течение 24 часов</span>
+      </div>
+      <div class="p-step">
+        <span class="n">Шаг 03</span>
+        <h4>Согласуем решение</h4>
+        <p>Менеджер свяжется с вами, обсудим один из трёх вариантов из раздела выше.</p>
+        <span class="when">15–30 минут</span>
+      </div>
+      <div class="p-step">
+        <span class="n">Шаг 04</span>
+        <h4>Готово</h4>
+        <p>Если пересборка — собираем сразу. Если возврат — отправляем средства на карту.</p>
+        <span class="when">от 60 минут до 10 дней</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKLIST -->
+<section class="checklist">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 03 — Что важно для претензии</span>
+        <h2>Что <em>понадобится</em>.</h2>
+      </div>
+      <p>Это не бюрократия — мы просто хотим понять, что именно произошло, и пересобрать букет так, чтобы вторая попытка вышла удачной.</p>
+    </div>
+
+    <div class="cl-grid">
+      <div class="cl-card">
+        <span class="num">1</span>
+        <div>
+          <h5>Номер заказа</h5>
+          <p>Любой формат: <strong>SBR-204</strong>, или просто номер. Это есть в письме после оплаты, в Telegram-боте, на странице благодарности.</p>
+        </div>
+      </div>
+      <div class="cl-card">
+        <span class="num">2</span>
+        <div>
+          <h5>Фото букета</h5>
+          <p>Хотя бы одно общее фото и одно крупное на проблемное место. <strong>Снимок должен быть сделан в день получения</strong>.</p>
+        </div>
+      </div>
+      <div class="cl-card">
+        <span class="num">3</span>
+        <div>
+          <h5>Описание проблемы</h5>
+          <p>Что именно не так. Например: «Один из пионов сильно завял», «Бокс пришёл с трещиной», «Состав не совпадает с моим заказом».</p>
+        </div>
+      </div>
+      <div class="cl-card">
+        <span class="num">4</span>
+        <div>
+          <h5>Желаемый исход</h5>
+          <p>Что вам было бы удобнее: пересборка, частичный возврат или полный возврат. <strong>Если не уверены — обсудим.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RULES TABLE -->
+<section class="rules">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 04 — Что подлежит возврату</span>
+        <h2>Правила <em>по закону</em>.</h2>
+      </div>
+      <p>Живые цветы по закону — невозвратный товар надлежащего качества (ППРФ № 2463). Но это касается только формального возврата. Гарантия пересборки работает отдельно — это наш собственный сервис.</p>
+    </div>
+
+    <div class="rules-table">
+      <div class="rrow">
+        <div class="what">Бокс из живых цветов<small>Букет надлежащего качества — не понравился по составу/виду</small></div>
+        <span class="ans no">Не подлежит возврату</span>
+        <span class="basis">ППРФ № 2463 от 31.12.2020</span>
+      </div>
+      <div class="rrow">
+        <div class="what">Бокс ненадлежащего качества<small>Цветы повреждены, завяли, состав не соответствует заказу</small></div>
+        <span class="ans yes">Пересборка / возврат</span>
+        <span class="basis">ст. 18 ЗоЗПП</span>
+      </div>
+      <div class="rrow">
+        <div class="what">Ваза, открытка, подарочная упаковка<small>Сопутствующие товары надлежащего качества</small></div>
+        <span class="ans maybe">Возврат · 14 дней</small></span>
+        <span class="basis">ст. 25 ЗоЗПП</span>
+      </div>
+      <div class="rrow">
+        <div class="what">Ваза, открытка с дефектом<small>Брак, повреждение при доставке</small></div>
+        <span class="ans yes">Замена / возврат</span>
+        <span class="basis">ст. 18 ЗоЗПП</span>
+      </div>
+      <div class="rrow">
+        <div class="what">Подкормка для цветов<small>Распакована</small></div>
+        <span class="ans no">Не подлежит возврату</small></span>
+        <span class="basis">упаковка вскрыта</span>
+      </div>
+      <div class="rrow">
+        <div class="what">Заказ не доставлен<small>Курьер не приехал, заказ не передан получателю</small></div>
+        <span class="ans yes">100% возврат</span>
+        <span class="basis">ст. 23.1 ЗоЗПП</span>
+      </div>
+      <div class="rrow">
+        <div class="what">Получателя не было дома<small>Курьер приехал в слот, никого нет, связи нет</small></div>
+        <span class="ans maybe">Повторная доставка платно</small></span>
+        <span class="basis">условия оферты</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="container">
+  <section class="cta">
+    <div class="container cta-inner">
+      <div>
+        <span class="eyebrow" style="color:rgba(242,236,227,.7)">Срочно нужна помощь?</span>
+        <h2>Напишите <em>прямо сейчас</em>.</h2>
+        <p>Лучший канал — Telegram. Менеджер ответит за 15 минут в рабочее время.</p>
+      </div>
+      <a href="contacts.html" class="btn-xl">К контактам <span class="arrow">→</span></a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

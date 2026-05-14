@@ -1,0 +1,834 @@
+// Admin API routes — все за auth, кроме /api/admin/login и публичных эндпоинтов /api/*.
+const fs = require("node:fs");
+const path = require("node:path");
+const crypto = require("node:crypto");
+const store = require("./store");
+const auth = require("./auth");
+const notifications = require("./notifications");
+
+const UPLOADS_DIR = path.join(__dirname, "..", "data", "uploads");
+
+function send(res, status, body, headers = {}) {
+  res.writeHead(status, headers);
+  res.end(body);
+}
+
+function sendJson(res, status, data, extraHeaders = {}) {
+  send(res, status, JSON.stringify(data), {
+    "content-type": "application/json; charset=utf-8",
+    ...extraHeaders,
+  });
+}
+
+async function readBody(req, limit = 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    let raw = "";
+    req.setEncoding("utf8");
+    req.on("data", (chunk) => {
+      raw += chunk;
+      if (raw.length > limit) {
+        reject(new Error("Body too large"));
+        req.destroy();
+      }
+    });
+    req.on("end", () => resolve(raw));
+    req.on("error", reject);
+  });
+}
+
+async function readBinaryBody(req, limit = 8 * 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let total = 0;
+    req.on("data", (chunk) => {
+      total += chunk.length;
+      if (total > limit) {
+        reject(new Error("File too large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
+async function parseJsonBody(req) {
+  const raw = await readBody(req);
+  if (!raw) return {};
+  return JSON.parse(raw);
+}
+
+function requireSession(req, res) {
+  const sess = auth.requireAuth(req);
+  if (!sess) {
+    sendJson(res, 401, { ok: false, error: "unauthorized" });
+    return null;
+  }
+  return sess;
+}
+
+// ===== PUBLIC =====
+
+function getSettings(req, res) {
+  const s = store.getSettings();
+  // Не отдаём пароли SMTP/токены ботов — только флаги
+  const safe = JSON.parse(JSON.stringify(s));
+  if (safe.notifications) {
+    if (safe.notifications.email) {
+      delete safe.notifications.email.pass;
+      delete safe.notifications.email.user;
+    }
+    if (safe.notifications.telegram) {
+      delete safe.notifications.telegram.botToken;
+    }
+  }
+  sendJson(res, 200, { ok: true, settings: safe });
+}
+
+// Валидация промокода и пересчёт скидки на стороне сервера. Клиент НЕ доверенный источник:
+// он может прислать любой код, любой discount, любой total — бэкенд переиспользует только
+// поля корзины (бокс/допы/доставка), всё остальное считает сам по своему справочнику.
+// Возвращает { code, discount, reason } — code/discount равны null/0 если промо отклонён.
+function validatePromoServer(rawCode, subtotal) {
+  const out = { code: null, discount: 0, reason: null };
+  if (!rawCode) return out;
+  const code = String(rawCode).trim().toUpperCase();
+  if (!code) return out;
+  const promos = store.listSection("promos");
+  const p = promos.find((x) => String(x.code).toUpperCase() === code);
+  if (!p) { out.reason = "not-found"; return out; }
+  if (p.active === false) { out.reason = "inactive"; return out; }
+  if (p.expiresAt) {
+    const t = Date.parse(p.expiresAt);
+    if (!isNaN(t) && t < Date.now()) { out.reason = "expired"; return out; }
+  }
+  if (p.maxUses && (p.usedCount || 0) >= Number(p.maxUses)) {
+    out.reason = "limit-reached"; return out;
+  }
+  if (p.minSubtotal && subtotal < Number(p.minSubtotal)) {
+    out.reason = "min-subtotal"; return out;
+  }
+  const pct = Number(p.discountPct) || 0;
+  const discount = Math.round(Math.max(0, subtotal) * pct / 100);
+  out.code = code;
+  out.discount = discount;
+  return out;
+}
+
+async function postOrder(req, res, env) {
+  try {
+    const payload = await parseJsonBody(req);
+    if (!payload || typeof payload !== "object") throw new Error("Invalid payload");
+    // Принимаем `id` или `orderId` — Cart.finalize() на фронте генерит orderId, бэкенд хранит как id.
+    const orderId = payload.id || payload.orderId;
+    if (!orderId) throw new Error("Order id required");
+
+    // Пересчитываем subtotal / discount / total от справочника каталога.
+    // Это закрывает дыру «клиент может прислать любой total» — мы доверяем только составу заказа.
+    const subtotal = Math.max(0, Math.round(Number(payload.subtotal) || 0));
+    const deliveryPrice = Math.max(0, Math.round(Number(payload.deliveryPrice) || 0));
+    const promoResult = validatePromoServer(payload.promo, subtotal);
+    const total = Math.max(0, subtotal + deliveryPrice - promoResult.discount);
+
+    if (subtotal <= 0) throw new Error("Order subtotal required");
+
+    const order = {
+      id: String(orderId).slice(0, 40),
+      box: payload.box || null,
+      addons: Array.isArray(payload.addons) ? payload.addons : [],
+      delivery: payload.delivery || "own",
+      deliveryPrice,
+      promo: promoResult.code,
+      discount: promoResult.discount,
+      promoRejectedReason: promoResult.reason,
+      subtotal,
+      total,
+      customer: payload.customer || null,
+      source: "web",
+    };
+    const saved = store.addOrder(order);
+    if (saved.promo) store.bumpPromoUsage(saved.promo);
+    notifications.onOrderCreated(saved);
+    const promoLog = promoResult.code
+      ? "promo=" + promoResult.code + " -" + promoResult.discount + "₽"
+      : (payload.promo ? "promo-rejected(" + payload.promo + ":" + promoResult.reason + ")" : "no-promo");
+    console.log("[order] saved", saved.id, "subtotal=" + subtotal, "total=" + total, promoLog, "from", (saved.customer && saved.customer.phone) || "no-phone");
+    sendJson(res, 200, {
+      ok: true,
+      id: saved.id,
+      discount: saved.discount,
+      total: saved.total,
+      promoRejected: promoResult.reason,
+    });
+  } catch (e) {
+    console.warn("[order] rejected:", e.message);
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+function getCatalog(req, res) {
+  const c = store.getCatalog();
+  sendJson(res, 200, { ok: true, catalog: c });
+}
+
+// Публичный список способов оплаты для чекаута: фильтр по active/hidden + Robokassa-методы скрываются если креды не заполнены.
+function getPayments(req, res) {
+  const all = store.listSection("payments");
+  const rk = store.getRobokassa();
+  const robokassaReady = !!(rk.merchantLogin && rk.password1 && rk.password2);
+  const methods = all
+    .filter((p) => p.active !== false && !p.hidden)
+    .filter((p) => {
+      if (p.type === "robokassa-card" || p.type === "robokassa-sbp") return robokassaReady;
+      return true;
+    })
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    // Не отдаём internal-метки наружу: builtin/order не нужны на фронте
+    .map((p) => ({
+      id: p.id,
+      type: p.type,
+      title: p.title,
+      description: p.description || "",
+      icon: p.icon || "",
+      instruction: p.instruction || "",
+    }));
+  sendJson(res, 200, { ok: true, methods, robokassaReady });
+}
+
+function getContentPublic(req, res) {
+  const c = store.getContent();
+  const settings = store.getSettings();
+  // Реквизиты доезжают сюда же — фронту удобнее одним запросом
+  sendJson(res, 200, {
+    ok: true,
+    content: c,
+    requisites: settings.requisites || {},
+    contacts: settings.contacts || {},
+  });
+}
+
+function getLegalPublic(req, res, key) {
+  const doc = store.getLegal(key);
+  if (!doc) { sendJson(res, 404, { ok: false, error: "Unknown doc" }); return; }
+  // публично — только md, version, updatedAt; без истории
+  sendJson(res, 200, { ok: true, doc: { md: doc.md, version: doc.version, updatedAt: doc.updatedAt } });
+}
+
+// ===== AUTH =====
+
+async function login(req, res, env) {
+  try {
+    const body = await parseJsonBody(req);
+    const token = auth.login(env, body.login, body.password);
+    if (!token) {
+      sendJson(res, 401, { ok: false, error: "Неверные логин или пароль" });
+      return;
+    }
+    sendJson(res, 200, { ok: true, token }, {
+      "set-cookie": `sob_admin=${token}; Path=/; Max-Age=43200; HttpOnly; SameSite=Lax`,
+    });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: "Bad request" });
+  }
+}
+
+function logout(req, res) {
+  const token = auth.tokenFromReq(req);
+  if (token) auth.logout(token);
+  sendJson(res, 200, { ok: true }, {
+    "set-cookie": "sob_admin=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax",
+  });
+}
+
+function me(req, res) {
+  const sess = auth.requireAuth(req);
+  if (!sess) {
+    sendJson(res, 401, { ok: false, error: "unauthorized" });
+    return;
+  }
+  sendJson(res, 200, { ok: true, login: sess.login, expiresAt: sess.expiresAt });
+}
+
+// ===== ORDERS =====
+
+function listOrders(req, res) {
+  if (!requireSession(req, res)) return;
+  sendJson(res, 200, { ok: true, orders: store.getOrders() });
+}
+
+function exportOrdersCsv(req, res) {
+  if (!requireSession(req, res)) return;
+  const orders = store.getOrders();
+  const url = new URL(req.url, "http://x");
+  const filtered = filterOrders(orders, Object.fromEntries(url.searchParams.entries()));
+  const csv = ordersToCsv(filtered);
+  const bom = "﻿"; // BOM, чтобы Excel понял UTF-8
+  res.writeHead(200, {
+    "content-type": "text/csv; charset=utf-8",
+    "content-disposition": `attachment; filename="orders-${new Date().toISOString().slice(0,10)}.csv"`,
+  });
+  res.end(bom + csv);
+}
+
+function filterOrders(orders, q) {
+  let arr = orders.slice();
+  if (q.status) arr = arr.filter(o => (o.status || "new") === q.status);
+  if (q.query) {
+    const needle = String(q.query).toLowerCase().trim();
+    arr = arr.filter(o => {
+      const hay = [o.id, o.trackNo, o.customer && o.customer.name, o.customer && o.customer.phone, o.customer && o.customer.email, o.customer && o.customer.addr].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(needle);
+    });
+  }
+  if (q.dateFrom) {
+    const t = Date.parse(q.dateFrom);
+    if (!isNaN(t)) arr = arr.filter(o => o.createdAt >= t);
+  }
+  if (q.dateTo) {
+    const t = Date.parse(q.dateTo) + 24*3600*1000; // включительно весь день
+    if (!isNaN(t)) arr = arr.filter(o => o.createdAt < t);
+  }
+  if (q.minTotal) {
+    const m = Number(q.minTotal);
+    arr = arr.filter(o => (o.total || 0) >= m);
+  }
+  if (q.maxTotal) {
+    const m = Number(q.maxTotal);
+    arr = arr.filter(o => (o.total || 0) <= m);
+  }
+  return arr;
+}
+
+function ordersToCsv(orders) {
+  const cols = [
+    ["id", "ID"], ["createdAt", "Создан"], ["status", "Статус"],
+    ["customer.name", "ФИО"], ["customer.phone", "Телефон"], ["customer.email", "Email"],
+    ["customer.addr", "Адрес"], ["customer.date", "Дата доставки"], ["customer.time", "Слот"],
+    ["box.size", "Размер бокса"], ["box.capacity", "Стеблей"],
+    ["addonsList", "Допы"],
+    ["delivery", "Канал доставки"], ["deliveryPrice", "Стоимость доставки"],
+    ["promo", "Промокод"], ["discount", "Скидка"],
+    ["subtotal", "Подытог"], ["total", "Итого"],
+    ["trackNo", "Трек-номер"], ["courier", "Курьер"],
+    ["refund.status", "Статус возврата"], ["refund.amount", "Сумма возврата"], ["refund.reason", "Причина возврата"],
+    ["note", "Заметка"],
+  ];
+  const header = cols.map(c => csvEsc(c[1])).join(";");
+  const rows = orders.map(o => cols.map(([key]) => csvEsc(deepGet(o, key, ""))).join(";"));
+  return [header, ...rows].join("\r\n");
+}
+
+function deepGet(obj, path, fallback) {
+  const parts = path.split(".");
+  let cur = obj;
+  for (const p of parts) {
+    if (cur == null) return fallback;
+    if (p === "addonsList") {
+      return Array.isArray(obj.addons) ? obj.addons.map(a => (a.title || a.id) + "×" + a.qty).join(", ") : "";
+    }
+    cur = cur[p];
+  }
+  if (path === "createdAt" && typeof cur === "number") {
+    return new Date(cur).toISOString().replace("T", " ").slice(0, 19);
+  }
+  return cur == null ? fallback : cur;
+}
+
+function csvEsc(v) {
+  if (v == null) return "";
+  let s = String(v);
+  if (s.includes("\"") || s.includes(";") || s.includes("\n")) {
+    s = '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+async function patchOrder(req, res, id) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    const prev = store.getOrderById(id);
+    if (!prev) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+
+    // Уборка полей
+    const patch = {};
+    if (typeof body.status === "string") patch.status = body.status;
+    if (typeof body.note === "string") patch.note = body.note.slice(0, 5000);
+    if (typeof body.trackNo === "string") patch.trackNo = body.trackNo.slice(0, 80);
+    if (typeof body.courier === "string") patch.courier = body.courier.slice(0, 80);
+    if (typeof body.photo === "string") patch.photo = body.photo.slice(0, 500);
+    if (typeof body.statusNote === "string") patch.statusNote = body.statusNote;
+    if (body.refund !== undefined) {
+      patch.refund = sanitizeRefund(body.refund);
+    }
+
+    const updated = store.updateOrder(id, patch);
+    if (!updated) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+
+    if (patch.status && patch.status !== prev.status) {
+      notifications.onOrderStatusChanged(updated, prev.status);
+    }
+    if (patch.refund && (!prev.refund || prev.refund.status !== patch.refund.status)) {
+      notifications.onRefundChanged(updated);
+    }
+
+    sendJson(res, 200, { ok: true, order: updated });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+function sanitizeRefund(r) {
+  if (r === null) return null;
+  if (typeof r !== "object") return null;
+  const out = {
+    status: ["none", "requested", "approved", "processed", "rejected"].includes(r.status) ? r.status : "requested",
+    amount: Number(r.amount) || 0,
+    reason: String(r.reason || "").slice(0, 1000),
+    at: r.at || Date.now(),
+  };
+  return out;
+}
+
+function getOrder(req, res, id) {
+  if (!requireSession(req, res)) return;
+  const o = store.getOrderById(id);
+  if (!o) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+  sendJson(res, 200, { ok: true, order: o });
+}
+
+// ===== SETTINGS =====
+
+async function patchSettings(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    const patch = await parseJsonBody(req);
+    // Не даём админ-UI зацепить чувствительное через настройки случайно
+    if (patch && patch.robokassa) delete patch.robokassa;
+    const updated = store.setSettings(patch || {});
+    // Скрываем пароли в ответе
+    const safe = JSON.parse(JSON.stringify(updated));
+    if (safe.notifications && safe.notifications.email) {
+      const hasPass = !!safe.notifications.email.pass;
+      delete safe.notifications.email.pass;
+      safe.notifications.email.hasPass = hasPass;
+    }
+    if (safe.notifications && safe.notifications.telegram) {
+      const hasToken = !!safe.notifications.telegram.botToken;
+      delete safe.notifications.telegram.botToken;
+      safe.notifications.telegram.hasToken = hasToken;
+    }
+    sendJson(res, 200, { ok: true, settings: safe });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: "Bad request" });
+  }
+}
+
+function getAdminSettings(req, res) {
+  if (!requireSession(req, res)) return;
+  const s = store.getSettings();
+  const safe = JSON.parse(JSON.stringify(s));
+  if (safe.notifications && safe.notifications.email) {
+    const hasPass = !!safe.notifications.email.pass;
+    delete safe.notifications.email.pass;
+    safe.notifications.email.hasPass = hasPass;
+  }
+  if (safe.notifications && safe.notifications.telegram) {
+    const hasToken = !!safe.notifications.telegram.botToken;
+    delete safe.notifications.telegram.botToken;
+    safe.notifications.telegram.hasToken = hasToken;
+  }
+  sendJson(res, 200, { ok: true, settings: safe });
+}
+
+// ===== ROBOKASSA =====
+
+function getRobokassa(req, res) {
+  if (!requireSession(req, res)) return;
+  const r = store.getRobokassa();
+  sendJson(res, 200, {
+    ok: true,
+    robokassa: {
+      merchantLogin: r.merchantLogin || "",
+      isTest: r.isTest !== false,
+      hashAlgorithm: r.hashAlgorithm || "md5",
+      hasPassword1: !!r.password1,
+      hasPassword2: !!r.password2,
+      ready: !!(r.merchantLogin && r.password1 && r.password2),
+    },
+  });
+}
+
+async function patchRobokassa(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    const patch = await parseJsonBody(req);
+    if (patch && typeof patch === "object") {
+      if (patch.password1 != null) patch.password1 = String(patch.password1);
+      if (patch.password2 != null) patch.password2 = String(patch.password2);
+      if (patch.isTest != null) patch.isTest = !!patch.isTest;
+    }
+    const updated = store.setRobokassa(patch || {});
+    sendJson(res, 200, {
+      ok: true,
+      robokassa: {
+        merchantLogin: updated.merchantLogin,
+        isTest: updated.isTest,
+        hashAlgorithm: updated.hashAlgorithm,
+        hasPassword1: !!updated.password1,
+        hasPassword2: !!updated.password2,
+        ready: !!(updated.merchantLogin && updated.password1 && updated.password2),
+      },
+    });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: "Bad request" });
+  }
+}
+
+// ===== CATALOG =====
+
+async function putCatalogItem(req, res, section, id) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    if (!body || typeof body !== "object") throw new Error("Bad payload");
+    const idField = section === "promos" ? "code" : "id";
+    if (id) body[idField] = id;
+
+    // Защита от изменения id/type у встроенных способов оплаты
+    if (section === "payments") {
+      const existing = store.listSection("payments").find((p) => p.id === body.id);
+      if (existing && existing.builtin) {
+        body.builtin = true;
+        body.id = existing.id;
+        body.type = existing.type;
+      } else {
+        body.builtin = false;
+        // Не даём кастомным методам присваивать тип built-in (чтобы не подменить интеграцию)
+        if (body.type === "robokassa-card" || body.type === "robokassa-sbp") {
+          throw new Error("Тип `robokassa-card` / `robokassa-sbp` зарезервирован под встроенные методы. Используйте `custom` для своего способа.");
+        }
+      }
+    }
+
+    const item = store.upsertItem(section, body);
+    sendJson(res, 200, { ok: true, item });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+async function deleteCatalogItem(req, res, section, id) {
+  if (!requireSession(req, res)) return;
+  try {
+    // Запрещаем удалять встроенные способы оплаты — их можно только отключить через флаг `active`.
+    if (section === "payments") {
+      const item = store.listSection("payments").find((p) => p.id === id);
+      if (item && item.builtin) {
+        sendJson(res, 400, { ok: false, error: "Встроенный способ оплаты нельзя удалить — снимите галку «Активен», чтобы скрыть с чекаута." });
+        return;
+      }
+    }
+    const ok = store.deleteItem(section, id);
+    if (!ok) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+    sendJson(res, 200, { ok: true });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+async function reorderCatalogSection(req, res, section) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    if (!body || !Array.isArray(body.ids)) throw new Error("ids: array required");
+    const items = store.reorderItems(section, body.ids);
+    sendJson(res, 200, { ok: true, items });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+// ===== CONTENT =====
+
+function getContent(req, res) {
+  if (!requireSession(req, res)) return;
+  const c = store.getContent();
+  sendJson(res, 200, { ok: true, content: c });
+}
+
+async function patchContent(req, res, section) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    const c = store.patchContent(section || null, body || {});
+    sendJson(res, 200, { ok: true, content: c });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+async function putContentSection(req, res, section) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    const c = store.setContentSection(section, body);
+    sendJson(res, 200, { ok: true, section: c });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+// ===== FAQ =====
+
+function listFaq(req, res) {
+  if (!requireSession(req, res)) return;
+  sendJson(res, 200, { ok: true, faq: store.listFaq() });
+}
+
+async function upsertFaq(req, res, id) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    if (id) body.id = id;
+    const item = store.upsertFaq(body);
+    sendJson(res, 200, { ok: true, item });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+function deleteFaq(req, res, id) {
+  if (!requireSession(req, res)) return;
+  const ok = store.deleteFaq(id);
+  if (!ok) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+  sendJson(res, 200, { ok: true });
+}
+
+async function reorderFaq(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    if (!Array.isArray(body.ids)) throw new Error("ids: array required");
+    const items = store.reorderFaq(body.ids);
+    sendJson(res, 200, { ok: true, items });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+// ===== LEGAL =====
+
+function listLegal(req, res) {
+  if (!requireSession(req, res)) return;
+  sendJson(res, 200, { ok: true, legal: store.getAllLegal() });
+}
+
+function getLegal(req, res, key) {
+  if (!requireSession(req, res)) return;
+  const doc = store.getLegal(key);
+  if (!doc) { sendJson(res, 404, { ok: false, error: "unknown doc" }); return; }
+  sendJson(res, 200, { ok: true, doc });
+}
+
+async function saveLegal(req, res, key) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    const doc = store.saveLegal(key, body.md || "", { by: (auth.requireAuth(req) || {}).login || "admin" });
+    sendJson(res, 200, { ok: true, doc });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+// ===== REFERRAL: generate promo per customer =====
+
+async function generateReferralPromo(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    const name = String(body.name || "").trim();
+    if (!name) throw new Error("name required");
+    const mech = store.getContent().referral && store.getContent().referral.mechanics || {};
+    const prefix = (mech.promoPrefix || "REF").toUpperCase();
+    const slug = name
+      .toUpperCase()
+      .replace(/[^A-ZА-ЯЁ0-9]+/g, "")
+      .slice(0, 10);
+    const rand = crypto.randomBytes(2).toString("hex").toUpperCase();
+    const code = `${prefix}-${slug}-${rand}`;
+    const promo = {
+      code,
+      label: `Реф · ${name}`,
+      discountPct: Number(mech.friendDiscountPct) || 10,
+      minSubtotal: Number(mech.minOrderForBonus) || 0,
+      maxUses: null,
+      expiresAt: null,
+      active: true,
+      ref: true,
+      refOwner: { name, email: body.email || "", phone: body.phone || "" },
+      bonusForOwner: Number(mech.ownerBonusAmount) || 500,
+      usedCount: 0,
+    };
+    const saved = store.upsertItem("promos", promo);
+    sendJson(res, 200, { ok: true, promo: saved });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+// ===== NOTIFICATIONS test =====
+
+async function notificationsTest(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    if (body.channel === "telegram") {
+      const r = await notifications.testTelegram();
+      sendJson(res, 200, { ok: !!r.ok, result: r });
+      return;
+    }
+    if (body.channel === "email") {
+      const r = await notifications.testEmail(body.to || "");
+      sendJson(res, r.ok ? 200 : 400, { ok: !!r.ok, error: r.error || null });
+      return;
+    }
+    sendJson(res, 400, { ok: false, error: "Unknown channel" });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+// ===== UPLOADS =====
+
+const ALLOWED_IMG_TYPES = {
+  "image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png",
+  "image/webp": "webp", "image/gif": "gif", "image/svg+xml": "svg",
+  "image/avif": "avif",
+};
+
+function safeFilename(name) {
+  return String(name || "file")
+    .replace(/[^A-Za-z0-9._-]/g, "_")
+    .replace(/^[._]+/, "")
+    .slice(0, 80) || "file";
+}
+
+async function uploadImage(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    const ct = String(req.headers["content-type"] || "").split(";")[0].trim().toLowerCase();
+    const ext = ALLOWED_IMG_TYPES[ct];
+    if (!ext) {
+      sendJson(res, 400, { ok: false, error: "Unsupported image type. Allowed: " + Object.keys(ALLOWED_IMG_TYPES).join(", ") });
+      return;
+    }
+    const buf = await readBinaryBody(req);
+    if (buf.length === 0) { sendJson(res, 400, { ok: false, error: "Empty body" }); return; }
+
+    if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+    const xname = String(req.headers["x-filename"] || "").trim();
+    const baseHint = xname ? safeFilename(xname.replace(/\.[a-z0-9]+$/i, "")) : "img";
+    const ts = Date.now();
+    const rand = crypto.randomBytes(4).toString("hex");
+    const finalName = `${ts}-${rand}-${baseHint}.${ext}`;
+    const finalPath = path.join(UPLOADS_DIR, finalName);
+    fs.writeFileSync(finalPath, buf);
+    sendJson(res, 200, {
+      ok: true,
+      url: `/uploads/${finalName}`,
+      filename: finalName,
+      size: buf.length,
+      contentType: ct,
+    });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Upload failed" });
+  }
+}
+
+function listUploads(req, res) {
+  if (!requireSession(req, res)) return;
+  try {
+    if (!fs.existsSync(UPLOADS_DIR)) { sendJson(res, 200, { ok: true, files: [] }); return; }
+    const files = fs.readdirSync(UPLOADS_DIR)
+      .filter((f) => !f.startsWith("."))
+      .map((f) => {
+        const stat = fs.statSync(path.join(UPLOADS_DIR, f));
+        return { url: "/uploads/" + f, filename: f, size: stat.size, mtime: stat.mtimeMs };
+      })
+      .sort((a, b) => b.mtime - a.mtime);
+    sendJson(res, 200, { ok: true, files });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "List failed" });
+  }
+}
+
+async function deleteUpload(req, res, filename) {
+  if (!requireSession(req, res)) return;
+  try {
+    if (!filename || filename.includes("/") || filename.includes("..")) {
+      sendJson(res, 400, { ok: false, error: "Bad filename" });
+      return;
+    }
+    const filePath = path.join(UPLOADS_DIR, filename);
+    if (!fs.existsSync(filePath)) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+    fs.unlinkSync(filePath);
+    sendJson(res, 200, { ok: true });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Delete failed" });
+  }
+}
+
+module.exports = {
+  // public
+  getSettings,
+  postOrder,
+  getCatalog,
+  getPayments,
+  getContentPublic,
+  getLegalPublic,
+  // auth
+  login,
+  logout,
+  me,
+  // orders
+  listOrders,
+  patchOrder,
+  getOrder,
+  exportOrdersCsv,
+  // settings
+  patchSettings,
+  getAdminSettings,
+  // robokassa
+  getRobokassa,
+  patchRobokassa,
+  // catalog
+  putCatalogItem,
+  deleteCatalogItem,
+  reorderCatalogSection,
+  // content
+  getContent,
+  patchContent,
+  putContentSection,
+  // faq
+  listFaq,
+  upsertFaq,
+  deleteFaq,
+  reorderFaq,
+  // legal
+  listLegal,
+  getLegal,
+  saveLegal,
+  // referral
+  generateReferralPromo,
+  // notifications
+  notificationsTest,
+  // uploads
+  uploadImage,
+  listUploads,
+  deleteUpload,
+};

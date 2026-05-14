@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>СОБРАНО · Админка</title>
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter',sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:18px;--r-md:12px;--r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+a{color:var(--wine);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+
+.app{display:grid;grid-template-rows:auto auto 1fr;min-height:100vh}
+
+/* TOPBAR */
+.top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;background:var(--ink);color:var(--ivory);
+  position:sticky;top:0;z-index:10
+}
+.top .brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.01em}
+.top .mark{width:24px;height:24px;border-radius:50%;background:var(--wine);position:relative;flex:none}
+.top .mark::after{content:"";position:absolute;inset:5px;border-radius:50%;background:radial-gradient(circle at 35% 35%, var(--terracotta), var(--wine) 70%)}
+.top .meta{display:flex;align-items:center;gap:24px;font-size:13px;color:rgba(242,236,227,.65);font-family:var(--mono);letter-spacing:.06em}
+.top .meta strong{color:var(--ivory);font-family:var(--mono);font-weight:500}
+.top .meta button{padding:6px 12px;border-radius:999px;border:1px solid rgba(242,236,227,.2);font-size:12px;color:rgba(242,236,227,.8);transition:all .2s}
+.top .meta button:hover{background:rgba(242,236,227,.08);color:var(--ivory)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;background:rgba(201,123,92,.18);color:var(--terracotta);padding:4px 10px;border-radius:999px}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--ivory-2);border-bottom:1px solid var(--line);padding:0 32px}
+.tab{
+  padding:14px 22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);border-bottom:2px solid transparent;transition:all .2s
+}
+.tab.active{color:var(--ink);border-bottom-color:var(--wine)}
+.tab:hover{color:var(--ink)}
+
+/* MAIN */
+.main{padding:32px;max-width:1280px;width:100%;margin:0 auto}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:28px;margin-bottom:20px}
+.card h2{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;margin-bottom:6px}
+.card p.sub{color:var(--mute);font-size:13px;margin-bottom:18px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.row.full{grid-template-columns:1fr}
+.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+.field input:not([type=checkbox]):not([type=radio]),.field select,.field textarea{
+  width:100%;padding:11px 14px;border:1px solid var(--line-strong);border-radius:var(--r-sm);
+  background:#fff;font-size:14px;transition:border-color .15s
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field textarea{resize:vertical;min-height:64px}
+/* Чекбокс в строке формы: компактный, лейбл рядом, без растяжения и uppercase */
+.field.checkbox{margin:0}
+.field.checkbox label{
+  display:inline-flex;align-items:center;gap:10px;cursor:pointer;
+  font-family:var(--sans);font-size:13.5px;letter-spacing:0;text-transform:none;
+  color:var(--ink);font-weight:400;margin:0;line-height:1.35;padding:6px 0
+}
+.field.checkbox input[type=checkbox]{
+  width:18px;height:18px;flex:none;accent-color:var(--wine);cursor:pointer;margin:0
+}
+/* Лейбл-таблетка в FAQ-модалке ("Главная", "Доставка", ...) */
+.page-chip{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  font-family:var(--sans);font-size:13px;color:var(--ink);
+  padding:6px 12px;border-radius:999px;background:var(--ivory);
+  transition:background .15s,border-color .15s;border:1px solid var(--line)
+}
+.page-chip:hover{background:var(--ivory-2);border-color:var(--line-strong)}
+.page-chip input[type=checkbox]{width:16px;height:16px;flex:none;accent-color:var(--wine);cursor:pointer;margin:0}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;
+  background:var(--ink);color:var(--ivory);font-size:13px;font-weight:500;transition:background .15s, transform .15s
+}
+.btn:hover{background:var(--wine);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
+.btn-ghost:hover{background:var(--ivory-2);border-color:var(--ink)}
+.btn-danger{background:var(--wine)}
+.btn-danger:hover{background:var(--wine-deep)}
+
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:80vh;padding:32px}
+.login{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:36px;width:min(420px,100%);box-shadow:0 30px 80px -30px rgba(26,20,16,.18)
+}
+.login h1{font-family:var(--serif);font-weight:300;font-size:34px;letter-spacing:-.02em;margin-bottom:6px}
+.login h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.login p{color:var(--mute);font-size:13px;margin-bottom:24px}
+.login .field{margin-bottom:14px}
+.login .btn{width:100%;justify-content:center;margin-top:8px}
+.error{background:rgba(92,31,37,.08);color:var(--wine);padding:12px 14px;border-radius:var(--r-sm);font-size:13px;margin-bottom:14px;display:none}
+.error.show{display:block}
+
+/* ORDERS */
+.orders-table{width:100%;border-collapse:collapse}
+.orders-table th{
+  text-align:left;padding:12px 14px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--mute);
+  border-bottom:1px solid var(--line);background:var(--ivory)
+}
+.orders-table td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px}
+.orders-table tr:hover td{background:var(--ivory)}
+.orders-table .id{font-family:var(--mono);font-size:12px;color:var(--mute)}
+.orders-table .name{font-family:var(--serif);font-size:16px}
+.orders-table .total{font-family:var(--serif);font-size:18px;letter-spacing:-.01em;text-align:right;white-space:nowrap}
+.status{display:inline-block;padding:4px 10px;border-radius:999px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.status-new{background:rgba(201,123,92,.18);color:var(--terracotta)}
+.status-paid{background:rgba(140,154,123,.18);color:var(--sage)}
+.status-doing{background:rgba(122,107,94,.18);color:var(--mute)}
+.status-shipped{background:rgba(92,31,37,.10);color:var(--wine)}
+.status-done{background:rgba(26,20,16,.10);color:var(--ink)}
+.status-cancelled{background:#eee;color:var(--mute)}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mini-btn{padding:5px 10px;border-radius:999px;font-size:11px;background:var(--ivory-2);color:var(--ink);transition:all .15s}
+.mini-btn:hover{background:var(--ink);color:var(--ivory)}
+
+.empty{padding:60px 20px;text-align:center;color:var(--mute)}
+.empty h3{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);margin-bottom:6px}
+
+.toggle{
+  display:inline-flex;align-items:center;gap:10px;cursor:pointer;
+  padding:6px 12px;border-radius:999px;background:var(--ivory-2);font-size:12px
+}
+.toggle .dot{width:14px;height:14px;border-radius:50%;background:var(--mute);transition:background .2s}
+.toggle.on{background:rgba(140,154,123,.18);color:var(--sage)}
+.toggle.on .dot{background:var(--sage)}
+.toggle.off{background:rgba(201,123,92,.18);color:var(--terracotta)}
+.toggle.off .dot{background:var(--terracotta)}
+
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:18px}
+.stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.stat .val{font-family:var(--serif);font-size:30px;letter-spacing:-.02em;font-weight:300}
+.stat .val em{color:var(--wine);font-style:italic;font-weight:400}
+
+.detail-modal{
+  position:fixed;inset:0;background:rgba(15,11,8,.55);display:none;align-items:flex-start;justify-content:center;
+  padding:60px 20px;overflow-y:auto;z-index:100;backdrop-filter:blur(8px)
+}
+.detail-modal.show{display:flex}
+.detail-card{
+  background:#fff;border-radius:var(--r-lg);width:min(720px,100%);padding:32px;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.4)
+}
+.detail-card.wide{width:min(960px,100%)}
+
+/* SUB-TABS (для каталога) */
+.subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:18px}
+.subtab{padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);border-bottom:2px solid transparent}
+.subtab.active{color:var(--ink);border-bottom-color:var(--wine)}
+.subtab:hover{color:var(--ink)}
+.subtab .badge{display:inline-block;margin-left:6px;background:var(--ivory-2);color:var(--mute);padding:1px 7px;border-radius:999px;font-size:10px}
+.subtab.active .badge{background:var(--wine);color:var(--ivory)}
+
+.catalog-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.catalog-table{width:100%;border-collapse:collapse}
+.catalog-table th{text-align:left;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid var(--line);background:var(--ivory)}
+.catalog-table td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13px}
+.catalog-table tr:hover td{background:var(--ivory)}
+.catalog-table .thumb{width:48px;height:48px;border-radius:8px;background:var(--ivory-2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:var(--mute)}
+.catalog-table .thumb img{width:100%;height:100%;object-fit:cover}
+.catalog-table .name{font-family:var(--serif);font-size:16px;letter-spacing:-.005em}
+.catalog-table .meta{color:var(--mute);font-size:12px;margin-top:2px;font-family:var(--mono);letter-spacing:.06em}
+.catalog-table .actions{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.tag-fresh{background:rgba(140,154,123,.18);color:var(--sage)}
+.tag-out{background:rgba(122,107,94,.18);color:var(--mute)}
+.tag-exo{background:rgba(92,31,37,.10);color:var(--wine)}
+.tag-sale{background:rgba(201,123,92,.18);color:var(--terracotta)}
+.tag-hidden{background:#eee;color:var(--mute)}
+
+/* IMAGE PICKER (в модалке редактирования) */
+.image-picker{display:flex;align-items:center;gap:14px;padding:14px;background:var(--ivory);border-radius:var(--r-sm);margin-bottom:14px}
+.image-picker .preview{width:80px;height:80px;border-radius:8px;background:#fff;border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:var(--mute);flex:none}
+.image-picker .preview img{width:100%;height:100%;object-fit:cover}
+.image-picker .controls{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.image-picker .url{font-family:var(--mono);font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.image-picker .btns{display:flex;gap:6px;flex-wrap:wrap}
+.image-picker input[type="file"]{display:none}
+
+/* COMPOSITION (для подборок) */
+.composition-builder{background:var(--ivory);border-radius:var(--r-sm);padding:14px;margin-bottom:14px}
+.composition-row{display:grid;grid-template-columns:1fr 80px 36px;gap:8px;align-items:center;margin-bottom:6px}
+.composition-row select,.composition-row input{padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:13px;background:#fff}
+.composition-add{margin-top:8px;font-size:12px;color:var(--wine)}
+.composition-total{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.composition-total strong{color:var(--ink);font-family:var(--serif);font-size:16px;letter-spacing:-.01em}
+.composition-total.over{color:var(--wine)}
+.composition-total.over strong{color:var(--wine)}
+
+/* MEDIA LIBRARY */
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.media-item{position:relative;aspect-ratio:1;background:var(--ivory-2);border-radius:8px;overflow:hidden;cursor:pointer}
+.media-item img{width:100%;height:100%;object-fit:cover;transition:transform .25s}
+.media-item:hover img{transform:scale(1.03)}
+.media-item .ov{position:absolute;inset:auto 0 0 0;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;padding:8px;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:10px;letter-spacing:.06em;opacity:0;transition:opacity .2s}
+.media-item:hover .ov{opacity:1}
+.media-item .ov .del{background:rgba(255,255,255,.2);color:#fff;border-radius:4px;padding:2px 6px;font-size:11px}
+.media-empty{padding:40px 20px;text-align:center;color:var(--mute);font-size:13px;border:1px dashed var(--line-strong);border-radius:var(--r-md)}
+.detail-card .head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.detail-card .head h2{font-family:var(--serif);font-size:28px;font-weight:300;letter-spacing:-.02em}
+.detail-card .head .x{width:34px;height:34px;border-radius:50%;background:var(--ivory-2);font-size:18px;display:flex;align-items:center;justify-content:center}
+.detail-card .head .x:hover{background:var(--ink);color:var(--ivory)}
+.detail-section{margin-bottom:18px}
+.detail-section h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:6px 14px;font-size:13px}
+.kv .lbl{color:var(--mute);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.kv .val{color:var(--ink)}
+.composition{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.composition span{font-family:var(--mono);font-size:11px;background:var(--ivory-2);padding:4px 10px;border-radius:999px}
+
+/* ORDER FILTERS / PAGER */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;padding:14px 22px;background:var(--ivory);border-bottom:1px solid var(--line);align-items:flex-end}
+.filter-bar .field{margin:0;display:flex;flex-direction:column;justify-content:flex-end}
+.filter-bar .field label{margin-bottom:4px;font-size:10px;line-height:1.3;min-height:26px;display:flex;align-items:flex-end}
+.filter-bar .field input,.filter-bar .field select{padding:8px 10px;font-size:13px;height:36px}
+.filter-bar #f-reset{height:36px;margin:0;padding:0 14px}
+.pager{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid var(--line);font-size:13px;color:var(--mute);gap:14px;flex-wrap:wrap}
+.pager .pager-btns{display:flex;gap:6px;align-items:center}
+.pager button{padding:6px 12px;border-radius:999px;background:var(--ivory-2);font-size:12px;color:var(--ink)}
+.pager button:hover{background:var(--ink);color:var(--ivory)}
+.pager button:disabled{opacity:.4;cursor:not-allowed;background:var(--ivory-2);color:var(--mute)}
+
+/* ORDER DETAIL EXTENDED */
+.order-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+.order-photo{width:100%;max-height:240px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line)}
+.order-history{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.order-history .hr{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--ivory);border-radius:var(--r-sm);font-size:12px}
+.order-history .hr .st{font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--mute)}
+.refund-block{padding:14px;background:rgba(92,31,37,.05);border:1px solid rgba(92,31,37,.18);border-radius:var(--r-sm)}
+.refund-block.processed{background:rgba(140,154,123,.08);border-color:rgba(140,154,123,.3)}
+
+/* CONTENT EDITOR */
+.cms-section{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:20px;margin-bottom:14px}
+.cms-section h3{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.005em;margin-bottom:10px;color:var(--ink)}
+.cms-section .help{font-size:12px;color:var(--mute);margin-bottom:14px}
+.cms-fields{display:flex;flex-direction:column;gap:12px}
+.cms-fields .row{margin-bottom:0}
+.cms-array{background:var(--ivory);border-radius:var(--r-sm);padding:12px;margin-top:6px}
+.cms-array-item{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;margin-bottom:10px;position:relative}
+.cms-array-item .item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.cms-array-item .item-head .del{background:transparent;color:var(--wine);font-size:11px;padding:4px 8px;border-radius:4px}
+.cms-array-item .item-head .del:hover{background:rgba(92,31,37,.1)}
+.cms-array-add{background:transparent;color:var(--wine);font-size:12px;padding:8px 12px;border:1px dashed var(--line-strong);border-radius:var(--r-sm);width:100%;margin-top:4px}
+.cms-array-add:hover{background:var(--ivory-2);border-color:var(--ink);color:var(--ink)}
+.cms-save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:14px 0;display:flex;gap:10px;align-items:center;margin-top:14px}
+
+/* LEGAL EDITOR */
+.legal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+.legal-card{padding:16px;background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);cursor:pointer;transition:border-color .15s}
+.legal-card:hover{border-color:var(--ink)}
+.legal-card.active{border-color:var(--wine);background:rgba(92,31,37,.04)}
+.legal-card h4{font-family:var(--serif);font-size:16px;margin-bottom:4px}
+.legal-card .meta{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.md-editor{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:min(70vh,560px)}
+.md-editor textarea{font-family:var(--mono);font-size:13px;line-height:1.5;padding:14px;height:100%;resize:none}
+.md-preview{padding:14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--ivory);overflow-y:auto;font-size:14px;line-height:1.6}
+.md-preview h1{font-family:var(--serif);font-size:22px;font-weight:500;margin:18px 0 10px}
+.md-preview h2{font-family:var(--serif);font-size:18px;font-weight:500;margin:14px 0 8px}
+.md-preview h3{font-family:var(--serif);font-size:16px;font-weight:500;margin:12px 0 6px}
+.md-preview p{margin:8px 0}
+.md-preview ul,.md-preview ol{margin:8px 0 8px 22px}
+.md-preview code{font-family:var(--mono);font-size:12px;background:var(--ivory-2);padding:2px 6px;border-radius:3px}
+.md-preview a{color:var(--wine);text-decoration:underline}
+.md-history{margin-top:10px;font-size:12px;color:var(--mute)}
+
+/* FAQ */
+.faq-row{display:grid;grid-template-columns:1fr 100px 70px;gap:12px;align-items:center;padding:12px;background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:8px;cursor:pointer}
+.faq-row:hover{background:var(--ivory)}
+.faq-row .q{font-family:var(--serif);font-size:15px}
+.faq-row .pages{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.faq-row .actions-cell{text-align:right}
+
+@media (max-width:780px){
+  .row{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .order-meta-grid{grid-template-columns:1fr}
+  .top{padding:14px 16px;flex-direction:column;align-items:flex-start;gap:10px}
+  .tabs{padding:0 16px;overflow-x:auto;flex-wrap:nowrap}
+  .tab{white-space:nowrap}
+  .main{padding:16px}
+  .orders-table thead{display:none}
+  .orders-table tr{display:grid;grid-template-columns:1fr;padding:14px;border-bottom:1px solid var(--line)}
+  .orders-table td{padding:6px 0;border:0}
+  .md-editor{grid-template-columns:1fr;height:auto}
+  .md-editor textarea{min-height:280px;height:auto}
+  .filter-bar .field{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-view" class="login-wrap" style="display:none">
+  <div class="login">
+    <h1>СОБРАНО · <em>админ</em></h1>
+    <p>Войдите, чтобы видеть заказы и менять режимы работы.</p>
+    <div class="error" id="login-error"></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-input">Логин</label>
+        <input type="text" id="login-input" autocomplete="username" required autofocus>
+      </div>
+      <div class="field">
+        <label for="pwd-input">Пароль</label>
+        <input type="password" id="pwd-input" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn">Войти</button>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-view" class="app" style="display:none">
+  <header class="top">
+    <div class="brand"><span class="mark"></span> СОБРАНО · <span style="color:var(--terracotta)">админка</span></div>
+    <div class="meta">
+      <span class="tag" id="offline-pill">онлайн</span>
+      <span>Вошли как <strong id="me-login">—</strong></span>
+      <button id="logout-btn">Выйти</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="orders">Заказы</button>
+    <button class="tab" data-tab="catalog">Каталог</button>
+    <button class="tab" data-tab="content">Контент</button>
+    <button class="tab" data-tab="media">Медиа</button>
+    <button class="tab" data-tab="settings">Настройки</button>
+    <button class="tab" data-tab="contacts">Контакты</button>
+    <button class="tab" data-tab="payment">Оплата</button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ORDERS -->
+    <section class="tab-panel" id="panel-orders">
+      <div class="summary-grid">
+        <div class="stat"><div class="lbl">Всего заказов</div><div class="val" id="stat-total">—</div></div>
+        <div class="stat"><div class="lbl">За 24 часа</div><div class="val" id="stat-day">—</div></div>
+        <div class="stat"><div class="lbl">Новые</div><div class="val" id="stat-new"><em>—</em></div></div>
+        <div class="stat"><div class="lbl">Оборот всего</div><div class="val" id="stat-revenue">—</div></div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:18px 22px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);gap:14px;flex-wrap:wrap">
+          <div>
+            <h2 style="font-size:20px">Заказы</h2>
+            <p class="sub" style="margin:0">Все заказы из формы оформления. Фильтры, поиск, экспорт в CSV. Кликните по строке — детали и смена статуса.</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="csv-btn" type="button">⇩ CSV</button>
+            <button class="btn btn-ghost" id="refresh-btn">Обновить</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="field" style="flex:1.6;min-width:200px">
+            <label for="f-query">Поиск (ID, имя, телефон, email, трек-№)</label>
+            <input type="search" id="f-query" placeholder="напр. SBR-123, Анна, 79091234567" autocomplete="off">
+          </div>
+          <div class="field" style="min-width:160px">
+            <label for="f-status">Статус</label>
+            <select id="f-status">
+              <option value="">— все —</option>
+              <option value="new">Новый</option>
+              <option value="paid">Оплачен</option>
+              <option value="doing">В сборке</option>
+              <option value="shipped">Отправлен</option>
+              <option value="done">Выдан</option>
+              <option value="cancelled">Отменён</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:140px">
+            <label for="f-date-from">Дата от</label>
+            <input type="date" id="f-date-from">
+          </div>
+          <div class="field" style="min-width:140px">
+            <label for="f-date-to">до</label>
+            <input type="date" id="f-date-to">
+          </div>
+          <div class="field" style="min-width:120px">
+            <label for="f-min-total">Сумма от</label>
+            <input type="number" id="f-min-total" min="0" placeholder="0">
+          </div>
+          <div class="field" style="min-width:120px">
+            <label for="f-max-total">до</label>
+            <input type="number" id="f-max-total" min="0" placeholder="∞">
+          </div>
+          <button class="mini-btn" id="f-reset" type="button">Сбросить</button>
+        </div>
+
+        <div id="orders-table-wrap"></div>
+
+        <div class="pager" id="pager"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="tab-panel" id="panel-settings" style="display:none">
+      <div class="card">
+        <h2>Режим работы</h2>
+        <p class="sub">Когда клиент за пределами рабочего времени — на сайте появляется мягкий поп-ап. Заказы блокируются.</p>
+        <div class="row">
+          <div class="field">
+            <label for="wh-start">Открытие, час (0–23)</label>
+            <input type="number" id="wh-start" min="0" max="23">
+          </div>
+          <div class="field">
+            <label for="wh-end">Закрытие, час (1–24)</label>
+            <input type="number" id="wh-end" min="1" max="24">
+          </div>
+        </div>
+        <button class="btn" id="save-hours">Сохранить</button>
+      </div>
+
+      <div class="card">
+        <h2>Оффлайн-режим</h2>
+        <p class="sub">Полная блокировка сайта поверх контента. Используйте на технические работы или временное закрытие. Закрыть оверлей со стороны посетителя нельзя.</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <button class="toggle" id="offline-toggle" type="button"><span class="dot"></span><span id="offline-label">онлайн</span></button>
+          <span style="color:var(--mute);font-size:12px">Включите, чтобы заблокировать сайт</span>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="off-title">Заголовок</label>
+            <input type="text" id="off-title" placeholder="временно недоступен">
+          </div>
+          <div class="field">
+            <label for="off-eta">ETA (свободный текст)</label>
+            <input type="text" id="off-eta" placeholder="до 18:00">
+          </div>
+        </div>
+        <div class="row full">
+          <div class="field">
+            <label for="off-msg">Сообщение для клиента</label>
+            <textarea id="off-msg" placeholder="Идут технические работы. Заказы временно не принимаются."></textarea>
+          </div>
+        </div>
+        <button class="btn" id="save-offline">Сохранить</button>
+      </div>
+
+      <div class="card">
+        <h2>Уведомления клиенту · Email (SMTP)</h2>
+        <p class="sub">Письма с обновлением статуса заказа. Отправляются автоматически при изменении статуса в админке. Поддерживаются обычный SMTP (Яндекс 360, Mail.ru, Gmail и т.п.) и порт 587 (STARTTLS) или 465 (TLS).</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <button class="toggle" id="email-toggle" type="button"><span class="dot"></span><span id="email-label">отключены</span></button>
+          <span style="color:var(--mute);font-size:12px">Включить отправку писем</span>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="email-host">SMTP-сервер</label>
+            <input type="text" id="email-host" placeholder="smtp.yandex.ru" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="email-port">Порт</label>
+            <input type="number" id="email-port" min="1" max="65535" placeholder="587">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="email-user">Логин SMTP</label>
+            <input type="text" id="email-user" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="email-pass">Пароль SMTP</label>
+            <input type="password" id="email-pass" autocomplete="new-password" spellcheck="false" placeholder="Введите, чтобы изменить">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="email-from">Поле From (как отправитель)</label>
+            <input type="text" id="email-from" placeholder="СОБРАНО &lt;hello@sobrano.store&gt;">
+          </div>
+          <div class="field">
+            <label for="email-secure-toggle">TLS-режим</label>
+            <select id="email-secure-toggle">
+              <option value="starttls">STARTTLS (порт 587)</option>
+              <option value="tls">TLS-сразу (порт 465)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px">
+          <label>Отправлять при статусах</label>
+          <div id="email-triggers" style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap">
+          <button class="btn" id="save-email" type="button">Сохранить</button>
+          <input type="email" id="email-test-to" placeholder="email для теста" style="padding:11px 14px;border:1px solid var(--line-strong);border-radius:var(--r-sm);font-size:14px;width:240px">
+          <button class="btn btn-ghost" id="test-email-btn" type="button">Тестовое письмо</button>
+          <span id="email-test-msg" style="font-size:12px;color:var(--mute)"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Уведомления админу · Telegram</h2>
+        <p class="sub">Бот пишет в чат о новых заказах, оплатах, отменах и возвратах. Получите токен у <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a>, узнайте chat_id у <a href="https://t.me/userinfobot" target="_blank" rel="noopener">@userinfobot</a> (или используйте id чата/канала).</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <button class="toggle" id="tg-toggle" type="button"><span class="dot"></span><span id="tg-label">отключены</span></button>
+          <span style="color:var(--mute);font-size:12px">Включить отправку в Telegram</span>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="tg-token">Bot Token</label>
+            <input type="password" id="tg-token" autocomplete="off" spellcheck="false" placeholder="Введите, чтобы изменить">
+          </div>
+          <div class="field">
+            <label for="tg-chat">Chat ID</label>
+            <input type="text" id="tg-chat" autocomplete="off" spellcheck="false" placeholder="напр. 1234567 или -1001234567">
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px">
+          <label>Получать уведомления при событиях</label>
+          <div id="tg-events" style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap">
+          <button class="btn" id="save-tg" type="button">Сохранить</button>
+          <button class="btn btn-ghost" id="test-tg-btn" type="button">Тестовое сообщение</button>
+          <span id="tg-test-msg" style="font-size:12px;color:var(--mute)"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Реквизиты ИП</h2>
+        <p class="sub">Подставляются на странице «Реквизиты» и в футере. Раскрытие информации обязательно по ст. 9 ЗоЗПП.</p>
+        <div class="row">
+          <div class="field">
+            <label for="req-legalName">Полное наименование</label>
+            <input type="text" id="req-legalName" placeholder="ИП Иванов Иван Иванович">
+          </div>
+          <div class="field">
+            <label for="req-legalNameShort">Сокращённо (для футера)</label>
+            <input type="text" id="req-legalNameShort" placeholder="ИП Иванов И. И.">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="req-inn">ИНН</label>
+            <input type="text" id="req-inn" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="req-ogrnip">ОГРНИП</label>
+            <input type="text" id="req-ogrnip" autocomplete="off">
+          </div>
+        </div>
+        <div class="row full">
+          <div class="field">
+            <label for="req-address">Юридический адрес</label>
+            <input type="text" id="req-address" autocomplete="off">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="req-account">Расчётный счёт</label>
+            <input type="text" id="req-account" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="req-correspAccount">Корр. счёт</label>
+            <input type="text" id="req-correspAccount" autocomplete="off">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="req-bik">БИК</label>
+            <input type="text" id="req-bik" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="req-bank">Банк</label>
+            <input type="text" id="req-bank" autocomplete="off">
+          </div>
+        </div>
+        <div class="row full">
+          <div class="field">
+            <label for="req-taxRegime">Налоговый режим</label>
+            <input type="text" id="req-taxRegime" placeholder="Упрощённая система налогообложения (УСН)">
+          </div>
+        </div>
+        <button class="btn" id="save-requisites" type="button">Сохранить</button>
+      </div>
+    </section>
+
+    <!-- CONTENT -->
+    <section class="tab-panel" id="panel-content" style="display:none">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:18px 22px;border-bottom:1px solid var(--line)">
+          <h2 style="font-size:20px">Контент сайта</h2>
+          <p class="sub" style="margin:0">Тексты, заголовки, FAQ, юридические документы и реквизиты. Изменения применяются на сайте мгновенно (через <code style="font-family:var(--mono);font-size:12px">/api/content</code>).</p>
+        </div>
+        <div style="padding:18px 22px">
+          <div class="subtabs" id="content-subtabs">
+            <button class="subtab active" data-cms="home">Главная</button>
+            <button class="subtab" data-cms="about">О бренде</button>
+            <button class="subtab" data-cms="delivery">Доставка</button>
+            <button class="subtab" data-cms="returns">Возврат</button>
+            <button class="subtab" data-cms="contacts">Контакты</button>
+            <button class="subtab" data-cms="referral">Реф-программа</button>
+            <button class="subtab" data-cms="faq">FAQ</button>
+            <button class="subtab" data-cms="legal">Юр. документы</button>
+            <button class="subtab" data-cms="requisites">Реквизиты</button>
+          </div>
+
+          <div id="content-editor-wrap"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATALOG -->
+    <section class="tab-panel" id="panel-catalog" style="display:none">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:18px 22px;border-bottom:1px solid var(--line)">
+          <h2 style="font-size:20px">Каталог</h2>
+          <p class="sub" style="margin:0">Боксы, цветы, подборки, допы и промокоды. Изменения применяются на сайте мгновенно (через `/api/catalog`).</p>
+        </div>
+        <div style="padding:18px 22px">
+          <div class="subtabs" id="cat-subtabs">
+            <button class="subtab active" data-cat="boxes">Боксы <span class="badge" id="cnt-boxes">—</span></button>
+            <button class="subtab" data-cat="flowers">Цветы <span class="badge" id="cnt-flowers">—</span></button>
+            <button class="subtab" data-cat="picks">Подборки <span class="badge" id="cnt-picks">—</span></button>
+            <button class="subtab" data-cat="addons">Допы <span class="badge" id="cnt-addons">—</span></button>
+            <button class="subtab" data-cat="promos">Промокоды <span class="badge" id="cnt-promos">—</span></button>
+          </div>
+
+          <div class="catalog-actions">
+            <span style="font-size:12px;color:var(--mute)" id="cat-hint">Кликните по строке, чтобы редактировать.</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost" id="cat-refresh-btn" type="button">Обновить</button>
+              <button class="btn btn-ghost" id="ref-gen-btn" type="button" style="display:none">＋ Реф-промокод</button>
+              <button class="btn" id="cat-add-btn" type="button">＋ Добавить</button>
+            </div>
+          </div>
+
+          <div id="catalog-table-wrap"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEDIA -->
+    <section class="tab-panel" id="panel-media" style="display:none">
+      <div class="card">
+        <h2>Медиатека</h2>
+        <p class="sub">Загруженные изображения товаров. Новые файлы появляются здесь автоматически. URL вида <code style="font-family:var(--mono);font-size:12px">/uploads/&lt;имя&gt;</code> — можно вставлять в поля «Изображение» в каталоге.</p>
+
+        <div style="display:flex;gap:8px;margin-bottom:18px;align-items:center">
+          <button class="btn" id="media-upload-btn" type="button">＋ Загрузить картинку</button>
+          <input type="file" id="media-upload-input" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,image/avif" style="display:none">
+          <span style="font-size:12px;color:var(--mute)">jpeg/png/webp/gif/svg/avif, до 8 МБ</span>
+        </div>
+
+        <div id="media-grid-wrap"></div>
+      </div>
+    </section>
+
+    <!-- PAYMENT (Robokassa) -->
+    <section class="tab-panel" id="panel-payment" style="display:none">
+
+      <div class="card">
+        <h2>Способы оплаты на чекауте</h2>
+        <p class="sub" id="pay-methods-sub">Список методов, которые видит покупатель при оформлении заказа.</p>
+        <div id="payments-table-wrap"></div>
+        <div style="display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap">
+          <button class="btn" id="pay-add-btn" type="button">＋ Добавить способ</button>
+          <span style="font-size:12px;color:var(--mute)">Свой способ — например «Наличные курьеру», «Перевод на карту», «Безнал по счёту». Built-in методы Robokassa уже подключены к платёжному шлюзу.</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Robokassa <span id="rk-status-pill" style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-left:10px;vertical-align:middle">не настроена</span></h2>
+        <p class="sub">Введите MerchantLogin и оба пароля — после сохранения оплата на чекауте начнёт работать без рестарта сервера. Пароли хранятся локально и никогда не возвращаются обратно (поля показывают «••• сохранён», если задано).</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="rk-login">MerchantLogin (логин магазина)</label>
+            <input type="text" id="rk-login" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="rk-hash">Алгоритм подписи</label>
+            <select id="rk-hash">
+              <option value="md5">MD5 (по умолчанию)</option>
+              <option value="sha1">SHA-1</option>
+              <option value="sha256">SHA-256</option>
+              <option value="sha384">SHA-384</option>
+              <option value="sha512">SHA-512</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="rk-pwd1">Пароль №1 (для подписи запроса)</label>
+            <input type="password" id="rk-pwd1" autocomplete="new-password" spellcheck="false" placeholder="Введите, чтобы изменить">
+          </div>
+          <div class="field">
+            <label for="rk-pwd2">Пароль №2 (для проверки ResultURL)</label>
+            <input type="password" id="rk-pwd2" autocomplete="new-password" spellcheck="false" placeholder="Введите, чтобы изменить">
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <button class="toggle" id="rk-test-toggle" type="button"><span class="dot"></span><span id="rk-test-label">тестовый режим</span></button>
+          <span id="rk-test-hint" style="color:var(--mute);font-size:12px"></span>
+        </div>
+
+        <button class="btn" id="rk-save">Сохранить</button>
+        <button class="btn btn-ghost" id="rk-clear-pwd" type="button" style="margin-left:8px">Сбросить пароли</button>
+
+        <div style="margin-top:20px;padding:14px;background:var(--ivory);border-radius:var(--r-sm);font-size:12px;color:var(--ink-soft);line-height:1.6">
+          <strong>Где взять данные:</strong> Личный кабинет Robokassa → Магазины → Технические настройки.<br>
+          В разделе «Технические настройки» укажите URL'ы:
+          <ul style="margin:8px 0 0 18px;padding:0;font-family:var(--mono);font-size:11px">
+            <li><strong>ResultURL:</strong> https://sobrano.store/api/robokassa/result</li>
+            <li><strong>SuccessURL:</strong> https://sobrano.store/thank-you.html</li>
+            <li><strong>FailURL:</strong> https://sobrano.store/cart.html</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section class="tab-panel" id="panel-contacts" style="display:none">
+      <div class="card">
+        <h2>Контакты</h2>
+        <p class="sub">Подставляются в поп-апы (out-of-hours, оффлайн), а также в футер сайта (после интеграции).</p>
+        <div class="row">
+          <div class="field">
+            <label for="ct-tg">Telegram (URL)</label>
+            <input type="text" id="ct-tg" placeholder="https://t.me/sobrano">
+          </div>
+          <div class="field">
+            <label for="ct-wa">WhatsApp (URL)</label>
+            <input type="text" id="ct-wa" placeholder="https://wa.me/78000000000">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="ct-phone">Телефон</label>
+            <input type="text" id="ct-phone" placeholder="+7 800 000-00-00">
+          </div>
+          <div class="field">
+            <label for="ct-email">Email</label>
+            <input type="email" id="ct-email" placeholder="hello@sobrano.store">
+          </div>
+        </div>
+        <button class="btn" id="save-contacts">Сохранить</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="detail-modal" id="detail-modal">
+  <div class="detail-card" id="detail-card">
+    <div class="head">
+      <h2 id="d-title">Заказ</h2>
+      <button class="x" type="button" id="close-detail">×</button>
+    </div>
+    <div id="d-body"></div>
+  </div>
+</div>
+
+<!-- CATALOG ITEM MODAL -->
+<div class="detail-modal" id="cat-modal">
+  <div class="detail-card wide">
+    <div class="head">
+      <h2 id="cat-modal-title">Редактирование</h2>
+      <button class="x" type="button" id="cat-modal-close">×</button>
+    </div>
+    <form id="cat-form" autocomplete="off"></form>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+      <button class="btn btn-ghost btn-danger" id="cat-delete-btn" type="button" style="background:transparent;color:var(--wine);border:1px solid rgba(92,31,37,.3)">Удалить</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="cat-cancel-btn" type="button">Отмена</button>
+        <button class="btn" id="cat-save-btn" type="button">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API = ""; // same origin (бэкенд раздаёт админку)
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+
+  function tokenGet(){ return localStorage.getItem("sob_admin_token") || ""; }
+  function tokenSet(t){ if (t) localStorage.setItem("sob_admin_token", t); else localStorage.removeItem("sob_admin_token"); }
+
+  async function api(method, url, body){
+    const headers = { "content-type": "application/json" };
+    const t = tokenGet();
+    if (t) headers["authorization"] = "Bearer " + t;
+    const res = await fetch(API + url, { method, headers, body: body ? JSON.stringify(body) : undefined, credentials: "same-origin" });
+    let data = null;
+    try { data = await res.json(); } catch(e){}
+    if (!res.ok) {
+      const err = new Error((data && data.error) || res.statusText);
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
+  }
+
+  function fmt(n){ return Number(n||0).toLocaleString("ru-RU") + " ₽"; }
+  function fmtDt(ms){
+    const d = new Date(ms);
+    return d.getDate() + "." + String(d.getMonth()+1).padStart(2,"0") + "." + String(d.getFullYear()).slice(-2)
+      + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+  }
+
+  // ----- LOGIN -----
+  async function showLogin(error){
+    $("#app-view").style.display = "none";
+    $("#login-view").style.display = "";
+    if (error) { const e = $("#login-error"); e.textContent = error; e.classList.add("show"); }
+  }
+  $("#login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#login-error").classList.remove("show");
+    try {
+      const r = await api("POST", "/api/admin/login", { login: $("#login-input").value, password: $("#pwd-input").value });
+      tokenSet(r.token);
+      await boot();
+    } catch (err) {
+      $("#login-error").textContent = err.message || "Ошибка входа";
+      $("#login-error").classList.add("show");
+    }
+  });
+
+  $("#logout-btn").addEventListener("click", async () => {
+    try { await api("POST", "/api/admin/logout"); } catch(e){}
+    tokenSet(null);
+    location.reload();
+  });
+
+  // ----- TABS -----
+  $$(".tab").forEach(t => t.addEventListener("click", () => {
+    $$(".tab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    $$(".tab-panel").forEach(p => p.style.display = "none");
+    $("#panel-" + t.dataset.tab).style.display = "";
+  }));
+
+  // ----- ORDERS -----
+  let ordersCache = [];
+  let orderFilters = { query:"", status:"", dateFrom:"", dateTo:"", minTotal:"", maxTotal:"" };
+  let orderPage = 0;
+  const ORDER_PAGE_SIZE = 25;
+
+  function statusClass(s){ return "status status-" + (s || "new"); }
+  function statusLabel(s){
+    return ({ new:"Новый", paid:"Оплачен", doing:"В сборке", shipped:"Отправлен", done:"Выдан", cancelled:"Отменён" })[s||"new"] || s;
+  }
+  async function loadOrders(){
+    try {
+      const r = await api("GET", "/api/admin/orders");
+      ordersCache = r.orders || [];
+      renderOrders();
+      renderStats();
+    } catch (err) {
+      if (err.status === 401) { tokenSet(null); showLogin("Сессия истекла"); return; }
+      $("#orders-table-wrap").innerHTML = '<div class="empty"><h3>Ошибка</h3><p>' + (err.message || "Не удалось загрузить заказы") + '</p></div>';
+    }
+  }
+
+  function renderStats(){
+    const total = ordersCache.length;
+    const dayMs = 24*3600*1000;
+    const day = ordersCache.filter(o => Date.now() - o.createdAt < dayMs).length;
+    const newOnes = ordersCache.filter(o => (o.status || "new") === "new").length;
+    const revenue = ordersCache.reduce((s, o) => s + (o.total || 0), 0);
+    $("#stat-total").textContent = total;
+    $("#stat-day").textContent = day;
+    $("#stat-new").innerHTML = "<em>" + newOnes + "</em>";
+    $("#stat-revenue").textContent = fmt(revenue);
+  }
+
+  function applyOrderFilters(){
+    let arr = ordersCache.slice();
+    if (orderFilters.status) arr = arr.filter(o => (o.status||"new") === orderFilters.status);
+    if (orderFilters.query) {
+      const n = orderFilters.query.toLowerCase().trim();
+      arr = arr.filter(o => {
+        const c = o.customer || {};
+        const hay = [o.id, o.trackNo, c.name, c.phone, c.email, c.addr].filter(Boolean).join(" ").toLowerCase();
+        return hay.includes(n);
+      });
+    }
+    if (orderFilters.dateFrom) {
+      const t = Date.parse(orderFilters.dateFrom);
+      if (!isNaN(t)) arr = arr.filter(o => o.createdAt >= t);
+    }
+    if (orderFilters.dateTo) {
+      const t = Date.parse(orderFilters.dateTo) + 24*3600*1000;
+      if (!isNaN(t)) arr = arr.filter(o => o.createdAt < t);
+    }
+    if (orderFilters.minTotal) {
+      const m = Number(orderFilters.minTotal);
+      if (!isNaN(m)) arr = arr.filter(o => (o.total||0) >= m);
+    }
+    if (orderFilters.maxTotal) {
+      const m = Number(orderFilters.maxTotal);
+      if (!isNaN(m)) arr = arr.filter(o => (o.total||0) <= m);
+    }
+    return arr;
+  }
+
+  function renderOrders(){
+    const wrap = $("#orders-table-wrap");
+    const filtered = applyOrderFilters();
+    const total = filtered.length;
+    if (!total) {
+      const msg = ordersCache.length === 0
+        ? '<div class="empty"><h3>Заказов пока нет</h3><p>Когда клиент оформит первый заказ — он появится здесь.</p></div>'
+        : '<div class="empty"><h3>Ничего не найдено</h3><p>По выбранным фильтрам заказов нет. Попробуйте сбросить фильтры.</p></div>';
+      wrap.innerHTML = msg;
+      $("#pager").innerHTML = "";
+      return;
+    }
+    const start = orderPage * ORDER_PAGE_SIZE;
+    const page = filtered.slice(start, start + ORDER_PAGE_SIZE);
+
+    let html = '<table class="orders-table"><thead><tr><th>№ / Время</th><th>Клиент</th><th>Состав</th><th>Доставка</th><th>Статус</th><th class="total" style="text-align:right">Сумма</th></tr></thead><tbody>';
+    page.forEach(o => {
+      const cust = o.customer || {};
+      const compShort = [];
+      if (o.box) compShort.push("Бокс " + (o.box.size || "?"));
+      if (o.addons && o.addons.length) compShort.push(o.addons.length + " доп");
+      const refundTag = o.refund ? '<span class="tag-pill tag-out" style="margin-left:6px">возврат</span>' : '';
+      html += '<tr data-id="' + escapeHtml(o.id) + '" style="cursor:pointer">' +
+        '<td><div class="id">' + escapeHtml(o.id) + '</div><div style="color:var(--mute);font-size:12px;margin-top:4px">' + fmtDt(o.createdAt) + '</div></td>' +
+        '<td><div class="name">' + escapeHtml(cust.name || "—") + '</div><div style="color:var(--mute);font-size:12px;margin-top:2px">' + escapeHtml(cust.phone || "") + '</div>' + (cust.email ? '<div style="color:var(--mute);font-size:12px">' + escapeHtml(cust.email) + '</div>' : '') + '</td>' +
+        '<td>' + escapeHtml(compShort.join(" · ")) + (o.trackNo ? '<div class="meta" style="font-family:var(--mono);font-size:11px;color:var(--mute);margin-top:2px">трек ' + escapeHtml(o.trackNo) + '</div>' : '') + '</td>' +
+        '<td>' + escapeHtml(o.delivery === "yandex" ? "Яндекс Go" : "Своя") + '</td>' +
+        '<td><span class="' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span>' + refundTag + '<div class="row-actions">' +
+          '<button class="mini-btn" data-action="open" data-id="' + escapeHtml(o.id) + '">Подробнее</button>' +
+          '<button class="mini-btn" data-action="print" data-id="' + escapeHtml(o.id) + '">⎙ Печать</button>' +
+        '</div></td>' +
+        '<td class="total">' + escapeHtml(fmt(o.total)) + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+
+    wrap.querySelectorAll('tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', (e) => {
+        if (e.target.closest('button[data-action]')) return;
+        openDetail(tr.dataset.id);
+      });
+    });
+    wrap.querySelectorAll('button[data-action]').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = b.dataset.id;
+        if (b.dataset.action === "open") return openDetail(id);
+        if (b.dataset.action === "print") {
+          window.open("/admin/print.html?id=" + encodeURIComponent(id), "_blank");
+        }
+      });
+    });
+
+    // PAGER
+    const pages = Math.ceil(total / ORDER_PAGE_SIZE);
+    let pagerHtml = '<span>Показано <strong>' + (start+1) + '–' + Math.min(start+ORDER_PAGE_SIZE, total) + '</strong> из ' + total + (ordersCache.length !== total ? ' (всего ' + ordersCache.length + ')' : '') + '</span><div class="pager-btns">';
+    pagerHtml += '<button type="button" data-page="prev"' + (orderPage<=0?' disabled':'') + '>← Назад</button>';
+    pagerHtml += '<span>стр. ' + (orderPage+1) + ' / ' + pages + '</span>';
+    pagerHtml += '<button type="button" data-page="next"' + (orderPage>=pages-1?' disabled':'') + '>Вперёд →</button>';
+    pagerHtml += '</div>';
+    $("#pager").innerHTML = pagerHtml;
+    $("#pager").querySelectorAll('button[data-page]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (b.dataset.page === "prev") orderPage = Math.max(0, orderPage-1);
+        else orderPage = Math.min(pages-1, orderPage+1);
+        renderOrders();
+      });
+    });
+  }
+
+  // wire filter inputs
+  function wireOrderFilters(){
+    const onChange = () => {
+      orderFilters.query = $("#f-query").value;
+      orderFilters.status = $("#f-status").value;
+      orderFilters.dateFrom = $("#f-date-from").value;
+      orderFilters.dateTo = $("#f-date-to").value;
+      orderFilters.minTotal = $("#f-min-total").value;
+      orderFilters.maxTotal = $("#f-max-total").value;
+      orderPage = 0;
+      renderOrders();
+    };
+    ["#f-query","#f-status","#f-date-from","#f-date-to","#f-min-total","#f-max-total"].forEach(s => {
+      const el = $(s);
+      if (!el) return;
+      el.addEventListener("input", onChange);
+      el.addEventListener("change", onChange);
+    });
+    $("#f-reset").addEventListener("click", () => {
+      ["#f-query","#f-status","#f-date-from","#f-date-to","#f-min-total","#f-max-total"].forEach(s => $(s).value = "");
+      orderFilters = { query:"", status:"", dateFrom:"", dateTo:"", minTotal:"", maxTotal:"" };
+      orderPage = 0;
+      renderOrders();
+    });
+    $("#csv-btn").addEventListener("click", () => {
+      const qs = new URLSearchParams();
+      Object.entries(orderFilters).forEach(([k,v]) => { if (v) qs.set(k, v); });
+      const t = tokenGet();
+      // CSV-эндпоинт требует авторизацию; делаем через fetch + blob, т.к. в open() не передать заголовок
+      fetch("/api/admin/orders/export.csv?" + qs.toString(), {
+        headers: t ? { authorization: "Bearer " + t } : {},
+        credentials: "same-origin",
+      }).then(async r => {
+        if (!r.ok) throw new Error("Ошибка экспорта");
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "orders-" + new Date().toISOString().slice(0,10) + ".csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }).catch(err => alert("Ошибка экспорта: " + err.message));
+    });
+  }
+
+  function openDetail(id){
+    const o = ordersCache.find(x => x.id === id);
+    if (!o) return;
+    const cust = o.customer || {};
+    const lines = [];
+    function row(lbl, val){ if (val) lines.push('<div class="lbl">' + escapeHtml(lbl) + '</div><div class="val">' + escapeHtml(val) + '</div>'); }
+    row("ФИО", cust.name);
+    row("Телефон", cust.phone);
+    row("Email", cust.email);
+    row("Адрес", [cust.addr, cust.apt].filter(Boolean).join(", "));
+    row("Получатель", cust.recip);
+    row("Дата", cust.date);
+    row("Время", cust.time);
+    row("Канал связи", ({ phone:"Звонок", email:"Email", telegram:"Telegram", whatsapp:"WhatsApp" })[cust.channel] || cust.channel);
+    if (cust.note) row("Комментарий", cust.note);
+    row("Способ оплаты", ({ card:"Карта (Robokassa)", sbp:"СБП" })[cust.payment] || cust.payment);
+    row("Доставка", o.delivery === "yandex" ? "Яндекс Go" : "Своя");
+
+    let body = '<div class="detail-section"><h4>Клиент</h4><div class="kv">' + lines.join("") + '</div></div>';
+
+    if (o.box) {
+      const flowers = o.box.flowers || {};
+      const compHtml = Object.entries(flowers).filter(([,q])=>q>0).map(([fid,q]) => '<span>×' + q + ' ' + escapeHtml(fid) + '</span>').join('');
+      body += '<div class="detail-section"><h4>Бокс</h4>' +
+        '<div><strong>Бокс ' + escapeHtml(o.box.size || '?') + '</strong> · ' + (o.box.capacity || 0) + ' цветков · ' + escapeHtml(fmt(o.box.price || 0)) + '</div>' +
+        (compHtml ? '<div class="composition">' + compHtml + '</div>' : '') +
+        '</div>';
+    }
+    if (o.addons && o.addons.length) {
+      const ah = o.addons.map(a => '<div>' + escapeHtml(a.title || a.id) + ' × ' + a.qty + ' = <strong>' + escapeHtml(fmt((a.price || 0) * a.qty)) + '</strong></div>').join('');
+      body += '<div class="detail-section"><h4>Допы</h4>' + ah + '</div>';
+    }
+
+    body += '<div class="detail-section"><h4>Сумма</h4><div class="kv">' +
+      '<div class="lbl">Подытог</div><div class="val">' + escapeHtml(fmt(o.subtotal||0)) + '</div>' +
+      '<div class="lbl">Доставка</div><div class="val">' + escapeHtml(o.deliveryPrice ? fmt(o.deliveryPrice) : "по тарифу") + '</div>' +
+      (o.discount ? ('<div class="lbl">Промокод ' + escapeHtml(o.promo||'') + '</div><div class="val">−' + escapeHtml(fmt(o.discount)) + '</div>') : '') +
+      '<div class="lbl">Итого</div><div class="val"><strong>' + escapeHtml(fmt(o.total||0)) + '</strong></div>' +
+    '</div></div>';
+
+    body += '<div class="detail-section"><h4>Статус</h4><div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      ['new','paid','doing','shipped','done','cancelled'].map(s =>
+        '<button class="mini-btn"' + (s === (o.status||"new") ? ' style="background:var(--ink);color:var(--ivory)"' : '') + ' data-set-status="' + s + '">' + statusLabel(s) + '</button>'
+      ).join('') +
+    '</div></div>';
+
+    // Workflow: track, courier, photo
+    body += '<div class="detail-section"><h4>Сборка и доставка</h4>' +
+      '<div class="order-meta-grid">' +
+        '<div class="field"><label>Курьер / служба</label><input type="text" id="o-courier" value="' + escapeHtml(o.courier||"") + '" placeholder="напр. Яндекс Go, свой курьер Иван"></div>' +
+        '<div class="field"><label>Трек-номер</label><input type="text" id="o-trackno" value="' + escapeHtml(o.trackNo||"") + '" placeholder="напр. YG-789012"></div>' +
+      '</div>' +
+      '<div class="field" style="margin-top:10px"><label>Фото перед отправкой</label>' +
+        '<div style="display:flex;gap:10px;align-items:center;margin-top:4px">' +
+          (o.photo ? '<img src="'+escapeHtml(o.photo)+'" class="order-photo" style="max-width:180px">' : '<div style="width:180px;height:120px;background:var(--ivory-2);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--mute);font-style:italic;font-family:var(--serif)">фото нет</div>') +
+          '<div style="display:flex;flex-direction:column;gap:6px">' +
+            '<input type="text" id="o-photo" value="' + escapeHtml(o.photo||"") + '" placeholder="URL или /uploads/x.jpg" style="padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px;font-family:var(--mono);min-width:280px">' +
+            '<div style="display:flex;gap:6px">' +
+              '<button type="button" class="mini-btn" id="o-photo-upload">Загрузить</button>' +
+              '<button type="button" class="mini-btn" id="o-photo-clear">Очистить</button>' +
+            '</div>' +
+            '<input type="file" id="o-photo-file" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none">' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top:10px"><button class="btn" id="save-workflow">Сохранить</button></div>' +
+    '</div>';
+
+    // Notes
+    body += '<div class="detail-section"><h4>Заметки админа</h4>' +
+      '<textarea id="o-note" placeholder="Внутренние пометки — клиент их не видит" style="min-height:80px">' + escapeHtml(o.note||"") + '</textarea>' +
+      '<div style="margin-top:8px"><button class="btn btn-ghost" id="save-note">Сохранить заметку</button></div>' +
+    '</div>';
+
+    // Refund
+    const r = o.refund || {};
+    const refundClass = r.status === "processed" || r.status === "approved" ? "refund-block processed" : "refund-block";
+    body += '<div class="detail-section"><h4>Возврат / претензия</h4>' +
+      '<div class="' + refundClass + '" id="refund-pane">' +
+        (r && r.status ? (
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+            '<strong>Статус: ' + escapeHtml(({requested:"Запрошен",approved:"Одобрен",processed:"Выполнен",rejected:"Отклонён",none:"Нет"}[r.status] || r.status)) + '</strong>' +
+            (r.amount ? '<span>Сумма: <strong>' + escapeHtml(fmt(r.amount)) + '</strong></span>' : '') +
+          '</div>' +
+          (r.reason ? '<div style="font-size:13px;color:var(--ink-soft);margin-bottom:8px">' + escapeHtml(r.reason) + '</div>' : '')
+        ) : '<div style="font-size:13px;color:var(--mute);margin-bottom:10px">Возврат не запрашивался</div>') +
+        '<div class="row"><div class="field"><label>Статус</label><select id="rf-status">' +
+          ['none','requested','approved','processed','rejected'].map(s =>
+            '<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+({none:"Нет",requested:"Запрошен",approved:"Одобрен",processed:"Выполнен",rejected:"Отклонён"}[s])+'</option>'
+          ).join('') +
+        '</select></div><div class="field"><label>Сумма к возврату, ₽</label><input type="number" id="rf-amount" min="0" value="' + (r.amount||0) + '"></div></div>' +
+        '<div class="field"><label>Причина / комментарий</label><textarea id="rf-reason" style="min-height:60px">' + escapeHtml(r.reason||"") + '</textarea></div>' +
+        '<div style="margin-top:8px"><button class="btn btn-ghost" id="save-refund">Сохранить возврат</button> <button class="mini-btn" id="clear-refund">Очистить</button></div>' +
+        '<div style="margin-top:8px;font-size:12px;color:var(--mute)">Деньги через Robokassa возвращаются вручную в ЛК Robokassa. Здесь только учёт статуса.</div>' +
+      '</div>' +
+    '</div>';
+
+    // History
+    if (o.statusHistory && o.statusHistory.length) {
+      body += '<div class="detail-section"><h4>История</h4><div class="order-history">' +
+        o.statusHistory.map(h => '<div class="hr"><div><span class="st">' + escapeHtml(statusLabel(h.status)) + '</span>' + (h.note ? ' · ' + escapeHtml(h.note) : '') + '</div><span style="color:var(--mute);font-family:var(--mono);font-size:11px">' + fmtDt(h.at) + ' · ' + escapeHtml(h.by||"admin") + '</span></div>').join('') +
+      '</div></div>';
+    }
+
+    $("#d-title").innerHTML = "Заказ № " + escapeHtml(o.id) + '<button class="mini-btn" style="margin-left:14px;font-size:11px" type="button" onclick="window.open(\'/admin/print.html?id=' + encodeURIComponent(o.id) + '\',\'_blank\')">⎙ Печать</button>';
+    $("#d-body").innerHTML = body;
+    $("#detail-modal").classList.add("show");
+
+    // Wire actions
+    $$("[data-set-status]", $("#d-body")).forEach(b => {
+      b.addEventListener('click', async () => {
+        try {
+          await api("PATCH", "/api/admin/orders/" + encodeURIComponent(id), { status: b.dataset.setStatus });
+          await loadOrders();
+          openDetail(id);
+        } catch (err) { alert("Ошибка: " + (err.message || "")); }
+      });
+    });
+
+    $("#save-workflow").addEventListener("click", async () => {
+      try {
+        await api("PATCH", "/api/admin/orders/" + encodeURIComponent(id), {
+          trackNo: $("#o-trackno").value,
+          courier: $("#o-courier").value,
+          photo: $("#o-photo").value,
+        });
+        await loadOrders();
+        openDetail(id);
+      } catch (err) { alert("Ошибка: " + (err.message || "")); }
+    });
+
+    $("#save-note").addEventListener("click", async () => {
+      try {
+        await api("PATCH", "/api/admin/orders/" + encodeURIComponent(id), { note: $("#o-note").value });
+        await loadOrders();
+        openDetail(id);
+      } catch (err) { alert("Ошибка: " + (err.message || "")); }
+    });
+
+    $("#save-refund").addEventListener("click", async () => {
+      try {
+        const status = $("#rf-status").value;
+        const refund = status === "none" ? null : {
+          status,
+          amount: parseInt($("#rf-amount").value, 10) || 0,
+          reason: $("#rf-reason").value || "",
+        };
+        await api("PATCH", "/api/admin/orders/" + encodeURIComponent(id), { refund });
+        await loadOrders();
+        openDetail(id);
+      } catch (err) { alert("Ошибка: " + (err.message || "")); }
+    });
+
+    $("#clear-refund").addEventListener("click", async () => {
+      if (!confirm("Очистить запись о возврате?")) return;
+      try {
+        await api("PATCH", "/api/admin/orders/" + encodeURIComponent(id), { refund: null });
+        await loadOrders();
+        openDetail(id);
+      } catch (err) { alert("Ошибка: " + (err.message || "")); }
+    });
+
+    $("#o-photo-upload").addEventListener("click", () => $("#o-photo-file").click());
+    $("#o-photo-clear").addEventListener("click", () => { $("#o-photo").value = ""; });
+    $("#o-photo-file").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const url = await uploadFile(file);
+        $("#o-photo").value = url;
+      } catch (err) { alert("Ошибка загрузки: " + (err.message || err)); }
+      e.target.value = "";
+    });
+  }
+
+  $("#close-detail").addEventListener('click', () => $("#detail-modal").classList.remove("show"));
+  $("#detail-modal").addEventListener('click', (e) => { if (e.target === $("#detail-modal")) $("#detail-modal").classList.remove("show"); });
+
+  $("#refresh-btn").addEventListener('click', loadOrders);
+
+  function escapeHtml(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[ch])); }
+
+  // ----- SETTINGS -----
+  let settingsCache = null;
+  async function loadSettings(){
+    const r = await api("GET", "/api/settings");
+    settingsCache = r.settings;
+    $("#wh-start").value = settingsCache.workingHours.start;
+    $("#wh-end").value = settingsCache.workingHours.end;
+    const off = settingsCache.offline || {};
+    setOfflineToggle(!!off.active);
+    $("#off-title").value = off.title || "";
+    $("#off-eta").value = off.eta || "";
+    $("#off-msg").value = off.message || "";
+    const c = settingsCache.contacts || {};
+    $("#ct-tg").value = c.telegram || "";
+    $("#ct-wa").value = c.whatsapp || "";
+    $("#ct-phone").value = c.phone || "";
+    $("#ct-email").value = c.email || "";
+    updateOfflinePill();
+  }
+  function setOfflineToggle(on){
+    const t = $("#offline-toggle");
+    t.classList.toggle("on", !on); // зелёный=онлайн
+    t.classList.toggle("off", on);
+    $("#offline-label").textContent = on ? "ОФФЛАЙН" : "онлайн";
+    t.dataset.value = on ? "1" : "0";
+  }
+  function updateOfflinePill(){
+    const off = settingsCache && settingsCache.offline && settingsCache.offline.active;
+    const p = $("#offline-pill");
+    if (off) { p.textContent = "ОФФЛАЙН"; p.style.background = "rgba(92,31,37,.18)"; p.style.color = "#E8B5BB"; }
+    else { p.textContent = "онлайн"; p.style.background = "rgba(140,154,123,.18)"; p.style.color = "#B8C8A8"; }
+  }
+  $("#offline-toggle").addEventListener('click', () => {
+    const on = $("#offline-toggle").dataset.value === "1";
+    setOfflineToggle(!on);
+  });
+
+  async function saveSettings(patch, btn){
+    btn.disabled = true; const t = btn.textContent; btn.textContent = "Сохраняем…";
+    try {
+      const r = await api("PATCH", "/api/admin/settings", patch);
+      settingsCache = r.settings;
+      btn.textContent = "Сохранено ✓";
+      updateOfflinePill();
+      setTimeout(() => { btn.textContent = t; btn.disabled = false; }, 1500);
+    } catch (err) {
+      alert("Ошибка: " + (err.message || ""));
+      btn.textContent = t; btn.disabled = false;
+    }
+  }
+
+  $("#save-hours").addEventListener('click', () => {
+    const s = parseInt($("#wh-start").value, 10);
+    const e = parseInt($("#wh-end").value, 10);
+    if (!(s >= 0 && s < 24) || !(e > 0 && e <= 24) || e <= s) { alert("Часы заданы неверно"); return; }
+    saveSettings({ workingHours: { start: s, end: e } }, $("#save-hours"));
+  });
+
+  $("#save-offline").addEventListener('click', () => {
+    const on = $("#offline-toggle").dataset.value === "1";
+    saveSettings({ offline: {
+      active: on, title: $("#off-title").value, message: $("#off-msg").value, eta: $("#off-eta").value || null
+    } }, $("#save-offline"));
+  });
+
+  $("#save-contacts").addEventListener('click', () => {
+    saveSettings({ contacts: {
+      telegram: $("#ct-tg").value, whatsapp: $("#ct-wa").value, phone: $("#ct-phone").value, email: $("#ct-email").value
+    } }, $("#save-contacts"));
+  });
+
+  // ----- ROBOKASSA -----
+  let rkCache = null;
+  async function loadRobokassa(){
+    try {
+      const r = await api("GET", "/api/admin/robokassa");
+      rkCache = r.robokassa;
+      $("#rk-login").value = rkCache.merchantLogin || "";
+      $("#rk-hash").value = rkCache.hashAlgorithm || "md5";
+      $("#rk-pwd1").value = "";
+      $("#rk-pwd2").value = "";
+      $("#rk-pwd1").placeholder = rkCache.hasPassword1 ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
+      $("#rk-pwd2").placeholder = rkCache.hasPassword2 ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
+      setRkTest(!!rkCache.isTest);
+      updateRkStatusPill();
+      renderPaymentsCard();
+    } catch (e) { /* unauthorized handled in boot */ }
+  }
+  function setRkTest(on){
+    const t = $("#rk-test-toggle");
+    t.classList.toggle("off", on);  // оранжевый — внимание, тестовый режим
+    t.classList.toggle("on", !on);  // зелёный — боевой
+    $("#rk-test-label").textContent = on ? "ТЕСТОВЫЙ режим" : "боевой режим";
+    const hint = $("#rk-test-hint");
+    if (hint) {
+      hint.textContent = on
+        ? "Включён — Robokassa работает с тестовыми паролями, реальные деньги не списываются"
+        : "Включён — БОЕВОЙ режим, реальные платежи проходят через Robokassa и списывают деньги";
+    }
+    t.dataset.value = on ? "1" : "0";
+  }
+  function updateRkStatusPill(){
+    const p = $("#rk-status-pill");
+    if (!rkCache) return;
+    if (rkCache.ready) {
+      p.textContent = rkCache.isTest ? "тест · готова" : "БОЕВАЯ · готова";
+      p.style.background = rkCache.isTest ? "rgba(201,123,92,.18)" : "rgba(140,154,123,.18)";
+      p.style.color = rkCache.isTest ? "var(--terracotta)" : "var(--sage)";
+    } else {
+      p.textContent = "не настроена";
+      p.style.background = "rgba(122,107,94,.18)";
+      p.style.color = "var(--mute)";
+    }
+  }
+  $("#rk-test-toggle").addEventListener('click', () => {
+    const on = $("#rk-test-toggle").dataset.value === "1";
+    setRkTest(!on);
+  });
+  $("#rk-save").addEventListener('click', async () => {
+    const btn = $("#rk-save");
+    const t = btn.textContent;
+    btn.disabled = true; btn.textContent = "Сохраняем…";
+    try {
+      const patch = {
+        merchantLogin: $("#rk-login").value,
+        isTest: $("#rk-test-toggle").dataset.value === "1",
+        hashAlgorithm: $("#rk-hash").value,
+      };
+      const p1 = $("#rk-pwd1").value;
+      const p2 = $("#rk-pwd2").value;
+      if (p1) patch.password1 = p1;
+      if (p2) patch.password2 = p2;
+      const r = await api("PATCH", "/api/admin/robokassa", patch);
+      rkCache = r.robokassa;
+      $("#rk-pwd1").value = "";
+      $("#rk-pwd2").value = "";
+      $("#rk-pwd1").placeholder = rkCache.hasPassword1 ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
+      $("#rk-pwd2").placeholder = rkCache.hasPassword2 ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
+      setRkTest(!!rkCache.isTest);
+      updateRkStatusPill();
+      // Обновим карточку способов оплаты — built-in Robokassa-методы переключат видимость без перезагрузки
+      renderPaymentsCard();
+      btn.textContent = rkCache.ready ? "Сохранено · готово к работе ✓" : "Сохранено (заполните остальное)";
+      setTimeout(() => { btn.textContent = t; btn.disabled = false; }, 2200);
+    } catch (err) {
+      alert("Ошибка: " + (err.message || ""));
+      btn.textContent = t; btn.disabled = false;
+    }
+  });
+  $("#rk-clear-pwd").addEventListener('click', () => {
+    if (!confirm("Сбросить оба пароля? После этого оплата перестанет работать, пока не зададите новые.")) return;
+    api("PATCH", "/api/admin/robokassa", { password1: null, password2: null })
+      .then(() => loadRobokassa());
+  });
+
+  // ============================================================
+  //                      CATALOG MANAGEMENT
+  // ============================================================
+  let catData = { boxes: [], flowers: [], picks: [], addons: [], promos: [], payments: [], delivery: {} };
+  let catActive = "boxes"; // active sub-tab
+  let catEditing = null;   // current item being edited (null = new)
+
+  async function loadCatalog(){
+    try {
+      const r = await api("GET", "/api/catalog");
+      catData = r.catalog || { boxes:[], flowers:[], picks:[], addons:[], promos:[], payments:[], delivery:{} };
+      // Sort by order field
+      ["boxes","flowers","picks","addons","payments"].forEach(k => {
+        if (Array.isArray(catData[k])) catData[k].sort((a,b)=>(a.order||0)-(b.order||0));
+      });
+      ["boxes","flowers","picks","addons","promos","payments"].forEach(k => {
+        const el = $("#cnt-" + k); if (el) el.textContent = (catData[k] || []).length;
+      });
+      updateCatHint();
+      renderCatalogTable();
+      renderPaymentsCard();
+    } catch (err) {
+      $("#catalog-table-wrap").innerHTML = '<div class="empty"><h3>Ошибка</h3><p>'+escapeHtml(err.message||"")+'</p></div>';
+    }
+  }
+
+  $$("[data-cat]").forEach(t => t.addEventListener("click", () => {
+    $$("[data-cat]").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    catActive = t.dataset.cat;
+    $("#ref-gen-btn").style.display = catActive === "promos" ? "" : "none";
+    updateCatHint();
+    renderCatalogTable();
+  }));
+
+  function updateCatHint(){
+    const hint = $("#cat-hint");
+    if (hint) hint.textContent = "Кликните по строке, чтобы редактировать.";
+  }
+
+  // ----- Карточка «Способы оплаты» в табе Оплата -----
+  function renderPaymentsCard(){
+    const wrap = $("#payments-table-wrap");
+    if (!wrap) return;
+    const items = (catData.payments || []).slice().sort((a,b)=>(a.order||0)-(b.order||0));
+    const rkReady = rkCache && rkCache.ready;
+    const sub = $("#pay-methods-sub");
+    if (sub) {
+      if (rkReady) {
+        sub.innerHTML = 'Список методов, которые видит покупатель. Built-in Robokassa активна — карта и СБП подключены к шлюзу.';
+        sub.style.color = "";
+      } else {
+        sub.innerHTML = '<strong style="color:var(--wine)">Robokassa не настроена</strong> — built-in методы «Карта онлайн» и «СБП» скрыты с чекаута до тех пор, пока не заполнены MerchantLogin и пароли ниже. Custom-методы (наличные, перевод и т.п.) работают независимо.';
+        sub.style.color = "";
+      }
+    }
+    if (!items.length) {
+      wrap.innerHTML = '<div class="empty"><h3>Нет способов оплаты</h3><p>Нажмите «＋ Добавить способ», чтобы создать первый custom-метод. Built-in Robokassa-методы создаются автоматически.</p></div>';
+      return;
+    }
+    let html = '<table class="catalog-table"><thead><tr><th></th><th>Название</th><th>Тип</th><th>Статус</th><th>Инструкция</th><th></th></tr></thead><tbody>';
+    items.forEach(it => {
+      const isRobokassa = it.type === "robokassa-card" || it.type === "robokassa-sbp";
+      const isHiddenDueRk = isRobokassa && !rkReady;
+      const typeLabel = ({ "robokassa-card":"Robokassa · карта", "robokassa-sbp":"Robokassa · СБП", "custom":"Свой способ" })[it.type] || it.type || "—";
+      let statusPill;
+      if (it.active === false) statusPill = '<span class="tag-pill tag-hidden">отключён</span>';
+      else if (isHiddenDueRk) statusPill = '<span class="tag-pill tag-sale">скрыт · креды Robokassa пусты</span>';
+      else statusPill = '<span class="tag-pill tag-fresh">активен</span>';
+      html += '<tr data-id="' + escapeHtml(it.id) + '" style="cursor:pointer">'
+            + '<td><div class="thumb" style="font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--mute)">'+escapeHtml(it.icon||"·")+'</div></td>'
+            + '<td><div class="name">'+escapeHtml(it.title||"")+'</div>'+(it.description?'<div class="meta" style="font-family:var(--sans);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-soft)">'+escapeHtml(it.description)+'</div>':'')+'</td>'
+            + '<td>'+escapeHtml(typeLabel)+(it.builtin?' <span class="tag-pill tag-hidden" style="margin-left:4px">встроен</span>':'')+'</td>'
+            + '<td>'+statusPill+'</td>'
+            + '<td>'+(it.instruction?'<span class="tag-pill tag-fresh">есть</span>':'<span style="color:var(--mute);font-size:11px;font-family:var(--mono);letter-spacing:.08em">—</span>')+'</td>'
+            + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>'
+            + '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        catActive = "payments";
+        openCatModal(tr.dataset.id);
+      });
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "pay-add-btn") {
+      catActive = "payments";
+      openCatModal(null);
+    }
+  });
+
+  $("#cat-refresh-btn").addEventListener("click", loadCatalog);
+  $("#cat-add-btn").addEventListener("click", () => openCatModal(null));
+
+  $("#ref-gen-btn").addEventListener("click", async () => {
+    const name = prompt("ФИО клиента (на ком будет привязан реф-промокод):");
+    if (!name) return;
+    const email = prompt("Email клиента (опционально):", "") || "";
+    const phone = prompt("Телефон клиента (опционально):", "") || "";
+    try {
+      const r = await api("POST", "/api/admin/referral/generate-promo", { name, email, phone });
+      await loadCatalog();
+      alert("Создан промокод: " + r.promo.code + "\nДля " + name + " · скидка " + r.promo.discountPct + "% · бонус приглашающему " + (r.promo.bonusForOwner || 0) + " ₽");
+    } catch (err) { alert("Ошибка: " + (err.message || "")); }
+  });
+
+  function renderCatalogTable(){
+    const wrap = $("#catalog-table-wrap");
+    const items = catData[catActive] || [];
+    if (!items.length) {
+      wrap.innerHTML = '<div class="empty"><h3>Пусто</h3><p>Добавьте первую запись.</p></div>';
+      return;
+    }
+    let html = '<table class="catalog-table"><thead><tr>';
+    if (catActive === "boxes") html += '<th></th><th>Размер</th><th>Название</th><th>Вместимость</th><th class="total" style="text-align:right">Цена</th><th></th>';
+    else if (catActive === "flowers") html += '<th></th><th>Название</th><th>Категория</th><th>Статус</th><th class="total" style="text-align:right">Цена «от»</th><th></th>';
+    else if (catActive === "picks") html += '<th></th><th>Название</th><th>Категория</th><th>Бокс</th><th class="total" style="text-align:right">Цена</th><th></th>';
+    else if (catActive === "addons") html += '<th></th><th>Название</th><th>ID</th><th class="total" style="text-align:right">Цена</th><th></th>';
+    else if (catActive === "promos") html += '<th>Код</th><th>Скидка</th><th>Лимит</th><th>Использовано</th><th>Статус</th><th></th>';
+    else if (catActive === "payments") html += '<th></th><th>Название</th><th>Тип</th><th>Статус</th><th></th><th></th>';
+    html += '</tr></thead><tbody>';
+
+    items.forEach(it => {
+      html += '<tr data-id="' + escapeHtml(it.id || it.code) + '" style="cursor:pointer">';
+      if (catActive === "boxes") {
+        html += '<td><div class="thumb">'+(it.image?'<img src="'+escapeHtml(it.image)+'" alt="">':'')+'</div></td>'
+              + '<td><strong style="font-family:var(--serif);font-size:18px">'+escapeHtml(it.size||"?")+'</strong></td>'
+              + '<td><div class="name">'+escapeHtml(it.title||"")+'</div><div class="meta">'+(it.hidden?'<span class="tag-pill tag-hidden">скрыт</span>':'')+'</div></td>'
+              + '<td>'+(it.capacity||0)+' стеблей</td>'
+              + '<td class="total"><strong>'+fmt(it.price)+'</strong></td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      } else if (catActive === "flowers") {
+        const tagMap = {fresh:'tag-fresh',out:'tag-out',exo:'tag-exo',season:'tag-fresh',dry:'tag-out'};
+        html += '<td><div class="thumb">'+(it.image?'<img src="'+escapeHtml(it.image)+'" alt="">':'')+'</div></td>'
+              + '<td><div class="name">'+escapeHtml(it.name||"")+'</div><div class="meta">'+escapeHtml(it.meta||"")+'</div></td>'
+              + '<td>'+escapeHtml(it.cat||"")+'</td>'
+              + '<td>'+(it.stock?'<span class="tag-pill tag-fresh">в наличии</span>':'<span class="tag-pill tag-out">нет в наличии</span>')+(it.sale?' <span class="tag-pill tag-sale">скидка</span>':'')+(it.hidden?' <span class="tag-pill tag-hidden">скрыт</span>':'')+'</td>'
+              + '<td class="total"><strong>'+fmt(it.priceFrom)+'</strong></td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      } else if (catActive === "picks") {
+        html += '<td><div class="thumb">'+(it.image?'<img src="'+escapeHtml(it.image)+'" alt="">':'')+'</div></td>'
+              + '<td><div class="name">'+escapeHtml(it.title||"")+'</div><div class="meta">'+escapeHtml(it.id||"")+(it.hidden?' · скрыта':'')+'</div></td>'
+              + '<td>'+escapeHtml(it.cat||"")+'</td>'
+              + '<td>'+escapeHtml((it.boxId||"").toUpperCase())+'</td>'
+              + '<td class="total"><strong>'+fmt(it.price)+'</strong>'+(it.oldPrice?'<div style="color:var(--mute);font-size:11px;text-decoration:line-through">'+fmt(it.oldPrice)+'</div>':'')+'</td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      } else if (catActive === "addons") {
+        html += '<td><div class="thumb">'+(it.image?'<img src="'+escapeHtml(it.image)+'" alt="">':escapeHtml(it.placeholder||""))+'</div></td>'
+              + '<td><div class="name">'+escapeHtml(it.title||"")+'</div><div class="meta">'+(it.hidden?'<span class="tag-pill tag-hidden">скрыт</span>':'')+'</div></td>'
+              + '<td><code style="font-family:var(--mono);font-size:12px">'+escapeHtml(it.id||"")+'</code></td>'
+              + '<td class="total"><strong>'+fmt(it.price)+'</strong></td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      } else if (catActive === "promos") {
+        html += '<td><code style="font-family:var(--mono);font-size:13px;font-weight:600">'+escapeHtml(it.code||"")+'</code></td>'
+              + '<td><strong>'+(it.discountPct||0)+'%</strong></td>'
+              + '<td>'+(it.maxUses?it.maxUses+' шт':'без лимита')+'</td>'
+              + '<td>'+(it.usedCount||0)+'</td>'
+              + '<td>'+(it.active!==false?'<span class="tag-pill tag-fresh">активен</span>':'<span class="tag-pill tag-hidden">отключён</span>')+'</td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      } else if (catActive === "payments") {
+        const isRobokassa = it.type === "robokassa-card" || it.type === "robokassa-sbp";
+        const rkReady = rkCache && rkCache.ready;
+        const isHiddenDueRk = isRobokassa && !rkReady;
+        const typeLabel = ({ "robokassa-card":"Robokassa · карта", "robokassa-sbp":"Robokassa · СБП", "custom":"Свой способ" })[it.type] || it.type || "—";
+        let statusPill;
+        if (it.active === false) statusPill = '<span class="tag-pill tag-hidden">отключён</span>';
+        else if (isHiddenDueRk) statusPill = '<span class="tag-pill tag-sale">скрыт · креды Robokassa пусты</span>';
+        else statusPill = '<span class="tag-pill tag-fresh">активен</span>';
+        html += '<td><div class="thumb" style="font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--mute)">'+escapeHtml(it.icon||"·")+'</div></td>'
+              + '<td><div class="name">'+escapeHtml(it.title||"")+'</div>'+(it.description?'<div class="meta" style="font-family:var(--sans);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-soft)">'+escapeHtml(it.description)+'</div>':'')+'</td>'
+              + '<td>'+escapeHtml(typeLabel)+(it.builtin?' <span class="tag-pill tag-hidden" style="margin-left:4px">встроен</span>':'')+'</td>'
+              + '<td>'+statusPill+'</td>'
+              + '<td>'+(it.instruction?'<span class="tag-pill tag-fresh">есть инструкция</span>':'<span style="color:var(--mute);font-size:11px;font-family:var(--mono);letter-spacing:.08em">—</span>')+'</td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      }
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', () => openCatModal(tr.dataset.id));
+    });
+  }
+
+  // ----- CATALOG MODAL -----
+  function openCatModal(id){
+    const items = catData[catActive] || [];
+    const idField = catActive === "promos" ? "code" : "id";
+    catEditing = id ? items.find(x => String(x[idField]) === String(id)) || null : null;
+    const isNew = !catEditing;
+    $("#cat-modal-title").textContent = isNew
+      ? "Новая запись · " + sectionLabel(catActive)
+      : "Редактирование · " + escapeHtml(catEditing.title || catEditing.name || catEditing.code || catEditing.id || "");
+    const isBuiltinPayment = catActive === "payments" && catEditing && catEditing.builtin;
+    $("#cat-delete-btn").style.display = isNew || isBuiltinPayment ? "none" : "";
+    renderCatForm(catActive, catEditing);
+    $("#cat-modal").classList.add("show");
+  }
+
+  function sectionLabel(s){
+    return ({boxes:"Бокс", flowers:"Цветок", picks:"Подборка", addons:"Доп", promos:"Промокод", payments:"Способ оплаты"})[s] || s;
+  }
+
+  function renderCatForm(section, item){
+    const f = $("#cat-form");
+    item = item || {};
+    let html = '';
+
+    function field(id, label, value, type="text", attrs="") {
+      const v = value == null ? "" : String(value);
+      const tag = type === "textarea"
+        ? `<textarea id="cf-${id}" ${attrs}>${escapeHtml(v)}</textarea>`
+        : type === "select"
+          ? `<select id="cf-${id}" ${attrs}></select>`
+          : `<input id="cf-${id}" type="${type}" value="${escapeHtml(v)}" ${attrs}>`;
+      return `<div class="field"><label for="cf-${id}">${escapeHtml(label)}</label>${tag}</div>`;
+    }
+    function checkbox(id, label, checked) {
+      return `<div class="field checkbox"><label><input type="checkbox" id="cf-${id}" ${checked?'checked':''}> ${escapeHtml(label)}</label></div>`;
+    }
+    function imagePicker(id, value) {
+      const v = value || "";
+      const isPlaceholder = !v;
+      return `<div class="field"><label>Изображение</label>
+        <div class="image-picker">
+          <div class="preview" id="cf-${id}-preview">${v ? '<img src="'+escapeHtml(v)+'" alt="">' : '⊹'}</div>
+          <div class="controls">
+            <input type="text" id="cf-${id}" value="${escapeHtml(v)}" placeholder="URL или /uploads/file.jpg" style="padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;font-size:12px;font-family:var(--mono)">
+            <div class="btns">
+              <button type="button" class="mini-btn" data-image-upload>Загрузить</button>
+              <button type="button" class="mini-btn" data-image-pick>Из медиатеки</button>
+              <button type="button" class="mini-btn" data-image-clear>Очистить</button>
+            </div>
+            <input type="file" data-image-file accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,image/avif">
+          </div>
+        </div>
+      </div>`;
+    }
+
+    if (section === "boxes") {
+      html += '<div class="row">';
+      html += field("id", "ID *", item.id, "text", item.id?"readonly":"");
+      html += field("size", "Размер (S/M/L/XL) *", item.size);
+      html += '</div><div class="row">';
+      html += field("sub", "Подпись (small/medium/large/extra)", item.sub);
+      html += field("capacity", "Вместимость (стеблей) *", item.capacity, "number", "min=1");
+      html += '</div><div class="row">';
+      html += field("price", "Цена, ₽ *", item.price, "number", "min=0");
+      html += field("url", "URL страницы", item.url || ("box-"+(item.id||"")+".html"));
+      html += '</div>';
+      html += field("title", "Заголовок (что внутри карточки)", item.title);
+      html += field("desc", "Описание", item.desc, "textarea");
+      html += imagePicker("image", item.image);
+      html += '<div class="row">';
+      html += field("order", "Порядок", item.order || 0, "number");
+      html += checkbox("hidden", "Скрыт от посетителей", !!item.hidden);
+      html += '</div>';
+    } else if (section === "flowers") {
+      html += '<div class="row">';
+      html += field("id", "ID *", item.id, "text", item.id?"readonly":"");
+      html += field("name", "Название *", item.name);
+      html += '</div><div class="row">';
+      html += field("cat", "Категория (rose/peony/seasonal/exo/dry/green) *", item.cat);
+      html += field("priceFrom", "Цена «от», ₽", item.priceFrom, "number", "min=0");
+      html += '</div>';
+      html += field("meta", "Подпись (например, «Душистый · 60 см»)", item.meta);
+      html += imagePicker("image", item.image);
+      html += '<div class="row">';
+      html += field("tag", "Тег (fresh/season/exo/dry/out)", item.tag);
+      html += field("order", "Порядок", item.order || 0, "number");
+      html += '</div>';
+      html += '<div class="row">';
+      html += checkbox("stock", "В наличии", item.stock !== false);
+      html += checkbox("sale", "Распродажа", !!item.sale);
+      html += '</div>';
+      html += checkbox("hidden", "Скрыт от посетителей", !!item.hidden);
+    } else if (section === "picks") {
+      html += '<div class="row">';
+      html += field("id", "ID *", item.id, "text", item.id?"readonly":"");
+      html += field("title", "Название *", item.title);
+      html += '</div><div class="row">';
+      html += field("cat", "Категория (home/gift/exo/romance/anniv) *", item.cat);
+      html += '<div class="field"><label for="cf-boxId">Размер бокса *</label><select id="cf-boxId">' +
+        catData.boxes.map(b => '<option value="'+escapeHtml(b.id)+'"'+((item.boxId===b.id)?' selected':'')+'>'+escapeHtml(b.size)+' · '+b.capacity+' стеблей</option>').join('') +
+        '</select></div>';
+      html += '</div><div class="row">';
+      html += field("price", "Цена, ₽ *", item.price, "number", "min=0");
+      html += field("oldPrice", "Старая цена (для перечёркивания)", item.oldPrice || "", "number", "min=0");
+      html += '</div>';
+      html += field("desc", "Описание", item.desc, "textarea");
+      html += imagePicker("image", item.image);
+
+      // Composition builder
+      html += '<div style="margin-top:14px"><label style="display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:6px">Состав букета</label><div class="composition-builder" id="comp-builder"></div></div>';
+
+      // Addons checklist
+      const addonChecks = (catData.addons || []).map(a => {
+        const chk = (item.addons || []).indexOf(a.id) >= 0;
+        return '<label style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:var(--ivory);border-radius:999px;font-size:12px;cursor:pointer;margin:0 4px 4px 0"><input type="checkbox" data-addon="'+escapeHtml(a.id)+'"'+(chk?' checked':'')+'> '+escapeHtml(a.title)+' (+'+a.price+'₽)</label>';
+      }).join('');
+      html += '<div class="field"><label>Допы в подборке</label><div id="cf-addons">'+addonChecks+'</div></div>';
+
+      html += '<div class="row">';
+      html += field("order", "Порядок", item.order || 0, "number");
+      html += checkbox("hidden", "Скрыта от посетителей", !!item.hidden);
+      html += '</div>';
+    } else if (section === "addons") {
+      html += '<div class="row">';
+      html += field("id", "ID *", item.id, "text", item.id?"readonly":"");
+      html += field("title", "Название *", item.title);
+      html += '</div><div class="row">';
+      html += field("price", "Цена, ₽ *", item.price, "number", "min=0");
+      html += field("placeholder", "Символ-заглушка (если нет картинки, например ⊹)", item.placeholder || "");
+      html += '</div>';
+      html += field("desc", "Описание", item.desc, "textarea");
+      html += imagePicker("image", item.image);
+      html += '<div class="row">';
+      html += field("order", "Порядок", item.order || 0, "number");
+      html += checkbox("hidden", "Скрыт от посетителей", !!item.hidden);
+      html += '</div>';
+    } else if (section === "promos") {
+      html += '<div class="row">';
+      html += field("code", "Код *", item.code, "text", item.code?"readonly":"");
+      html += field("label", "Метка для UI", item.label || item.code || "");
+      html += '</div><div class="row">';
+      html += field("discountPct", "Скидка, % *", item.discountPct, "number", "min=1 max=99");
+      html += field("minSubtotal", "Минимальная сумма заказа, ₽", item.minSubtotal || 0, "number", "min=0");
+      html += '</div><div class="row">';
+      html += field("expiresAt", "Истекает (YYYY-MM-DD, пусто = бессрочно)", item.expiresAt ? String(item.expiresAt).slice(0,10) : "", "date");
+      html += field("maxUses", "Макс. использований (пусто = без лимита)", item.maxUses || "", "number", "min=0");
+      html += '</div>';
+      html += checkbox("active", "Активен", item.active !== false);
+    } else if (section === "payments") {
+      const isBuiltin = !!item.builtin;
+      const rkReady = rkCache && rkCache.ready;
+      if (isBuiltin && !rkReady) {
+        html += '<div style="background:rgba(201,123,92,.1);border:1px solid rgba(201,123,92,.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--ink)">⚠️ Это <strong>встроенный</strong> способ через Robokassa. Сейчас он <strong>скрыт</strong> с чекаута, потому что в табе «Оплата» пусты MerchantLogin / пароли — заполните их, чтобы метод стал доступен покупателям.</div>';
+      } else if (isBuiltin) {
+        html += '<div style="background:rgba(140,154,123,.1);border:1px solid rgba(140,154,123,.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--ink)">Это встроенный способ через Robokassa. Удалить нельзя — можно отключить через флаг «Активен».</div>';
+      }
+      html += '<div class="row">';
+      html += field("id", "ID *", item.id, "text", item.id?"readonly":"");
+      // Для built-in тип залочен; для нового/custom — выбор из «custom»
+      if (isBuiltin) {
+        html += '<div class="field"><label for="cf-type">Тип</label><select id="cf-type" disabled>'
+              + '<option value="robokassa-card"'+(item.type==="robokassa-card"?' selected':'')+'>Robokassa · карта</option>'
+              + '<option value="robokassa-sbp"'+(item.type==="robokassa-sbp"?' selected':'')+'>Robokassa · СБП</option>'
+              + '</select></div>';
+      } else {
+        html += '<div class="field"><label for="cf-type">Тип</label><select id="cf-type">'
+              + '<option value="custom"'+(!item.type || item.type==="custom"?' selected':'')+'>Свой способ (без интеграции)</option>'
+              + '</select></div>';
+      }
+      html += '</div>';
+      html += '<div class="row">';
+      html += field("title", "Название (для чекаута) *", item.title);
+      html += field("icon", "Иконка / значок (короткая строка)", item.icon || "");
+      html += '</div>';
+      html += field("description", "Краткое описание (под названием)", item.description || "", "textarea");
+      if (!isBuiltin) {
+        html += '<div class="field"><label for="cf-instruction">Инструкция для клиента (показывается на странице «Спасибо»)</label>'
+              + '<textarea id="cf-instruction" placeholder="Например: переведите N ₽ на карту 4276 1234 5678 9012, в комментарии укажите номер заказа.">'+escapeHtml(item.instruction || "")+'</textarea>'
+              + '<div style="font-size:11px;color:var(--mute);margin-top:6px;font-family:var(--sans);text-transform:none;letter-spacing:0">Поддерживает строки и переносы. HTML и ссылки экранируются.</div></div>';
+      } else {
+        // У встроенных Robokassa нет инструкции — оплата проходит через шлюз
+        html += '<input type="hidden" id="cf-instruction" value="">';
+      }
+      html += '<div class="row">';
+      html += field("order", "Порядок", item.order || 0, "number");
+      html += checkbox("active", "Активен (показывать на чекауте)", item.active !== false);
+      html += '</div>';
+    }
+
+    f.innerHTML = html;
+
+    // Wire image pickers
+    f.querySelectorAll('[data-image-upload]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wrap = btn.closest('.image-picker');
+        wrap.querySelector('[data-image-file]').click();
+      });
+    });
+    f.querySelectorAll('[data-image-file]').forEach(input => {
+      input.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const wrap = input.closest('.image-picker');
+        const previewEl = wrap.querySelector('.preview');
+        const urlInput = wrap.querySelector('input[type="text"]');
+        previewEl.innerHTML = '<div style="font-size:10px;color:var(--mute);text-align:center;padding:6px">загружаем…</div>';
+        try {
+          const url = await uploadFile(file);
+          urlInput.value = url;
+          previewEl.innerHTML = '<img src="'+escapeHtml(url)+'" alt="">';
+        } catch (err) {
+          alert("Ошибка загрузки: " + (err.message || err));
+          previewEl.innerHTML = '⊹';
+        }
+        input.value = "";
+      });
+    });
+    f.querySelectorAll('[data-image-pick]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wrap = btn.closest('.image-picker');
+        const previewEl = wrap.querySelector('.preview');
+        const urlInput = wrap.querySelector('input[type="text"]');
+        openMediaPicker((url) => {
+          urlInput.value = url;
+          previewEl.innerHTML = url ? '<img src="'+escapeHtml(url)+'" alt="">' : '⊹';
+        });
+      });
+    });
+    f.querySelectorAll('[data-image-clear]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wrap = btn.closest('.image-picker');
+        wrap.querySelector('input[type="text"]').value = "";
+        wrap.querySelector('.preview').innerHTML = '⊹';
+      });
+    });
+    // Live preview when URL is typed manually
+    f.querySelectorAll('.image-picker input[type="text"]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const previewEl = inp.closest('.image-picker').querySelector('.preview');
+        previewEl.innerHTML = inp.value ? '<img src="'+escapeHtml(inp.value)+'" alt="">' : '⊹';
+      });
+    });
+
+    // Composition builder for picks
+    if (section === "picks") {
+      renderComposition(item);
+    }
+  }
+
+  function renderComposition(item){
+    const builder = $("#comp-builder");
+    if (!builder) return;
+    const flowersList = (catData.flowers || []).filter(f => !f.hidden);
+    const initial = item && item.flowers ? Object.entries(item.flowers).map(([fid,q])=>({fid,q})) : [];
+
+    function row(idx, fid, q) {
+      return '<div class="composition-row" data-comp-row="'+idx+'">' +
+        '<select data-comp-fid>' + flowersList.map(f =>
+          '<option value="'+escapeHtml(f.id)+'"'+(f.id===fid?' selected':'')+'>'+escapeHtml(f.name)+'</option>').join('') +
+        '</select>' +
+        '<input type="number" min="1" value="'+(q||1)+'" data-comp-q>' +
+        '<button type="button" class="mini-btn" data-comp-del>×</button>' +
+      '</div>';
+    }
+    function full() {
+      const rows = builder.querySelectorAll('[data-comp-row]');
+      let html = '';
+      rows.forEach((r, i) => {
+        const fid = r.querySelector('[data-comp-fid]').value;
+        const q = r.querySelector('[data-comp-q]').value;
+        html += row(i, fid, parseInt(q,10) || 1);
+      });
+      // получить выбранный бокс
+      const boxId = $("#cf-boxId").value;
+      const box = catData.boxes.find(b => b.id === boxId);
+      const cap = box ? box.capacity : 0;
+      let total = 0;
+      builder.querySelectorAll('[data-comp-q]').forEach(q => total += parseInt(q.value,10) || 0);
+      const over = total > cap;
+      html += '<button type="button" class="composition-add" data-comp-add>+ добавить позицию</button>';
+      html += '<div class="composition-total'+(over?' over':'')+'">Заполнено: <strong>'+total+'</strong> из '+cap+(over?' (превышение!)':'')+'</div>';
+      builder.innerHTML = html;
+      attach();
+    }
+    function attach(){
+      builder.querySelectorAll('[data-comp-del]').forEach(btn => btn.addEventListener('click', (e) => {
+        e.target.closest('[data-comp-row]').remove();
+        full();
+      }));
+      builder.querySelectorAll('[data-comp-fid], [data-comp-q]').forEach(el => el.addEventListener('change', full));
+      const addBtn = builder.querySelector('[data-comp-add]');
+      if (addBtn) addBtn.addEventListener('click', () => {
+        const idx = builder.querySelectorAll('[data-comp-row]').length;
+        builder.insertAdjacentHTML('beforeend', '<div class="composition-row" data-comp-row="'+idx+'">' +
+          '<select data-comp-fid>' + flowersList.map(f => '<option value="'+escapeHtml(f.id)+'">'+escapeHtml(f.name)+'</option>').join('') + '</select>' +
+          '<input type="number" min="1" value="1" data-comp-q>' +
+          '<button type="button" class="mini-btn" data-comp-del>×</button>' +
+        '</div>');
+        full();
+      });
+      const boxSel = $("#cf-boxId");
+      if (boxSel) { boxSel.removeEventListener('change', full); boxSel.addEventListener('change', full); }
+    }
+    builder.innerHTML = initial.map((x, i) => row(i, x.fid, x.q)).join('');
+    full();
+  }
+
+  function readCatForm(section){
+    const item = {};
+    function v(id) { const el = $("#cf-"+id); return el ? el.value : ""; }
+    function vBool(id) { const el = $("#cf-"+id); return el ? el.checked : false; }
+    function vNum(id) { const x = v(id); return x === "" ? 0 : Number(x); }
+    function vNumOrNull(id) { const x = v(id); return x === "" ? null : Number(x); }
+
+    if (section === "boxes") {
+      Object.assign(item, {
+        id: v("id").trim(), size: v("size").trim(), sub: v("sub").trim(),
+        capacity: vNum("capacity"), price: vNum("price"),
+        url: v("url").trim(), title: v("title").trim(), desc: v("desc").trim(),
+        image: v("image").trim(),
+        order: vNum("order"),
+        hidden: vBool("hidden"),
+      });
+    } else if (section === "flowers") {
+      Object.assign(item, {
+        id: v("id").trim(), name: v("name").trim(), cat: v("cat").trim(),
+        priceFrom: vNum("priceFrom"), meta: v("meta").trim(),
+        image: v("image").trim(), tag: v("tag").trim(),
+        order: vNum("order"),
+        stock: vBool("stock"), sale: vBool("sale"), hidden: vBool("hidden"),
+      });
+    } else if (section === "picks") {
+      const flowers = {};
+      $$("[data-comp-row]").forEach(r => {
+        const fid = r.querySelector('[data-comp-fid]').value;
+        const q = parseInt(r.querySelector('[data-comp-q]').value, 10) || 0;
+        if (fid && q > 0) flowers[fid] = (flowers[fid] || 0) + q;
+      });
+      const addons = [];
+      $$("#cf-addons input[type=checkbox]").forEach(c => { if (c.checked) addons.push(c.dataset.addon); });
+      Object.assign(item, {
+        id: v("id").trim(), title: v("title").trim(), cat: v("cat").trim(),
+        boxId: v("boxId"),
+        price: vNum("price"), oldPrice: vNumOrNull("oldPrice"),
+        desc: v("desc").trim(), image: v("image").trim(),
+        flowers, addons,
+        order: vNum("order"), hidden: vBool("hidden"),
+      });
+    } else if (section === "addons") {
+      Object.assign(item, {
+        id: v("id").trim(), title: v("title").trim(),
+        price: vNum("price"), placeholder: v("placeholder").trim() || null,
+        desc: v("desc").trim(), image: v("image").trim() || null,
+        order: vNum("order"), hidden: vBool("hidden"),
+      });
+    } else if (section === "promos") {
+      Object.assign(item, {
+        code: v("code").trim().toUpperCase(),
+        label: v("label").trim() || v("code").trim().toUpperCase(),
+        discountPct: vNum("discountPct"),
+        minSubtotal: vNum("minSubtotal"),
+        expiresAt: v("expiresAt") || null,
+        maxUses: vNumOrNull("maxUses"),
+        active: vBool("active"),
+      });
+    } else if (section === "payments") {
+      Object.assign(item, {
+        id: v("id").trim(),
+        type: v("type").trim() || "custom",
+        title: v("title").trim(),
+        icon: v("icon").trim(),
+        description: v("description").trim(),
+        instruction: v("instruction"),
+        order: vNum("order"),
+        active: vBool("active"),
+      });
+    }
+    return item;
+  }
+
+  $("#cat-modal-close").addEventListener("click", () => $("#cat-modal").classList.remove("show"));
+  $("#cat-cancel-btn").addEventListener("click", () => $("#cat-modal").classList.remove("show"));
+  $("#cat-modal").addEventListener("click", (e) => { if (e.target === $("#cat-modal")) $("#cat-modal").classList.remove("show"); });
+
+  $("#cat-save-btn").addEventListener("click", async () => {
+    const btn = $("#cat-save-btn");
+    btn.disabled = true; const t = btn.textContent; btn.textContent = "Сохраняем…";
+    try {
+      const item = readCatForm(catActive);
+      const idField = catActive === "promos" ? "code" : "id";
+      const id = item[idField];
+      if (!id) throw new Error(`Поле "${idField}" обязательно`);
+      const isEditing = !!catEditing;
+      const path = "/api/admin/catalog/" + catActive + "/" + encodeURIComponent(id);
+      await api("PUT", path, item);
+      btn.textContent = "Сохранено ✓";
+      await loadCatalog();
+      if (window.SOBRANO_CATALOG && window.SOBRANO_CATALOG.refresh) window.SOBRANO_CATALOG.refresh();
+      setTimeout(() => { btn.textContent = t; btn.disabled = false; $("#cat-modal").classList.remove("show"); }, 700);
+    } catch (err) {
+      alert("Ошибка: " + (err.message || ""));
+      btn.textContent = t; btn.disabled = false;
+    }
+  });
+
+  $("#cat-delete-btn").addEventListener("click", async () => {
+    if (!catEditing) return;
+    const idField = catActive === "promos" ? "code" : "id";
+    const id = catEditing[idField];
+    if (!confirm(`Удалить «${catEditing.title || catEditing.name || catEditing.code || id}»?`)) return;
+    try {
+      await api("DELETE", "/api/admin/catalog/" + catActive + "/" + encodeURIComponent(id));
+      await loadCatalog();
+      if (window.SOBRANO_CATALOG && window.SOBRANO_CATALOG.refresh) window.SOBRANO_CATALOG.refresh();
+      $("#cat-modal").classList.remove("show");
+    } catch (err) {
+      alert("Ошибка: " + (err.message || ""));
+    }
+  });
+
+  // ============================================================
+  //                       MEDIA LIBRARY
+  // ============================================================
+  let mediaCache = [];
+  let mediaPickCallback = null;
+
+  async function loadMedia(){
+    try {
+      const r = await api("GET", "/api/admin/uploads");
+      mediaCache = r.files || [];
+      renderMediaGrid();
+    } catch (err) {
+      $("#media-grid-wrap").innerHTML = '<div class="media-empty">Ошибка: '+escapeHtml(err.message||"")+'</div>';
+    }
+  }
+  function renderMediaGrid(){
+    const wrap = $("#media-grid-wrap");
+    if (!mediaCache.length) {
+      wrap.innerHTML = '<div class="media-empty">Пока нет загруженных файлов. Нажмите «＋ Загрузить картинку».</div>';
+      return;
+    }
+    let html = '<div class="media-grid">';
+    mediaCache.forEach(f => {
+      const sizeKb = (f.size / 1024).toFixed(0);
+      html += '<div class="media-item" data-url="'+escapeHtml(f.url)+'" data-fname="'+escapeHtml(f.filename)+'">' +
+        '<img src="'+escapeHtml(f.url)+'" alt="" loading="lazy">' +
+        '<div class="ov"><span>'+sizeKb+' КБ</span><button class="del" data-del>×</button></div>' +
+      '</div>';
+    });
+    html += '</div>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('.media-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target.dataset.del !== undefined) {
+          if (!confirm("Удалить файл? Если он используется в каталоге — ссылка станет битой.")) return;
+          api("DELETE", "/api/admin/uploads/" + encodeURIComponent(el.dataset.fname))
+            .then(loadMedia)
+            .catch(err => alert("Ошибка: " + err.message));
+          return;
+        }
+        if (mediaPickCallback) {
+          mediaPickCallback(el.dataset.url);
+          mediaPickCallback = null;
+          // Возвращаемся в каталог + восстанавливаем модалку
+          $$(".tab").forEach(x => x.classList.remove("active"));
+          $$(".tab-panel").forEach(p => p.style.display = "none");
+          $("#panel-catalog").style.display = "";
+          $$(".tab").forEach(t => { if (t.dataset.tab === "catalog") t.classList.add("active"); });
+          $("#cat-modal").classList.add("show");
+        } else {
+          // copy URL to clipboard
+          const fullUrl = location.origin + el.dataset.url;
+          if (navigator.clipboard) navigator.clipboard.writeText(fullUrl);
+          alert("Скопирован URL: " + el.dataset.url);
+        }
+      });
+    });
+  }
+
+  $("#media-upload-btn").addEventListener("click", () => $("#media-upload-input").click());
+  $("#media-upload-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      await uploadFile(file);
+      await loadMedia();
+    } catch (err) {
+      alert("Ошибка загрузки: " + (err.message || err));
+    }
+    e.target.value = "";
+  });
+
+  function openMediaPicker(callback){
+    mediaPickCallback = callback;
+    // Временно скрываем cat-modal, чтобы пользователь видел сетку
+    $("#cat-modal").classList.remove("show");
+    // переключаемся на таб «Медиа»
+    $$(".tab").forEach(x => x.classList.remove("active"));
+    $$(".tab-panel").forEach(p => p.style.display = "none");
+    $("#panel-media").style.display = "";
+    $$(".tab").forEach(t => { if (t.dataset.tab === "media") t.classList.add("active"); });
+    loadMedia();
+  }
+
+  async function uploadFile(file){
+    const t = tokenGet();
+    const headers = {
+      "content-type": file.type || "application/octet-stream",
+      "x-filename": file.name,
+    };
+    if (t) headers["authorization"] = "Bearer " + t;
+    const res = await fetch("/api/admin/upload", { method: "POST", body: file, headers, credentials: "same-origin" });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error((data && data.error) || res.statusText);
+    return data.url;
+  }
+
+  // ============================================================
+  //                       CONTENT EDITOR
+  // ============================================================
+  let contentCache = null;
+  let activeCmsTab = "home";
+
+  const CMS_LABELS = {
+    titleHtml: "Заголовок (HTML)",
+    title: "Заголовок",
+    eyebrow: "Надпись над заголовком",
+    sub: "Подзаголовок",
+    lead: "Лид-текст",
+    p: "Текст",
+    h: "Заголовок секции",
+    image: "Картинка (URL)",
+    imageMeta: "Подпись к картинке (тег сверху)",
+    imageTag: "Подпись к картинке (тег снизу)",
+    imageBadge: "Бейдж на картинке",
+    ctaPrimary: "Кнопка-CTA (основная)",
+    ctaSecondary: "Кнопка-CTA (вторичная)",
+    label: "Метка",
+    href: "Ссылка",
+    icon: "Иконка-символ",
+    ic: "Иконка-символ",
+    n: "Номер шага",
+    num: "Номер",
+    numHtml: "Номер (HTML)",
+    lbl: "Подпись",
+    name: "Название",
+    role: "Роль",
+    bio: "Биография",
+    initials: "Инициалы",
+    stat: "Стат-число",
+    pills: "Пилюли (короткие тезисы)",
+    principles: "Принципы",
+    steps: "Шаги",
+    marks: "Метки таймлайна",
+    members: "Участники команды",
+    stats: "Статистика",
+    methods: "Способы",
+    feats: "Характеристики",
+    list: "Список",
+    rows: "Строки",
+    template: "Шаблон сообщения",
+    mechanics: "Параметры начисления",
+    friendDiscountPct: "Скидка для друга, %",
+    ownerBonusAmount: "Бонус приглашающему, ₽",
+    minOrderForBonus: "Мин. сумма для начисления, ₽",
+    promoPrefix: "Префикс реф-промокода",
+    compareThem: "Они (классические магазины)",
+    compareUs: "Мы (СОБРАНО)",
+    own: "Свой курьер",
+    express: "Экспресс",
+    triggers: "Триггеры",
+    events: "События",
+    year: "Год",
+    when: "Когда",
+    meta: "Доп. подпись",
+    featured: "Выделено",
+    peak: "Пиковое",
+    t: "Время / интервал",
+    r: "Значение",
+    l: "Подпись",
+    q: "Вопрос",
+    a: "Ответ",
+    pages: "Страницы",
+    order: "Порядок",
+    hidden: "Скрыть",
+    livePill: "Бейдж «онлайн»",
+    sla: "SLA",
+    slaSub: "Подпись к SLA",
+    hoursTitle: "Заголовок «часы»",
+    hoursLead: "Описание часов",
+    hoursRows: "Строки часов",
+    whereTitle: "Заголовок «где»",
+    whereLead: "Описание «где»",
+    whereCity: "Город",
+    whereRows: "Строки «где»",
+    guaranteeLabel: "Метка карточки гарантии",
+    guaranteeTitle: "Заголовок карточки гарантии",
+    guaranteeText: "Текст карточки гарантии",
+    guaranteeStat: "Число в карточке",
+    guaranteeStatUnit: "Единица",
+    guaranteeStatSub: "Подпись к числу",
+    ans: "Ответ (что делаем)",
+    ansType: "Тип ответа (yes/no/maybe)",
+    basis: "Основание",
+    what: "Что",
+    note: "Сноска",
+    boxesIntro: "Заголовок секции «Боксы»",
+    flowersIntro: "Заголовок секции «Цветы»",
+    picksIntro: "Заголовок секции «Подборки»",
+    addonsIntro: "Заголовок секции «Допы»",
+    finalCta: "Финальный CTA",
+    hero: "Шапка",
+    concept: "Концепция",
+    howItWorks: "Как работает",
+    marquee: "Бегущая строка",
+    why: "Зачем мы это делаем",
+    timeline: "История",
+    team: "Команда",
+    warehouse: "Студия и склад",
+    cta: "CTA внизу",
+    types: "Типы доставки",
+    zones: "Зоны",
+    slotsBlock: "Временные слоты",
+    payment: "Оплата",
+    rules: "Правила",
+    options: "Варианты решения",
+    process: "Процесс претензии",
+    checklist: "Чек-лист",
+    rulesTable: "Таблица возврата",
+    channels: "Каналы связи",
+    info: "Часы и расположение",
+    formSection: "Форма",
+    how: "Как работает",
+    share: "Как поделиться",
+    refund: "Возврат",
+  };
+
+  function cmsLabel(key) {
+    return CMS_LABELS[key] || key.replace(/([A-Z])/g, " $1").toLowerCase();
+  }
+
+  async function loadContent() {
+    if (contentCache) return contentCache;
+    const r = await api("GET", "/api/admin/content");
+    contentCache = r.content || {};
+    return contentCache;
+  }
+
+  function renderContentEditor() {
+    const wrap = $("#content-editor-wrap");
+    if (!contentCache) {
+      wrap.innerHTML = '<div class="empty"><h3>Загружаем…</h3></div>';
+      return;
+    }
+
+    // Спец-режимы для нестандартных разделов
+    if (activeCmsTab === "faq") return renderFaqEditor(wrap);
+    if (activeCmsTab === "legal") return renderLegalEditor(wrap);
+    if (activeCmsTab === "requisites") return renderRequisitesEditor(wrap);
+
+    const data = contentCache[activeCmsTab];
+    if (!data) {
+      wrap.innerHTML = '<div class="empty"><h3>Нет данных</h3><p>Эта секция пуста.</p></div>';
+      return;
+    }
+    wrap.innerHTML = '';
+    const form = document.createElement('div');
+    form.id = "cms-form";
+    form.appendChild(renderJsonGroup(data, [activeCmsTab], cmsLabel(activeCmsTab)));
+    wrap.appendChild(form);
+
+    // Save bar
+    const bar = document.createElement('div');
+    bar.className = "cms-save-bar";
+    bar.innerHTML = '<button class="btn" id="cms-save-btn" type="button">Сохранить</button>' +
+      '<button class="btn btn-ghost" id="cms-reset-btn" type="button">Перечитать с сервера</button>' +
+      '<span style="font-size:12px;color:var(--mute);margin-left:8px">Изменения мгновенно появятся на сайте.</span>';
+    wrap.appendChild(bar);
+
+    $("#cms-save-btn").addEventListener("click", saveCurrentContent);
+    $("#cms-reset-btn").addEventListener("click", async () => {
+      contentCache = null;
+      await loadContent();
+      renderContentEditor();
+    });
+  }
+
+  function fieldId(pathArr) { return "cms_" + pathArr.join("_").replace(/[^a-zA-Z0-9_]/g, "_"); }
+
+  function renderJsonGroup(value, pathArr, label) {
+    const wrap = document.createElement("div");
+    wrap.className = "cms-section";
+
+    if (label) {
+      const h = document.createElement("h3");
+      h.textContent = label;
+      wrap.appendChild(h);
+    }
+
+    const fields = document.createElement("div");
+    fields.className = "cms-fields";
+
+    Object.keys(value).forEach(k => {
+      const v = value[k];
+      const subPath = pathArr.concat([k]);
+      fields.appendChild(renderJsonField(v, subPath, k));
+    });
+
+    wrap.appendChild(fields);
+    return wrap;
+  }
+
+  function renderJsonField(v, pathArr, key) {
+    const wrap = document.createElement("div");
+    wrap.dataset.path = pathArr.join(".");
+
+    // Boolean
+    if (typeof v === "boolean") {
+      const id = fieldId(pathArr);
+      wrap.className = "field checkbox";
+      wrap.innerHTML = '<label><input type="checkbox" id="' + id + '"' + (v?' checked':'') + '> ' + escapeHtml(cmsLabel(key)) + '</label>';
+      return wrap;
+    }
+
+    // Number
+    if (typeof v === "number") {
+      const id = fieldId(pathArr);
+      wrap.className = "field";
+      wrap.innerHTML = '<label for="'+id+'">' + escapeHtml(cmsLabel(key)) + '</label><input type="number" id="' + id + '" value="' + v + '">';
+      return wrap;
+    }
+
+    // String
+    if (typeof v === "string" || v === null) {
+      const id = fieldId(pathArr);
+      const str = v == null ? "" : v;
+      const isLong = str.length > 80 || /\n/.test(str) || /Html$/.test(key) || key === "lead" || key === "sub" || key === "bio" || key === "p" || key === "desc" || key === "a";
+      wrap.className = "field";
+      wrap.innerHTML = '<label for="'+id+'">' + escapeHtml(cmsLabel(key)) + '</label>' +
+        (isLong
+          ? '<textarea id="'+id+'" style="min-height:'+(str.length > 200 ? 100 : 60)+'px">' + escapeHtml(str) + '</textarea>'
+          : '<input type="text" id="'+id+'" value="' + escapeHtml(str) + '">');
+      return wrap;
+    }
+
+    // Array
+    if (Array.isArray(v)) {
+      wrap.className = "cms-section";
+      wrap.style.background = "var(--ivory)";
+      const h = document.createElement("h3");
+      h.textContent = cmsLabel(key);
+      wrap.appendChild(h);
+      const list = document.createElement("div");
+      list.dataset.array = pathArr.join(".");
+      list.className = "cms-array-list";
+      // Особый случай: массив строк
+      const allStrings = v.length > 0 && v.every(x => typeof x === "string");
+      if (allStrings || v.length === 0) {
+        // textarea — по строке на элемент
+        const id = fieldId(pathArr);
+        const tx = document.createElement("textarea");
+        tx.id = id;
+        tx.dataset.arrayStrings = "1";
+        tx.value = v.join("\n");
+        tx.style.minHeight = "80px";
+        const lbl = document.createElement("label");
+        lbl.textContent = "Каждая строка — отдельный элемент массива";
+        lbl.style.fontFamily = "var(--mono)";
+        lbl.style.fontSize = "11px";
+        lbl.style.color = "var(--mute)";
+        wrap.appendChild(lbl);
+        wrap.appendChild(tx);
+        return wrap;
+      }
+      // Массив объектов
+      v.forEach((item, idx) => {
+        list.appendChild(renderArrayItem(item, pathArr.concat([idx]), idx));
+      });
+      wrap.appendChild(list);
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className = "cms-array-add";
+      addBtn.textContent = "+ Добавить элемент";
+      addBtn.addEventListener("click", () => {
+        const template = makeTemplate(v[0] || {});
+        const idx = list.children.length;
+        list.appendChild(renderArrayItem(template, pathArr.concat([idx]), idx));
+      });
+      wrap.appendChild(addBtn);
+      return wrap;
+    }
+
+    // Object
+    if (typeof v === "object") {
+      return renderJsonGroup(v, pathArr, cmsLabel(key));
+    }
+
+    return wrap;
+  }
+
+  function renderArrayItem(item, pathArr, idx) {
+    const wrap = document.createElement("div");
+    wrap.className = "cms-array-item";
+    wrap.dataset.path = pathArr.join(".");
+    wrap.dataset.arrayIndex = String(idx);
+
+    const head = document.createElement("div");
+    head.className = "item-head";
+    head.innerHTML = '<span>№ ' + (idx + 1) + '</span><button type="button" class="del" data-del>удалить</button>';
+    wrap.appendChild(head);
+
+    const fields = document.createElement("div");
+    fields.className = "cms-fields";
+    if (typeof item === "object" && item !== null) {
+      Object.keys(item).forEach(k => {
+        fields.appendChild(renderJsonField(item[k], pathArr.concat([k]), k));
+      });
+    } else {
+      // Простое значение (строка)
+      const id = fieldId(pathArr);
+      fields.innerHTML = '<div class="field"><label for="'+id+'">Значение</label><input type="text" id="'+id+'" value="' + escapeHtml(String(item)) + '"></div>';
+    }
+    wrap.appendChild(fields);
+
+    head.querySelector("[data-del]").addEventListener("click", () => {
+      if (!confirm("Удалить этот элемент?")) return;
+      wrap.remove();
+    });
+    return wrap;
+  }
+
+  function makeTemplate(sample) {
+    if (sample == null || typeof sample !== "object") return "";
+    if (Array.isArray(sample)) return [];
+    const out = {};
+    Object.keys(sample).forEach(k => {
+      const v = sample[k];
+      if (typeof v === "string") out[k] = "";
+      else if (typeof v === "number") out[k] = 0;
+      else if (typeof v === "boolean") out[k] = false;
+      else if (Array.isArray(v)) out[k] = [];
+      else if (typeof v === "object" && v !== null) out[k] = makeTemplate(v);
+      else out[k] = null;
+    });
+    return out;
+  }
+
+  // Собираем форму обратно в JSON
+  function collectFormValue() {
+    const data = JSON.parse(JSON.stringify(contentCache[activeCmsTab] || {}));
+
+    // Обходим все .cms-array-list и .field, читаем по data-path
+    const wrap = $("#cms-form");
+
+    // 1) Сначала массивы (структура может перестроиться при удалениях/добавлениях)
+    wrap.querySelectorAll('.cms-array-list').forEach(list => {
+      const arrPath = list.dataset.array; // напр. "home.stats"
+      if (!arrPath.startsWith(activeCmsTab + ".")) return;
+      const relPath = arrPath.substring(activeCmsTab.length + 1);
+      // Соберём массив исходя из текущих DOM-элементов
+      const items = [];
+      list.querySelectorAll(':scope > .cms-array-item').forEach(itemEl => {
+        const valuesByPath = {};
+        itemEl.querySelectorAll('[data-path]').forEach(el => {
+          // здесь только листовые контролы; контейнеры пропустим
+        });
+        // Соберём через DOM-обход
+        const itemPathPrefix = itemEl.dataset.path; // напр. "home.stats.0"
+        const itemObj = {};
+        itemEl.querySelectorAll('.field input, .field textarea, .field select').forEach(ctrl => {
+          if (!ctrl.id || !ctrl.id.startsWith("cms_")) return;
+          const fullPath = ctrl.id.substring(4).replace(/_/g, ".");
+          if (!fullPath.startsWith(itemPathPrefix.replace(/\./g, "."))) {
+            // skip — не наш
+          }
+          // Извлекаем относительный путь от items prefix
+          if (fullPath.indexOf(itemPathPrefix) !== 0) return;
+          const rel = fullPath.substring(itemPathPrefix.length + 1);
+          if (!rel) return;
+          setByPath(itemObj, rel.split("."), readCtrlValue(ctrl));
+        });
+        items.push(itemObj);
+      });
+      // Массивы строк
+      const stringTx = list.parentElement.querySelector('textarea[data-array-strings]');
+      if (stringTx) {
+        const lines = stringTx.value.split(/\n/).map(s => s.trim()).filter(Boolean);
+        setByPath(data, relPath.split("."), lines);
+      } else {
+        setByPath(data, relPath.split("."), items);
+      }
+    });
+
+    // 2) Затем простые поля (которые не внутри массивов)
+    wrap.querySelectorAll('.cms-section > .cms-fields .field input, .cms-section > .cms-fields .field textarea, .cms-section > .cms-fields .field select').forEach(ctrl => {
+      if (!ctrl.id || !ctrl.id.startsWith("cms_")) return;
+      // Skip controls inside array items — they handled above
+      if (ctrl.closest(".cms-array-item")) return;
+      if (ctrl.closest(".cms-array-list")) return;
+      const fullPath = ctrl.id.substring(4).replace(/_/g, ".");
+      if (!fullPath.startsWith(activeCmsTab + ".")) return;
+      const rel = fullPath.substring(activeCmsTab.length + 1);
+      setByPath(data, rel.split("."), readCtrlValue(ctrl));
+    });
+
+    // 3) Вложенные обычные поля (groups внутри groups)
+    wrap.querySelectorAll('.cms-section .cms-fields .field input, .cms-section .cms-fields .field textarea, .cms-section .cms-fields .field select').forEach(ctrl => {
+      if (!ctrl.id || !ctrl.id.startsWith("cms_")) return;
+      if (ctrl.closest(".cms-array-item")) return;
+      if (ctrl.closest(".cms-array-list")) return;
+      const fullPath = ctrl.id.substring(4).replace(/_/g, ".");
+      if (!fullPath.startsWith(activeCmsTab + ".")) return;
+      const rel = fullPath.substring(activeCmsTab.length + 1);
+      setByPath(data, rel.split("."), readCtrlValue(ctrl));
+    });
+
+    return data;
+  }
+
+  function readCtrlValue(ctrl) {
+    if (ctrl.type === "checkbox") return ctrl.checked;
+    if (ctrl.type === "number") {
+      const v = ctrl.value;
+      return v === "" ? 0 : Number(v);
+    }
+    return ctrl.value;
+  }
+
+  function setByPath(obj, pathArr, val) {
+    let cur = obj;
+    for (let i = 0; i < pathArr.length - 1; i++) {
+      const k = pathArr[i];
+      if (cur[k] == null || typeof cur[k] !== "object") cur[k] = isNaN(Number(pathArr[i+1])) ? {} : [];
+      cur = cur[k];
+    }
+    cur[pathArr[pathArr.length - 1]] = val;
+  }
+
+  async function saveCurrentContent() {
+    const btn = $("#cms-save-btn");
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = "Сохраняем…";
+    try {
+      const payload = collectFormValue();
+      await api("PUT", "/api/admin/content/" + activeCmsTab, payload);
+      contentCache[activeCmsTab] = payload;
+      btn.textContent = "Сохранено ✓";
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1500);
+    } catch (err) {
+      alert("Ошибка: " + (err.message || ""));
+      btn.textContent = orig; btn.disabled = false;
+    }
+  }
+
+  // ============================================================
+  //                          FAQ
+  // ============================================================
+  function renderFaqEditor(wrap) {
+    const faq = (contentCache.faq || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    let html = '<div class="cms-section"><h3>FAQ — частые вопросы</h3>' +
+      '<p class="help">Один список на весь сайт. Каждый вопрос можно показать на нескольких страницах: главная, доставка, возврат, реф-программа.</p>' +
+      '<div style="margin-bottom:12px"><button class="btn" id="faq-add-btn" type="button">＋ Добавить вопрос</button></div>';
+    if (!faq.length) {
+      html += '<div class="empty"><h3>Пока пусто</h3><p>Добавьте первый вопрос.</p></div>';
+    } else {
+      faq.forEach(item => {
+        html += '<div class="faq-row" data-id="' + escapeHtml(item.id) + '">' +
+          '<div><div class="q">' + escapeHtml(item.q || "—") + '</div><div class="pages">' + (item.pages || []).join(", ") + (item.hidden ? ' · скрыт' : '') + '</div></div>' +
+          '<div class="pages">' + (item.order || 0) + '</div>' +
+          '<div class="actions-cell"><button class="mini-btn" data-edit type="button">Изменить</button></div>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+    wrap.innerHTML = html;
+    $("#faq-add-btn").addEventListener("click", () => openFaqModal(null));
+    wrap.querySelectorAll('.faq-row').forEach(r => {
+      r.addEventListener('click', () => openFaqModal(r.dataset.id));
+    });
+  }
+
+  function openFaqModal(id) {
+    const item = id ? (contentCache.faq || []).find(x => x.id === id) : null;
+    const isNew = !item;
+    $("#cat-modal-title").textContent = isNew ? "Новый вопрос FAQ" : "Редактирование вопроса";
+    $("#cat-delete-btn").style.display = isNew ? "none" : "";
+
+    const PAGES = ["home", "delivery", "returns", "referral"];
+    const PAGE_LABEL = { home: "Главная", delivery: "Доставка", returns: "Возврат", referral: "Реф-программа" };
+    const checkedPages = (item && item.pages) || ["home"];
+
+    $("#cat-form").innerHTML = '<div class="field"><label>Вопрос</label><input type="text" id="faq-q" value="' + escapeHtml((item && item.q) || "") + '"></div>' +
+      '<div class="field"><label>Ответ</label><textarea id="faq-a" style="min-height:120px">' + escapeHtml((item && item.a) || "") + '</textarea></div>' +
+      '<div class="field"><label>Показывать на страницах</label>' +
+        '<div style="display:flex;gap:14px;flex-wrap:wrap">' +
+          PAGES.map(p => '<label class="page-chip"><input type="checkbox" data-faq-page="'+p+'"'+(checkedPages.indexOf(p)>=0?' checked':'')+'> '+PAGE_LABEL[p]+'</label>').join('') +
+        '</div>' +
+      '</div>' +
+      '<div class="row"><div class="field"><label>Порядок</label><input type="number" id="faq-order" value="' + ((item && item.order) || 0) + '"></div>' +
+      '<div class="field checkbox"><label><input type="checkbox" id="faq-hidden"' + ((item && item.hidden) ? ' checked' : '') + '> Скрыть от посетителей</label></div></div>';
+
+    // Save/delete handlers
+    const saveBtn = $("#cat-save-btn");
+    const delBtn = $("#cat-delete-btn");
+    saveBtn.onclick = null; delBtn.onclick = null;
+    saveBtn.addEventListener("click", async function handleFaqSave(){
+      const pages = [];
+      $$("[data-faq-page]").forEach(cb => { if (cb.checked) pages.push(cb.dataset.faqPage); });
+      const payload = {
+        id: (item && item.id) || undefined,
+        q: $("#faq-q").value,
+        a: $("#faq-a").value,
+        pages,
+        order: parseInt($("#faq-order").value, 10) || 0,
+        hidden: $("#faq-hidden").checked,
+      };
+      try {
+        const path = "/api/admin/faq" + (payload.id ? "/" + encodeURIComponent(payload.id) : "");
+        await api("PUT", path, payload);
+        contentCache = null; await loadContent();
+        renderContentEditor();
+        $("#cat-modal").classList.remove("show");
+        saveBtn.removeEventListener("click", handleFaqSave);
+      } catch (err) { alert("Ошибка: " + (err.message || "")); }
+    });
+    delBtn.addEventListener("click", async function handleFaqDel(){
+      if (!item || !confirm("Удалить вопрос «" + item.q + "»?")) return;
+      try {
+        await api("DELETE", "/api/admin/faq/" + encodeURIComponent(item.id));
+        contentCache = null; await loadContent();
+        renderContentEditor();
+        $("#cat-modal").classList.remove("show");
+        delBtn.removeEventListener("click", handleFaqDel);
+      } catch (err) { alert("Ошибка: " + (err.message || "")); }
+    });
+
+    $("#cat-modal").classList.add("show");
+  }
+
+  // ============================================================
+  //                       LEGAL DOCS
+  // ============================================================
+  let legalCache = {};
+  let activeLegalKey = "terms";
+
+  function renderLegalEditor(wrap) {
+    const LABEL = { terms: "Пользовательское соглашение", privacy: "Политика конфиденциальности", offer: "Договор-оферта", consent: "Согласие на ОПД", returns: "Правила возврата" };
+    let html = '<div class="cms-section"><h3>Юридические документы</h3><p class="help">Markdown с версионированием. Каждое сохранение создаёт новую версию — старая остаётся в истории. Видны на публичных страницах сайта.</p>' +
+      '<div class="legal-list">';
+    Object.keys(LABEL).forEach(k => {
+      const doc = (legalCache && legalCache[k]) || {};
+      html += '<div class="legal-card' + (k === activeLegalKey ? ' active' : '') + '" data-key="' + k + '">' +
+        '<h4>' + LABEL[k] + '</h4>' +
+        '<div class="meta">v' + (doc.version || 0) + (doc.updatedAt ? ' · ' + new Date(doc.updatedAt).toLocaleDateString("ru-RU") : ' · не сохранён') + '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+
+    const doc = (legalCache && legalCache[activeLegalKey]) || { md: "", version: 0, history: [] };
+    html += '<div class="md-editor">' +
+      '<textarea id="md-input" placeholder="# Заголовок\nТекст параграфа.\n\n## Подзаголовок\n- список 1\n- список 2"></textarea>' +
+      '<div class="md-preview" id="md-preview"></div>' +
+    '</div>' +
+    '<div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+      '<button class="btn" id="md-save" type="button">Сохранить новую версию</button>' +
+      '<span class="md-history" id="md-history-info">v' + (doc.version || 0) + (doc.history && doc.history.length ? ' · в истории ' + doc.history.length + ' предыдущих' : '') + '</span>' +
+    '</div></div>';
+    wrap.innerHTML = html;
+
+    $("#md-input").value = doc.md || "";
+    renderMarkdownPreview();
+    $("#md-input").addEventListener("input", renderMarkdownPreview);
+
+    wrap.querySelectorAll(".legal-card").forEach(c => {
+      c.addEventListener("click", async () => {
+        activeLegalKey = c.dataset.key;
+        await loadLegal();
+        renderLegalEditor(wrap);
+      });
+    });
+
+    $("#md-save").addEventListener("click", async () => {
+      const btn = $("#md-save");
+      const t = btn.textContent;
+      btn.disabled = true; btn.textContent = "Сохраняем…";
+      try {
+        const md = $("#md-input").value;
+        const r = await api("PUT", "/api/admin/legal/" + activeLegalKey, { md });
+        legalCache[activeLegalKey] = r.doc;
+        btn.textContent = "Сохранено · v" + r.doc.version + " ✓";
+        renderLegalEditor(wrap);
+      } catch (err) {
+        alert("Ошибка: " + (err.message || ""));
+        btn.textContent = t; btn.disabled = false;
+      }
+    });
+  }
+
+  function renderMarkdownPreview() {
+    const el = $("#md-preview");
+    if (!el) return;
+    el.innerHTML = mdToHtml($("#md-input").value || "");
+  }
+
+  // Минимальный markdown-парсер: headings (#-####), параграфы, **bold**, *italic*, `code`, [text](url), - список, --- horizontal rule.
+  function mdToHtml(md) {
+    const esc = (s) => s.replace(/[&<>]/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;" }[ch]));
+    const lines = md.split(/\r?\n/);
+    const out = [];
+    let inList = false;
+    function flushList() { if (inList) { out.push("</ul>"); inList = false; } }
+    for (let line of lines) {
+      const trimmed = line.trimEnd();
+      if (!trimmed.trim()) { flushList(); out.push(""); continue; }
+      if (/^---+\s*$/.test(trimmed)) { flushList(); out.push('<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">'); continue; }
+      const h = trimmed.match(/^(#{1,4})\s+(.*)$/);
+      if (h) { flushList(); out.push('<h' + h[1].length + '>' + inline(esc(h[2])) + '</h' + h[1].length + '>'); continue; }
+      const li = trimmed.match(/^[-*]\s+(.*)$/);
+      if (li) { if (!inList) { out.push('<ul>'); inList = true; } out.push('<li>' + inline(esc(li[1])) + '</li>'); continue; }
+      flushList();
+      out.push('<p>' + inline(esc(trimmed)) + '</p>');
+    }
+    flushList();
+    return out.join("\n");
+    function inline(s) {
+      return s
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    }
+  }
+
+  async function loadLegal() {
+    const r = await api("GET", "/api/admin/legal");
+    legalCache = r.legal || {};
+  }
+
+  // ============================================================
+  //                        REQUISITES
+  // ============================================================
+  function renderRequisitesEditor(wrap) {
+    wrap.innerHTML = '<div class="cms-section"><h3>Реквизиты</h3><p class="help">Раскрытие информации по ст. 9 ЗоЗПП. Эти поля редактируются также в табе «Настройки» — обе локации обновляются одновременно.</p><p>Перейдите в <a href="#" id="goto-req" style="color:var(--wine);text-decoration:underline">Настройки → Реквизиты</a> для редактирования.</p></div>';
+    $("#goto-req").addEventListener("click", (e) => {
+      e.preventDefault();
+      $$(".tab").forEach(x => x.classList.remove("active"));
+      $$(".tab").forEach(t => { if (t.dataset.tab === "settings") t.classList.add("active"); });
+      $$(".tab-panel").forEach(p => p.style.display = "none");
+      $("#panel-settings").style.display = "";
+      // Прокручиваем к секции реквизитов
+      setTimeout(() => {
+        const lbl = $("#req-legalName");
+        if (lbl) lbl.scrollIntoView({ behavior:"smooth", block:"start" });
+      }, 50);
+    });
+  }
+
+  // Wire CMS sub-tabs
+  $$("[data-cms]").forEach(t => t.addEventListener("click", async () => {
+    $$("[data-cms]").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    activeCmsTab = t.dataset.cms;
+    if (activeCmsTab === "legal") await loadLegal();
+    renderContentEditor();
+  }));
+
+  // ============================================================
+  //                  NOTIFICATIONS UI
+  // ============================================================
+  let notifCache = { email: {}, telegram: {} };
+
+  function renderEmailTriggers(triggers) {
+    const STATUSES = [["paid","Оплачен"],["doing","В сборке"],["shipped","Отправлен"],["done","Выдан"],["cancelled","Отменён"]];
+    $("#email-triggers").innerHTML = STATUSES.map(([k,l]) =>
+      '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;text-transform:none;letter-spacing:0;font-size:13px"><input type="checkbox" data-email-trigger="'+k+'"'+(triggers&&triggers[k]?' checked':'')+'> '+l+'</label>'
+    ).join('');
+  }
+  function renderTgEvents(events) {
+    const EVENTS = [["newOrder","Новый заказ"],["paid","Оплачен"],["cancelled","Отменён"],["refund","Возврат"]];
+    $("#tg-events").innerHTML = EVENTS.map(([k,l]) =>
+      '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;text-transform:none;letter-spacing:0;font-size:13px"><input type="checkbox" data-tg-event="'+k+'"'+(events&&events[k]?' checked':'')+'> '+l+'</label>'
+    ).join('');
+  }
+
+  async function loadNotifications() {
+    try {
+      const r = await api("GET", "/api/admin/settings");
+      const n = (r.settings && r.settings.notifications) || {};
+      const email = n.email || {};
+      const tg = n.telegram || {};
+      notifCache = { email, telegram: tg };
+
+      // EMAIL
+      setBoolToggle("#email-toggle","#email-label", !!email.enabled, ["включены","отключены"]);
+      $("#email-host").value = email.host || "";
+      $("#email-port").value = email.port || 587;
+      $("#email-user").value = email.user || "";
+      $("#email-pass").value = "";
+      $("#email-pass").placeholder = email.hasPass ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
+      $("#email-from").value = email.from || "";
+      $("#email-secure-toggle").value = email.secure ? "tls" : "starttls";
+      renderEmailTriggers(email.triggers || {});
+
+      // TELEGRAM
+      setBoolToggle("#tg-toggle","#tg-label", !!tg.enabled, ["включены","отключены"]);
+      $("#tg-token").value = "";
+      $("#tg-token").placeholder = tg.hasToken ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
+      $("#tg-chat").value = tg.chatId || "";
+      renderTgEvents(tg.events || {});
+
+      // REQUISITES
+      const req = (r.settings && r.settings.requisites) || {};
+      ["legalName","legalNameShort","inn","ogrnip","address","account","correspAccount","bik","bank","taxRegime"].forEach(k => {
+        const el = $("#req-"+k); if (el) el.value = req[k] || "";
+      });
+    } catch (e) { /* ignored — handled by boot */ }
+  }
+
+  function setBoolToggle(toggleSel, labelSel, on, labels) {
+    const t = $(toggleSel);
+    t.classList.toggle("on", on);
+    t.classList.toggle("off", !on);
+    $(labelSel).textContent = on ? labels[0] : labels[1];
+    t.dataset.value = on ? "1" : "0";
+  }
+  function getBoolToggle(toggleSel) { return $(toggleSel).dataset.value === "1"; }
+
+  $("#email-toggle").addEventListener("click", () => setBoolToggle("#email-toggle","#email-label", !getBoolToggle("#email-toggle"), ["включены","отключены"]));
+  $("#tg-toggle").addEventListener("click", () => setBoolToggle("#tg-toggle","#tg-label", !getBoolToggle("#tg-toggle"), ["включены","отключены"]));
+
+  $("#save-email").addEventListener("click", async () => {
+    const btn = $("#save-email"); const t = btn.textContent;
+    btn.disabled = true; btn.textContent = "Сохраняем…";
+    try {
+      const triggers = {};
+      $$("[data-email-trigger]").forEach(cb => triggers[cb.dataset.emailTrigger] = cb.checked);
+      const patch = { notifications: { email: {
+        enabled: getBoolToggle("#email-toggle"),
+        host: $("#email-host").value.trim(),
+        port: parseInt($("#email-port").value, 10) || 587,
+        secure: $("#email-secure-toggle").value === "tls",
+        user: $("#email-user").value.trim(),
+        from: $("#email-from").value.trim(),
+        triggers,
+      }}};
+      const pass = $("#email-pass").value;
+      if (pass) patch.notifications.email.pass = pass;
+      await api("PATCH", "/api/admin/settings", patch);
+      await loadNotifications();
+      btn.textContent = "Сохранено ✓";
+      setTimeout(() => { btn.textContent = t; btn.disabled = false; }, 1500);
+    } catch (err) { alert("Ошибка: " + (err.message || "")); btn.textContent = t; btn.disabled = false; }
+  });
+  $("#test-email-btn").addEventListener("click", async () => {
+    const to = $("#email-test-to").value.trim();
+    if (!to) { alert("Укажите email получателя"); return; }
+    const msg = $("#email-test-msg");
+    msg.textContent = "Отправляем…"; msg.style.color = "var(--mute)";
+    try {
+      await api("POST", "/api/admin/notifications/test", { channel: "email", to });
+      msg.textContent = "✓ Отправлено · проверьте папку «Входящие»"; msg.style.color = "var(--sage)";
+    } catch (err) { msg.textContent = "Ошибка: " + (err.message || ""); msg.style.color = "var(--wine)"; }
+  });
+
+  $("#save-tg").addEventListener("click", async () => {
+    const btn = $("#save-tg"); const t = btn.textContent;
+    btn.disabled = true; btn.textContent = "Сохраняем…";
+    try {
+      const events = {};
+      $$("[data-tg-event]").forEach(cb => events[cb.dataset.tgEvent] = cb.checked);
+      const patch = { notifications: { telegram: {
+        enabled: getBoolToggle("#tg-toggle"),
+        chatId: $("#tg-chat").value.trim(),
+        events,
+      }}};
+      const tok = $("#tg-token").value;
+      if (tok) patch.notifications.telegram.botToken = tok;
+      await api("PATCH", "/api/admin/settings", patch);
+      await loadNotifications();
+      btn.textContent = "Сохранено ✓";
+      setTimeout(() => { btn.textContent = t; btn.disabled = false; }, 1500);
+    } catch (err) { alert("Ошибка: " + (err.message || "")); btn.textContent = t; btn.disabled = false; }
+  });
+  $("#test-tg-btn").addEventListener("click", async () => {
+    const msg = $("#tg-test-msg");
+    msg.textContent = "Отправляем…"; msg.style.color = "var(--mute)";
+    try {
+      const r = await api("POST", "/api/admin/notifications/test", { channel: "telegram" });
+      if (r.ok) { msg.textContent = "✓ Сообщение отправлено"; msg.style.color = "var(--sage)"; }
+      else { msg.textContent = "Telegram ответил ошибкой — проверьте токен и chat_id"; msg.style.color = "var(--wine)"; }
+    } catch (err) { msg.textContent = "Ошибка: " + (err.message || ""); msg.style.color = "var(--wine)"; }
+  });
+
+  $("#save-requisites").addEventListener("click", async () => {
+    const btn = $("#save-requisites"); const t = btn.textContent;
+    btn.disabled = true; btn.textContent = "Сохраняем…";
+    try {
+      const req = {};
+      ["legalName","legalNameShort","inn","ogrnip","address","account","correspAccount","bik","bank","taxRegime"].forEach(k => {
+        req[k] = $("#req-"+k).value.trim();
+      });
+      await api("PATCH", "/api/admin/settings", { requisites: req });
+      btn.textContent = "Сохранено ✓";
+      setTimeout(() => { btn.textContent = t; btn.disabled = false; }, 1500);
+    } catch (err) { alert("Ошибка: " + (err.message || "")); btn.textContent = t; btn.disabled = false; }
+  });
+
+  // ----- BOOT -----
+  async function boot(){
+    try {
+      const r = await api("GET", "/api/admin/me");
+      $("#me-login").textContent = r.login;
+      $("#login-view").style.display = "none";
+      $("#app-view").style.display = "";
+      wireOrderFilters();
+      await Promise.all([
+        loadOrders(), loadSettings(), loadRobokassa(), loadCatalog(), loadMedia(),
+        loadContent(), loadLegal(), loadNotifications(),
+      ]);
+      renderContentEditor();
+    } catch (err) {
+      tokenSet(null);
+      showLogin();
+    }
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

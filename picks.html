@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Подборки флористов — СОБРАНО</title>
+<meta name="description" content="Готовые наборы от наших флористов: для дома, в подарок, экзотика, на свидание, на годовщину. Каждая подборка — фиксированная цена и состав." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+.hero{padding:32px 0 64px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,80px);align-items:end}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,8vw,128px);line-height:.92;letter-spacing:-.03em;margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero .lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.6}
+
+.florist-card{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:28px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;position:relative;overflow:hidden}
+.florist-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(201,123,92,.18),transparent 50%);pointer-events:none}
+.florist-card .av{
+  width:80px;height:80px;border-radius:50%;background:var(--terracotta);
+  display:flex;align-items:center;justify-content:center;color:var(--ivory);
+  font-family:var(--serif);font-size:36px;font-style:italic;flex:none;position:relative
+}
+.florist-card .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.6);position:relative}
+.florist-card h3{font-family:var(--serif);font-size:24px;font-weight:400;letter-spacing:-.01em;color:var(--ivory);margin:6px 0;position:relative}
+.florist-card p{color:rgba(242,236,227,.7);font-size:13px;line-height:1.5;position:relative}
+
+/* CATEGORY CHIPS */
+.chips-bar{padding:24px 0;border-bottom:1px solid var(--line)}
+.chips-row{display:flex;gap:8px;overflow-x:auto;padding:0;-ms-overflow-style:none;scrollbar-width:none}
+.chips-row::-webkit-scrollbar{display:none}
+.cat-chip{
+  flex:none;padding:10px 18px;border-radius:999px;border:1px solid var(--line-strong);
+  font-size:13px;color:var(--ink-soft);transition:all .2s;cursor:pointer;display:inline-flex;align-items:center;gap:8px
+}
+.cat-chip:hover{border-color:var(--ink);color:var(--ink)}
+.cat-chip.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.cat-chip .n{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.06em}
+.cat-chip.active .n{color:rgba(242,236,227,.55)}
+
+/* PICKS GRID */
+.picks{padding:60px 0}
+.pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pick-grid.featured{grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-bottom:24px}
+.pick{
+  background:var(--ivory-2);border-radius:var(--r-lg);overflow:hidden;
+  display:flex;flex-direction:column;transition:transform .25s
+}
+.pick:hover{transform:translateY(-3px)}
+.pick.large{grid-row:span 2}
+.pick .img{position:relative;aspect-ratio:5/4;overflow:hidden;background:#222}
+.pick.large .img{aspect-ratio:auto;flex:1;min-height:380px}
+.pick .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.pick:hover .img img{transform:scale(1.05)}
+.pick .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.4) 100%);pointer-events:none}
+.pick .ov{position:absolute;inset:0;padding:20px;display:flex;flex-direction:column;justify-content:space-between;color:var(--ivory);z-index:2}
+.pick .tags{display:flex;flex-wrap:wrap;gap:6px}
+.pick .tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:var(--ivory);color:var(--ink);padding:6px 10px;border-radius:999px}
+.pick .tag.dark{background:rgba(26,20,16,.7);color:var(--ivory);backdrop-filter:blur(6px)}
+.pick .tag.wine{background:var(--wine);color:var(--ivory)}
+.pick .tag.featured{background:var(--terracotta);color:var(--ivory)}
+.pick .ov-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.pick .ov-bottom .size-box{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  background:rgba(242,236,227,.18);backdrop-filter:blur(8px);padding:8px 12px;border-radius:999px;
+  color:var(--ivory)
+}
+.pick .body{padding:22px 24px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.pick h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;line-height:1.1}
+.pick.large h4{font-size:32px;letter-spacing:-.02em}
+.pick .desc{font-size:14px;color:var(--ink-soft);line-height:1.5;flex:1}
+.pick .compose{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pick .compose span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;background:var(--ivory);padding:5px 10px;border-radius:999px;color:var(--ink-soft)}
+.pick .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 24px 22px;border-top:1px solid var(--line);margin-top:auto}
+.pick .price{font-family:var(--serif);font-size:24px;font-weight:400;letter-spacing:-.01em}
+.pick .price .old{color:var(--mute);text-decoration:line-through;font-size:14px;margin-right:8px;font-weight:300}
+.pick .add-btn{
+  display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--ivory);
+  padding:10px 16px;border-radius:999px;font-size:13px;font-weight:500;
+  transition:background .2s
+}
+.pick .add-btn:hover{background:var(--wine)}
+
+/* CUSTOM REQUEST */
+.custom{padding:60px 0;border-top:1px solid var(--line)}
+.custom-card{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:clamp(40px,5vw,72px);position:relative;overflow:hidden;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center}
+.custom-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 30%,rgba(201,123,92,.18),transparent 50%);pointer-events:none}
+.custom-card h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,72px);line-height:1.05;letter-spacing:-.02em;color:var(--ivory);position:relative}
+.custom-card h2 em{font-style:italic;color:var(--terracotta);font-weight:400}
+.custom-card p{color:rgba(242,236,227,.72);font-size:15px;margin-top:18px;max-width:48ch;position:relative;line-height:1.6}
+.custom-card .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;position:relative}
+.custom-card .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;transition:all .2s}
+.custom-card .btn-light{background:var(--ivory);color:var(--ink)}
+.custom-card .btn-light:hover{background:var(--terracotta);color:var(--ivory)}
+.custom-card .btn-ghost{border:1px solid rgba(242,236,227,.25);color:var(--ivory)}
+.custom-card .btn-ghost:hover{border-color:var(--ivory);background:rgba(242,236,227,.08)}
+
+.custom-vis{
+  position:relative;border-radius:var(--r-md);overflow:hidden;aspect-ratio:1/1;
+  background:radial-gradient(circle at 50% 50%,rgba(201,123,92,.4),transparent 60%),var(--ink-soft);
+  display:flex;align-items:center;justify-content:center
+}
+.custom-vis::before{
+  content:"+";font-family:var(--serif);font-style:italic;font-size:200px;color:var(--terracotta);
+  opacity:.85
+}
+.custom-vis::after{
+  content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(0,0,0,.3) 70%);pointer-events:none
+}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px;margin-top:60px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .pick-grid,.pick-grid.featured{grid-template-columns:1fr 1fr;gap:14px}
+  .pick.large{grid-row:auto}
+  .pick.large .img{min-height:280px}
+  .custom-card{grid-template-columns:1fr;gap:24px}
+  .custom-vis{aspect-ratio:16/9}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .pick-grid,.pick-grid.featured{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Подборки флористов</span><span>Готовые наборы с фиксированной ценой</span><span>10 категорий</span><span>Можно изменить состав</span>
+  <span>Подборки флористов</span><span>Готовые наборы с фиксированной ценой</span><span>10 категорий</span><span>Можно изменить состав</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span style="color:var(--mute)">Магазин</span><span class="sep">/</span>
+    <span class="here">Подборки флористов</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">10 готовых наборов · от флористов</span>
+        <h1>Если <em>не знаете</em>,<br>что выбрать.</h1>
+        <p class="lead">Готовые подборки от наших флористов: по поводу, по настроению, по цвету. Каждый набор — это бокс + конкретные цветы + допы за фиксированную цену. Состав можно изменить — это не финальный приговор, а отправная точка.</p>
+      </div>
+      <div class="florist-card">
+        <span class="av">К</span>
+        <div>
+          <span class="label">Главный флорист</span>
+          <h3>Катя Иванова</h3>
+          <p>9 лет в букетах. Подборки — то, что я бы собрала сама себе или подруге. Если не подходит — напишите, соберу под вас.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CATEGORY CHIPS -->
+<section class="chips-bar">
+  <div class="container">
+    <div class="chips-row" id="chips">
+      <button class="cat-chip active" data-cat="all">Все <span class="n">10</span></button>
+      <button class="cat-chip" data-cat="home">Для дома <span class="n">3</span></button>
+      <button class="cat-chip" data-cat="gift">В подарок <span class="n">3</span></button>
+      <button class="cat-chip" data-cat="exo">Экзотика <span class="n">2</span></button>
+      <button class="cat-chip" data-cat="romance">На свидание <span class="n">1</span></button>
+      <button class="cat-chip" data-cat="anniv">Годовщина <span class="n">1</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<div class="container">
+  <section class="picks">
+    <div class="pick-grid featured">
+
+      <article class="pick large" data-cat="gift">
+        <div class="img" style="min-height:480px">
+          <img src="https://images.unsplash.com/photo-1502977249166-824b3a8a4d6d?auto=format&fit=crop&w=1200&q=80" alt="День, который запомнят">
+          <div class="ov">
+            <div class="tags">
+              <span class="tag featured">Хит · в подарок</span>
+              <span class="tag dark">Бокс L · 25 стеблей</span>
+            </div>
+            <div class="ov-bottom">
+              <span class="size-box">Фото перед отправкой</span>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>День, который запомнят</h4>
+          <p class="desc">Тёплый микс из пионов «Сара Бернар», кустовых роз «Юмилия» и облака гипсофилы. С открыткой ручной работы и подкормкой. Подходит для дня рождения, юбилея, годовщины.</p>
+          <div class="compose">
+            <span>×8 пион</span><span>×10 роза</span><span>×5 гипсофила</span><span>×2 ранункулюс</span><span>+ открытка</span><span>+ подкормка</span>
+          </div>
+        </div>
+        <div class="foot">
+          <span class="price"><span class="old">5 870 ₽</span>5 290 ₽</span>
+          <button type="button" class="add-btn" data-pick="gift-day">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="home">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1509223197845-458d87318791?auto=format&fit=crop&w=900&q=80" alt="Утренний свет">
+          <div class="ov">
+            <div class="tags"><span class="tag">Для дома</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс M · 17</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Утренний свет</h4>
+          <p class="desc">Спокойный микс эустомы, белой розы и лагуруса. Ваза в подарок.</p>
+          <div class="compose"><span>×7 эустома</span><span>×6 роза</span><span>×4 лагурус</span><span>+ ваза</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">3 490 ₽</span>
+          <button type="button" class="add-btn" data-pick="morning-light">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="exo">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=900&q=80" alt="Бархатный вечер">
+          <div class="ov">
+            <div class="tags"><span class="tag wine">Экзотика</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс XL · 35</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Бархатный вечер</h4>
+          <p class="desc">Бордовые тюльпаны, антуриум, сухоцветы и хлопок. Драматично.</p>
+          <div class="compose"><span>×12 тюльпан</span><span>×6 антуриум</span><span>×8 хлопок</span><span>×9 лагурус</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">6 590 ₽</span>
+          <button type="button" class="add-btn" data-pick="velvet-evening">Добавить →</button>
+        </div>
+      </article>
+    </div>
+
+    <!-- REGULAR GRID -->
+    <div class="pick-grid">
+
+      <article class="pick" data-cat="home">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=900&q=80" alt="Воскресный кофе">
+          <div class="ov">
+            <div class="tags"><span class="tag">Для дома</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс S · 11</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Воскресный кофе</h4>
+          <p class="desc">Скромный микс пионов и кустовой розы. Идеально для маленьких ваз и кухонных столов.</p>
+          <div class="compose"><span>×5 пион</span><span>×4 роза</span><span>×2 эвкалипт</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">2 190 ₽</span>
+          <button type="button" class="add-btn" data-pick="sunday-coffee">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="home">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=900&q=80" alt="Рабочий стол">
+          <div class="ov">
+            <div class="tags"><span class="tag">Для дома</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс S · 11</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Рабочий стол</h4>
+          <p class="desc">Сухоцветы и хлопок. Стоит месяцами, не требует ухода — ставите и забываете.</p>
+          <div class="compose"><span>×5 хлопок</span><span>×4 лагурус</span><span>+ ваза-стакан</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">2 590 ₽</span>
+          <button type="button" class="add-btn" data-pick="desk-stand">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="gift">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=900&q=80" alt="Спасибо, что есть">
+          <div class="ov">
+            <div class="tags"><span class="tag">В подарок</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс M · 17</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Спасибо, что есть</h4>
+          <p class="desc">Персиковые ранункулюсы, белые пионы, эустома. Универсальный «вне-повода» подарок.</p>
+          <div class="compose"><span>×8 ранункулюс</span><span>×5 пион</span><span>×4 эустома</span><span>+ открытка</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">3 990 ₽</span>
+          <button type="button" class="add-btn" data-pick="thanks-for-being">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="gift">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=900&q=80" alt="Тёплое сообщение">
+          <div class="ov">
+            <div class="tags"><span class="tag">В подарок</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс M · 17</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Тёплое сообщение</h4>
+          <p class="desc">Нейтральная палитра в кремовых и пыльно-розовых тонах. Подходит на любой возраст.</p>
+          <div class="compose"><span>×6 роза</span><span>×6 эустома</span><span>×5 хлопок</span><span>+ открытка</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">3 690 ₽</span>
+          <button type="button" class="add-btn" data-pick="warm-message">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="exo">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1530092285049-1c42085fd395?auto=format&fit=crop&w=900&q=80" alt="Дикое сердце">
+          <div class="ov">
+            <div class="tags"><span class="tag wine">Экзотика</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс L · 25</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Дикое сердце</h4>
+          <p class="desc">Протея и антуриум — букет с характером. Не для всех, но если зайдёт — навсегда.</p>
+          <div class="compose"><span>×3 протея</span><span>×6 антуриум</span><span>×10 эвкалипт</span><span>×6 хлопок</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">5 990 ₽</span>
+          <button type="button" class="add-btn" data-pick="wild-heart">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="romance">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1495231916356-a86217efff12?auto=format&fit=crop&w=900&q=80" alt="Первое свидание">
+          <div class="ov">
+            <div class="tags"><span class="tag wine">На свидание</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс S · 11</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Первое свидание</h4>
+          <p class="desc">Маленький, но очень нежный набор: пастельные тона, без излишеств.</p>
+          <div class="compose"><span>×4 пион</span><span>×4 роза</span><span>×3 ранункулюс</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">2 290 ₽</span>
+          <button type="button" class="add-btn" data-pick="first-date">Добавить →</button>
+        </div>
+      </article>
+
+      <article class="pick" data-cat="anniv">
+        <div class="img">
+          <img src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?auto=format&fit=crop&w=900&q=80" alt="Десять лет вместе">
+          <div class="ov">
+            <div class="tags"><span class="tag wine">Годовщина</span></div>
+            <div class="ov-bottom"><span class="size-box">Бокс XL · 35</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <h4>Десять лет вместе</h4>
+          <p class="desc">Большой объём в красно-винных тонах. Эквадорские розы, антуриум, бордовый тюльпан.</p>
+          <div class="compose"><span>×15 роза</span><span>×8 тюльпан</span><span>×6 антуриум</span><span>×6 эвкалипт</span><span>+ открытка</span></div>
+        </div>
+        <div class="foot">
+          <span class="price">7 290 ₽</span>
+          <button type="button" class="add-btn" data-pick="ten-years">Добавить →</button>
+        </div>
+      </article>
+
+    </div>
+  </section>
+</div>
+
+<!-- CUSTOM REQUEST -->
+<div class="container">
+  <section class="custom">
+    <div class="custom-card">
+      <div>
+        <span class="eyebrow" style="color:rgba(242,236,227,.7)">Не нашли своё?</span>
+        <h2>Соберём <em>под запрос</em>.</h2>
+        <p>Опишите ситуацию: повод, бюджет, кому, чего точно не хочется. Флорист соберёт композицию под вас и пришлёт фото на согласование до сборки. Бесплатно — даже если в итоге передумаете.</p>
+        <div class="actions">
+          <a href="contacts.html" class="btn btn-light">Описать запрос →</a>
+          <a href="https://t.me/sobrano" target="_blank" rel="noopener" class="btn btn-ghost">Написать в Telegram</a>
+        </div>
+      </div>
+      <div class="custom-vis"></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script>
+  // Filter
+  const chips = document.querySelectorAll('.cat-chip');
+  chips.forEach(c => {
+    c.addEventListener('click', () => {
+      chips.forEach(cc => cc.classList.remove('active'));
+      c.classList.add('active');
+      const cat = c.dataset.cat;
+      document.querySelectorAll('.pick').forEach(p => {
+        p.style.display = (cat === 'all' || p.dataset.cat === cat) ? '' : 'none';
+      });
+    });
+  });
+
+  // Add pick → Cart
+  document.querySelectorAll('.add-btn[data-pick]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const Cart = window.SOBRANO_CART;
+      const C = window.SOBRANO_CATALOG;
+      if (!Cart || !C) return;
+      const id = btn.dataset.pick;
+      const ok = Cart.applyPick(id);
+      if (!ok) {
+        if (window.showToast) window.showToast('Не удалось добавить подборку', 'error');
+        return;
+      }
+      const pick = C.getPick(id);
+      const title = pick ? pick.title : 'Подборка';
+      if (window.showToast) window.showToast(`«${title}» добавлена в корзину`, 'success', 2500);
+      setTimeout(() => { location.href = 'cart.html'; }, 700);
+    });
+  });
+</script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Политика конфиденциальности — СОБРАНО</title>
+<meta name="description" content="Политика обработки персональных данных в отношении пользователей сайта sobrano.store. Соответствие требованиям 152-ФЗ." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.6}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+/* TOP + NAV */
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft);transition:color .2s}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;transition:all .2s}
+.btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
+
+/* CRUMBS */
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+/* DOC HEADER */
+.doc-head{padding:20px 0 56px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:end}
+.doc-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(48px,7vw,96px);line-height:.95;letter-spacing:-.025em;margin-top:18px}
+.doc-head h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.doc-meta{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.doc-meta-row{display:flex;gap:18px;align-items:center}
+.doc-meta-row .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);min-width:100px}
+.doc-meta-row .val{font-family:var(--serif);font-size:18px;letter-spacing:-.01em;font-weight:400}
+.doc-pdf{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line-strong);padding:10px 16px;border-radius:999px;font-size:13px;color:var(--ink-soft);transition:all .2s;margin-top:6px}
+.doc-pdf:hover{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+
+/* DOC LAYOUT */
+.doc{display:grid;grid-template-columns:280px 1fr;gap:clamp(28px,4vw,80px);padding:48px 0 100px;align-items:start}
+
+.toc{position:sticky;top:96px;border-left:1px solid var(--line);padding-left:18px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 120px);overflow-y:auto}
+.toc::-webkit-scrollbar{width:3px}
+.toc::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:999px}
+.toc h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+.toc a{font-size:13px;color:var(--ink-soft);padding:6px 0;line-height:1.4;transition:color .2s;display:block;border-left:2px solid transparent;padding-left:10px;margin-left:-12px}
+.toc a:hover{color:var(--ink)}
+.toc a.active{color:var(--wine);border-left-color:var(--wine);font-weight:500}
+
+.content section{padding:36px 0;border-bottom:1px solid var(--line)}
+.content section:first-child{padding-top:0}
+.content section:last-child{border-bottom:0}
+.content h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.015em;line-height:1.1;margin-bottom:24px;display:flex;align-items:baseline;gap:18px}
+.content h2 .num{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.1em;color:var(--terracotta);min-width:48px}
+.content h3{font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:-.01em;margin:28px 0 12px}
+.content p{margin:14px 0;color:var(--ink-soft);max-width:72ch}
+.content p strong{color:var(--ink);font-weight:600}
+.content ul,.content ol{margin:14px 0 14px 24px;color:var(--ink-soft);max-width:72ch}
+.content li{margin:6px 0;padding-left:6px}
+.content li::marker{color:var(--terracotta)}
+.content a{color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px;transition:all .2s}
+.content a:hover{text-decoration-color:var(--wine)}
+
+.callout{
+  background:var(--ivory-2);border-left:3px solid var(--terracotta);
+  padding:20px 24px;border-radius:0 var(--r-md) var(--r-md) 0;margin:22px 0;
+  font-size:14.5px;color:var(--ink-soft);line-height:1.65
+}
+.callout strong{color:var(--ink)}
+
+.req-card{
+  background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);
+  padding:32px 36px;margin-top:24px
+}
+.req-card h3{font-family:var(--serif);font-size:24px;font-weight:400;color:var(--ivory);margin:0 0 18px;letter-spacing:-.01em}
+.req-card .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 28px}
+.req-card .row{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid rgba(242,236,227,.14)}
+.req-card .row .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.55)}
+.req-card .row .val{font-family:var(--serif);font-size:17px;letter-spacing:-.01em}
+.req-card .row.full{grid-column:span 2}
+
+/* JUMP TO TOP */
+.to-top{
+  position:fixed;right:22px;bottom:22px;z-index:60;
+  display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);
+  padding:14px 18px;border-radius:999px;font-size:12px;font-family:var(--mono);
+  letter-spacing:.14em;text-transform:uppercase;
+  box-shadow:0 18px 40px rgba(26,20,16,.25);transition:all .25s;
+  opacity:0;pointer-events:none;transform:translateY(8px)
+}
+.to-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.to-top:hover{background:var(--wine);transform:translateY(-2px)}
+
+/* FOOTER */
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px;transition:color .2s}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+.footer-bot a{color:rgba(242,236,227,.7)}.footer-bot a:hover{color:var(--terracotta)}
+
+@media (max-width:1100px){
+  .doc{grid-template-columns:1fr}
+  .toc{position:static;border-left:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0;margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:none}
+  .doc-head{grid-template-columns:1fr}
+  .req-card .grid{grid-template-columns:1fr}
+  .req-card .row.full{grid-column:span 1}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .toc{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .to-top span:not(:first-child){display:none}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Правовой документ · ред. от 30.03.2026</span><span>152-ФЗ</span><span>Защита персональных данных</span><span>Прозрачные правила</span>
+  <span>Правовой документ · ред. от 30.03.2026</span><span>152-ФЗ</span><span>Защита персональных данных</span><span>Прозрачные правила</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="index.html#flowers">Цветы</a>
+      <a href="index.html#picks">Подборки</a>
+      <a href="index.html#faq">FAQ</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <a href="documents.html">Документы</a><span class="sep">/</span>
+    <span class="here">Политика конфиденциальности</span>
+  </div>
+
+  <header class="doc-head">
+    <div>
+      <span class="eyebrow">Правовой документ № 01</span>
+      <h1>Политика <em>конфиденциальности</em></h1>
+    </div>
+    <div class="doc-meta">
+      <div class="doc-meta-row"><span class="lbl">Редакция</span><span class="val">от 30 марта 2026 г.</span></div>
+      <div class="doc-meta-row"><span class="lbl">Документ</span><span class="val">№ 01 / 2026</span></div>
+      <div class="doc-meta-row"><span class="lbl">Оператор</span><span class="val">ИП Горбулёв А. Ю.</span></div>
+      
+    </div>
+  </header>
+
+  <div class="doc">
+
+    <aside class="toc" id="toc">
+      <h6>Оглавление</h6>
+      <a href="#s1" class="active">1. Общие положения</a>
+      <a href="#s2">2. Основные понятия</a>
+      <a href="#s3">3. Состав персональных данных</a>
+      <a href="#s4">4. Цели обработки</a>
+      <a href="#s5">5. Правовые основания</a>
+      <a href="#s6">6. Условия обработки</a>
+      <a href="#s7">7. Порядок обработки</a>
+      <a href="#s8">8. Cookie и метрика</a>
+      <a href="#s9">9. Передача третьим лицам</a>
+      <a href="#s10">10. Права субъекта ПД</a>
+      <a href="#s11">11. Меры защиты</a>
+      <a href="#s12">12. Заключительные положения</a>
+      <a href="#s13">13. Реквизиты Оператора</a>
+    </aside>
+
+    <main class="content">
+
+      <section id="s1">
+        <h2><span class="num">1.</span> Общие положения</h2>
+        <p>Настоящая Политика обработки персональных данных (далее — «<strong>Политика</strong>») разработана в соответствии с Федеральным законом от 27.07.2006 г. № 152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных, а также меры по обеспечению их безопасности, предпринимаемые Индивидуальным предпринимателем <strong>Горбулёвым Андреем Юрьевичем</strong> (далее — «<strong>Оператор</strong>») в отношении пользователей сайта <a href="https://sobrano.store" target="_blank" rel="noopener">sobrano.store</a> (далее — «<strong>Сайт</strong>»).</p>
+        <p>Оператор ставит своей важнейшей целью и условием осуществления своей деятельности соблюдение прав и свобод человека и гражданина при обработке его персональных данных, в том числе защиты прав на неприкосновенность частной жизни, личную и семейную тайну.</p>
+        <p>Настоящая Политика применяется ко всей информации, которую Оператор может получить о посетителях Сайта во время использования ими Сайта и его сервисов.</p>
+        <div class="callout">
+          <strong>Кратко:</strong> используя Сайт, оставляя заявки и оформляя заказы, вы соглашаетесь с условиями этой Политики. Если вы не согласны — пожалуйста, не используйте Сайт.
+        </div>
+      </section>
+
+      <section id="s2">
+        <h2><span class="num">2.</span> Основные понятия</h2>
+        <p><strong>Персональные данные</strong> — любая информация, относящаяся прямо или косвенно к определённому или определяемому физическому лицу (субъекту персональных данных).</p>
+        <p><strong>Обработка персональных данных</strong> — любое действие или совокупность действий, совершаемых с использованием средств автоматизации или без них, с персональными данными, включая сбор, запись, систематизацию, накопление, хранение, уточнение, извлечение, использование, передачу, обезличивание, блокирование, удаление, уничтожение.</p>
+        <p><strong>Оператор</strong> — индивидуальный предприниматель, самостоятельно или совместно с другими лицами организующий и (или) осуществляющий обработку персональных данных, а также определяющий цели обработки, состав данных и совершаемые с ними действия.</p>
+        <p><strong>Пользователь</strong> — посетитель Сайта sobrano.store.</p>
+        <p><strong>Cookie-файлы</strong> — небольшие текстовые файлы, размещаемые на устройстве пользователя для хранения данных о его сеансе и предпочтениях.</p>
+        <p><strong>Сайт</strong> — совокупность графических и информационных материалов, программ для ЭВМ и баз данных, размещённых в сети Интернет по адресу <a href="https://sobrano.store" target="_blank" rel="noopener">sobrano.store</a>.</p>
+      </section>
+
+      <section id="s3">
+        <h2><span class="num">3.</span> Состав обрабатываемых персональных данных</h2>
+        <p>Оператор обрабатывает следующие категории персональных данных Пользователей:</p>
+        <ul>
+          <li>Фамилия, имя, отчество;</li>
+          <li>Контактный номер телефона;</li>
+          <li>Адрес электронной почты;</li>
+          <li>Адрес доставки заказа;</li>
+          <li>Никнейм в мессенджерах (Telegram, WhatsApp) — если Пользователь указал его как канал связи;</li>
+          <li>Текст комментария к заказу или к открытке;</li>
+          <li>Сведения о заказе: состав, сумма, способ доставки и оплаты;</li>
+          <li>Технические данные, передаваемые автоматически: IP-адрес, тип устройства, тип браузера, время посещения, источник перехода, идентификаторы cookie.</li>
+        </ul>
+        <p>Оператор не обрабатывает специальные категории персональных данных (касающиеся расовой, национальной принадлежности, политических взглядов, религиозных или философских убеждений, состояния здоровья, интимной жизни) и биометрические персональные данные.</p>
+      </section>
+
+      <section id="s4">
+        <h2><span class="num">4.</span> Цели обработки персональных данных</h2>
+        <p>Оператор обрабатывает персональные данные Пользователя в следующих целях:</p>
+        <ul>
+          <li>Заключение и исполнение договоров розничной купли-продажи цветочной продукции и сопутствующих товаров;</li>
+          <li>Оформление, обработка, доставка заказов и взаиморасчёты с Пользователем;</li>
+          <li>Связь с Пользователем по вопросам заказа: подтверждение, уточнение состава, согласование адреса и времени доставки;</li>
+          <li>Предоставление чека и иных документов, предусмотренных законодательством РФ;</li>
+          <li>Рассмотрение претензий и обращений Пользователя;</li>
+          <li>Информирование о новых продуктах, акциях и специальных предложениях — только при наличии согласия Пользователя;</li>
+          <li>Улучшение работы Сайта, анализ поведения пользователей с использованием обезличенной статистики;</li>
+          <li>Исполнение требований законодательства РФ.</li>
+        </ul>
+      </section>
+
+      <section id="s5">
+        <h2><span class="num">5.</span> Правовые основания обработки персональных данных</h2>
+        <p>Правовыми основаниями обработки персональных данных Оператором являются:</p>
+        <ul>
+          <li>Конституция Российской Федерации;</li>
+          <li>Гражданский кодекс Российской Федерации;</li>
+          <li>Федеральный закон от 27.07.2006 г. № 152-ФЗ «О персональных данных»;</li>
+          <li>Федеральный закон от 27.07.2006 г. № 149-ФЗ «Об информации, информационных технологиях и о защите информации»;</li>
+          <li>Закон РФ от 07.02.1992 г. № 2300-I «О защите прав потребителей»;</li>
+          <li>Согласие Пользователя на обработку его персональных данных, выраженное путём заполнения форм на Сайте и/или путём акцепта оферты;</li>
+          <li>Заключённый между Оператором и Пользователем договор, в рамках которого Пользователь является стороной.</li>
+        </ul>
+      </section>
+
+      <section id="s6">
+        <h2><span class="num">6.</span> Условия обработки персональных данных</h2>
+        <p>Обработка персональных данных осуществляется при наличии хотя бы одного из следующих условий:</p>
+        <ul>
+          <li>Получено согласие субъекта персональных данных;</li>
+          <li>Обработка необходима для исполнения договора, стороной которого является субъект;</li>
+          <li>Обработка необходима для осуществления прав и законных интересов Оператора при условии, что не нарушаются права и свободы субъекта;</li>
+          <li>Обработка осуществляется в целях, предусмотренных международным договором РФ или законом, для осуществления возложенных законодательством на Оператора функций, полномочий и обязанностей;</li>
+          <li>Персональные данные сделаны субъектом общедоступными.</li>
+        </ul>
+        <p>Согласие на обработку персональных данных Пользователь предоставляет:</p>
+        <ul>
+          <li>при оформлении заказа на Сайте — путём проставления отметки в чек-боксе «Согласен с политикой конфиденциальности»;</li>
+          <li>при отправке формы обратной связи — путём проставления отметки в чек-боксе или направлением сообщения, что в соответствии со ст. 6 Федерального закона № 152-ФЗ признаётся согласием.</li>
+        </ul>
+      </section>
+
+      <section id="s7">
+        <h2><span class="num">7.</span> Порядок сбора, хранения и обработки</h2>
+        <p>Оператор обрабатывает персональные данные следующими способами: сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передача (предоставление, доступ), обезличивание, блокирование, удаление, уничтожение.</p>
+        <p><strong>Срок хранения</strong> персональных данных:</p>
+        <ul>
+          <li>в течение срока действия договора с Пользователем и в течение 3 (трёх) лет после его прекращения — для целей претензионной работы и налогового учёта;</li>
+          <li>в иных случаях — до достижения целей обработки или до отзыва Пользователем согласия на обработку.</li>
+        </ul>
+        <p>По достижении целей обработки или в случае отзыва согласия персональные данные подлежат уничтожению, если иное не предусмотрено законодательством.</p>
+        <p>Персональные данные хранятся на серверах, расположенных на территории Российской Федерации, в соответствии с требованиями ч. 5 ст. 18 Федерального закона № 152-ФЗ.</p>
+      </section>
+
+      <section id="s8">
+        <h2><span class="num">8.</span> Использование cookie-файлов и метрики</h2>
+        <p>Сайт использует файлы cookie и аналогичные технологии для обеспечения корректной работы Сайта, сохранения предпочтений Пользователя (выбранный размер бокса, состав корзины) и сбора обезличенной статистики посещений.</p>
+        <p>Для анализа аудитории Сайта используется сервис <strong>Яндекс Метрика</strong>. Данный сервис собирает обезличенные данные об источнике перехода, поведении на Сайте и устройстве Пользователя.</p>
+        <p>Пользователь может в любой момент отключить cookie в настройках своего браузера. При отключении cookie ряд функций Сайта (корзина, авторизация) могут работать некорректно.</p>
+        <div class="callout">
+          <strong>Важно:</strong> при первом посещении Сайта мы показываем уведомление об использовании cookie. Продолжая пользоваться Сайтом, вы соглашаетесь с их применением.
+        </div>
+      </section>
+
+      <section id="s9">
+        <h2><span class="num">9.</span> Передача персональных данных третьим лицам</h2>
+        <p>Оператор передаёт персональные данные Пользователя третьим лицам только в следующих случаях:</p>
+        <ul>
+          <li><strong>Платёжный сервис Robokassa</strong> — для проведения платежей и формирования фискального чека (только сумма заказа, идентификатор и контактные данные, необходимые для квитанции);</li>
+          <li><strong>Служба доставки Яндекс Go</strong> или собственная служба доставки — ФИО получателя, телефон, адрес доставки, время и состав заказа, текст открытки;</li>
+          <li><strong>Сервисы рассылки уведомлений</strong> — email и номер телефона для отправки информации о статусе заказа;</li>
+          <li>По требованию государственных органов, имеющих соответствующие полномочия в рамках законодательства РФ.</li>
+        </ul>
+        <p>Оператор не передаёт персональные данные в маркетинговых, рекламных или коммерческих целях третьим лицам без отдельного согласия Пользователя.</p>
+        <p>Трансграничная передача персональных данных Оператором не осуществляется.</p>
+      </section>
+
+      <section id="s10">
+        <h2><span class="num">10.</span> Права субъекта персональных данных</h2>
+        <p>Пользователь имеет право:</p>
+        <ul>
+          <li>получать информацию, касающуюся обработки его персональных данных;</li>
+          <li>требовать уточнения, блокирования или уничтожения персональных данных в случае, если они являются неполными, устаревшими, неточными, незаконно полученными или не являются необходимыми для заявленной цели обработки;</li>
+          <li>отозвать согласие на обработку персональных данных в любой момент;</li>
+          <li>обжаловать действия или бездействие Оператора в Роскомнадзор или в судебном порядке;</li>
+          <li>на защиту своих прав и законных интересов, в том числе на возмещение убытков и (или) компенсацию морального вреда в судебном порядке.</li>
+        </ul>
+        <p>Для реализации указанных прав Пользователь может направить запрос в адрес Оператора по электронной почте <a href="mailto:hello@sobrano.store">hello@sobrano.store</a> с указанием ФИО, контактных данных и сути обращения.</p>
+        <p>Оператор обязуется рассмотреть обращение и направить ответ в течение 30 (тридцати) календарных дней с момента получения.</p>
+      </section>
+
+      <section id="s11">
+        <h2><span class="num">11.</span> Меры по защите персональных данных</h2>
+        <p>Оператор принимает необходимые правовые, организационные и технические меры для защиты персональных данных от неправомерного или случайного доступа, уничтожения, изменения, блокирования, копирования, распространения, а также от иных неправомерных действий третьих лиц.</p>
+        <p>В числе применяемых мер:</p>
+        <ul>
+          <li>назначение лица, ответственного за организацию обработки персональных данных;</li>
+          <li>ограничение доступа сотрудников и партнёров к персональным данным по принципу служебной необходимости;</li>
+          <li>использование защищённого протокола HTTPS для передачи данных между браузером Пользователя и Сайтом;</li>
+          <li>хранение данных на серверах, обеспечивающих физическую и программную защиту;</li>
+          <li>ведение журнала событий обработки персональных данных;</li>
+          <li>регулярный пересмотр настоящей Политики и внутренних регламентов.</li>
+        </ul>
+      </section>
+
+      <section id="s12">
+        <h2><span class="num">12.</span> Заключительные положения</h2>
+        <p>Оператор вправе вносить изменения в настоящую Политику. Актуальная редакция всегда доступна по адресу <a href="https://sobrano.store/privacy-policy.html" target="_blank" rel="noopener">sobrano.store/privacy-policy.html</a>. Дата последнего обновления указана в начале документа.</p>
+        <p>Существенные изменения вступают в силу с момента их публикации, если иное не предусмотрено новой редакцией Политики.</p>
+        <p>Все вопросы, не урегулированные настоящей Политикой, разрешаются в соответствии с законодательством Российской Федерации.</p>
+      </section>
+
+      <section id="s13">
+        <h2><span class="num">13.</span> Реквизиты Оператора</h2>
+        <p>Все запросы, обращения и претензии направляются по реквизитам, указанным ниже.</p>
+
+        <div class="req-card">
+          <h3>ИП Горбулёв Андрей Юрьевич</h3>
+          <div class="grid">
+            <div class="row"><span class="lbl">ИНН</span><span class="val">781700477351</span></div>
+            <div class="row"><span class="lbl">ОГРНИП</span><span class="val">321784700154873</span></div>
+            <div class="row"><span class="lbl">Адрес</span><span class="val">г. Санкт-Петербург</span></div>
+            <div class="row"><span class="lbl">Должность</span><span class="val">Директор</span></div>
+            <div class="row full"><span class="lbl">Email для запросов по ПД</span><span class="val">hello@sobrano.store</span></div>
+            <div class="row full"><span class="lbl">Контактный телефон</span><span class="val">+7 800 000-00-00</span></div>
+          </div>
+        </div>
+
+        <p style="margin-top:24px">Уполномоченный орган по защите прав субъектов персональных данных — <strong>Федеральная служба по надзору в сфере связи, информационных технологий и массовых коммуникаций (Роскомнадзор)</strong>: <a href="https://rkn.gov.ru" target="_blank" rel="noopener">rkn.gov.ru</a>.</p>
+      </section>
+
+        <article class="cms-md-doc" data-cms-markdown="privacy" style="font-size:15px;line-height:1.65;color:var(--ink-soft);max-width:680px;margin:32px auto 0;font-family:var(--sans)"></article>
+    </main>
+  </div>
+</div>
+
+<a href="#" class="to-top" id="toTop"><span aria-hidden="true">↑</span><span>К оглавлению</span></a>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Навигация</h6>
+        <a href="index.html#concept">Концепция</a>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="index.html#flowers">Витрина цветов</a>
+        <a href="index.html#picks">Подборки флористов</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика конфиденциальности</a>
+        <a href="terms.html">Пользовательское соглашение</a>
+        <a href="offer.html">Публичная оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+      </div>
+      <div class="footer-col">
+        <h6>Контакты</h6>
+        <a href="tel:+78000000000">+7 800 000-00-00</a>
+        <a href="mailto:hello@sobrano.store">hello@sobrano.store</a>
+        <a href="https://t.me/sobrano" target="_blank" rel="noopener">Telegram · @sobrano</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span> · ОГРНИП <span data-cms-text="requisites.ogrnip">321784700154873</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Active TOC on scroll
+  const sections = document.querySelectorAll('.content section');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        tocLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -50% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+
+  // Show "to top" button after scroll
+  const toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 600) toTop.classList.add('visible');
+    else toTop.classList.remove('visible');
+  });
+  toTop.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('toc')?.scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

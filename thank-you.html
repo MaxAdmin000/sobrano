@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Спасибо! Заказ принят — СОБРАНО</title>
+<meta name="description" content="Заказ оформлен. Сейчас флорист собирает бокс. Через несколько минут пришлём фото перед отправкой." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(242,236,227,.78);backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.help-link{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:8px}
+.help-link::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--terracotta)}
+
+/* HERO */
+.hero{padding:clamp(60px,8vw,120px) 0 clamp(40px,5vw,72px);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(140,154,123,.18), transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(201,123,92,.16), transparent 55%);
+  pointer-events:none
+}
+.success-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--ivory-2);padding:10px 18px;border-radius:999px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+  position:relative;z-index:1
+}
+.success-badge .dot{
+  width:10px;height:10px;border-radius:50%;background:var(--sage);
+  box-shadow:0 0 0 0 rgba(140,154,123,.5);animation:pulseGreen 2s infinite
+}
+@keyframes pulseGreen{0%{box-shadow:0 0 0 0 rgba(140,154,123,.5)}70%{box-shadow:0 0 0 12px rgba(140,154,123,0)}100%{box-shadow:0 0 0 0 rgba(140,154,123,0)}}
+
+.hero h1{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(64px,11vw,176px);
+  line-height:.88;letter-spacing:-.035em;margin:24px 0 28px;position:relative;z-index:1
+}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--wine)}
+.hero h1 .accent{
+  background:linear-gradient(90deg,var(--wine),var(--terracotta));
+  -webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;font-weight:400
+}
+
+.hero-sub{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:48px;
+  padding-top:28px;border-top:1px solid var(--line);margin-top:36px;position:relative;z-index:1
+}
+.hero-sub p{max-width:48ch;font-size:16px;color:var(--ink-soft);line-height:1.6}
+.hero-sub p strong{color:var(--ink);font-weight:600}
+.order-pill{
+  display:inline-flex;align-items:center;gap:14px;
+  background:var(--ink);color:var(--ivory);padding:14px 22px;border-radius:999px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  align-self:start
+}
+.order-pill .num{font-family:var(--serif);font-size:18px;letter-spacing:-.01em;color:var(--terracotta);text-transform:none;font-weight:400}
+
+/* WHATS NEXT — timeline */
+.next{padding:clamp(60px,7vw,100px) 0;border-top:1px solid var(--line)}
+.next-head{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;margin-bottom:56px}
+.next-head h2{font-family:var(--serif);font-weight:300;font-size:clamp(40px,5vw,72px);line-height:1;letter-spacing:-.02em;margin-top:18px}
+.next-head h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.next-head p{color:var(--ink-soft);font-size:16px;max-width:42ch}
+
+.timeline{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tl-step{padding:32px 24px 32px 0;border-right:1px solid var(--line);position:relative}
+.tl-step:last-child{border-right:0}
+.tl-step.active::before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:3px;
+  background:linear-gradient(90deg,var(--wine),var(--terracotta));
+  animation:fillBar 1.4s cubic-bezier(.2,.6,.2,1) forwards
+}
+@keyframes fillBar{from{width:0}to{width:100%}}
+.tl-step .n{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);
+  display:flex;align-items:center;gap:10px
+}
+.tl-step.done .n{color:var(--sage)}
+.tl-step.active .n{color:var(--wine)}
+.tl-step .n::before{
+  content:"";width:8px;height:8px;border-radius:50%;background:var(--ivory-2);border:1px solid var(--line-strong);
+  display:inline-block;flex:none
+}
+.tl-step.done .n::before{background:var(--sage);border-color:var(--sage)}
+.tl-step.active .n::before{background:var(--wine);border-color:var(--wine);animation:pulseTl 1.6s ease-in-out infinite}
+@keyframes pulseTl{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+.tl-step h4{font-family:var(--serif);font-weight:400;font-size:20px;letter-spacing:-.01em;margin:14px 0 8px}
+.tl-step p{font-size:14px;color:var(--ink-soft);line-height:1.55;max-width:26ch}
+.tl-step .when{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;margin-top:10px}
+
+/* ORDER SUMMARY */
+.summary-wrap{padding:clamp(60px,7vw,100px) 0;border-top:1px solid var(--line)}
+.summary-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,72px);align-items:start}
+.summary-grid h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,4.5vw,56px);line-height:1.05;letter-spacing:-.02em;margin-top:14px}
+.summary-grid h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.delivery-box{margin-top:32px;background:var(--ivory-2);border-radius:var(--r-lg);padding:28px 32px}
+.delivery-box h3{font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:-.01em;margin-bottom:18px}
+.delivery-box .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.delivery-box .row{display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--line)}
+.delivery-box .row .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.delivery-box .row .val{font-family:var(--serif);font-size:17px;letter-spacing:-.01em}
+.delivery-box .row.full{grid-column:span 2}
+
+.summary-card{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:32px;display:flex;flex-direction:column;gap:18px;position:sticky;top:96px}
+.summary-card h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between}
+.summary-card h3 .id{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);font-weight:400}
+
+.s-list{display:flex;flex-direction:column;gap:0}
+.s-row{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(242,236,227,.1)}
+.s-row:last-child{border-bottom:0}
+.s-row .t{width:46px;height:46px;border-radius:10px;overflow:hidden;background:rgba(242,236,227,.08);display:flex;align-items:center;justify-content:center;font-family:var(--serif);color:rgba(242,236,227,.5);font-size:16px}
+.s-row .t img{width:100%;height:100%;object-fit:cover}
+.s-row .name{font-family:var(--serif);font-size:15px;line-height:1.2}
+.s-row .qty{font-family:var(--mono);font-size:11px;color:rgba(242,236,227,.55);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.s-row .p{font-family:var(--serif);font-size:16px}
+
+.divider{height:1px;background:rgba(242,236,227,.18)}
+.s-rows{display:flex;flex-direction:column;gap:8px}
+.s-rrow{display:flex;align-items:baseline;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(242,236,227,.65)}
+.s-rrow .r{font-family:var(--serif);font-size:14px;letter-spacing:-.01em;text-transform:none;color:var(--ivory)}
+.s-rrow.discount .r{color:var(--terracotta)}
+.s-total{display:flex;align-items:baseline;justify-content:space-between}
+.s-total .l{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55)}
+.s-total .r{font-family:var(--serif);font-size:36px;letter-spacing:-.02em;font-weight:300}
+
+.paid-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(140,154,123,.18);color:var(--sage);padding:8px 12px;border-radius:999px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;align-self:flex-start;margin-top:4px}
+.paid-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sage)}
+
+/* SHARE / RECOMMEND */
+.bonus-row{padding:clamp(60px,7vw,100px) 0;border-top:1px solid var(--line)}
+.bonus-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.bonus{
+  border-radius:var(--r-lg);overflow:hidden;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:28px;min-height:200px;background:var(--ivory-2);
+  transition:transform .25s
+}
+.bonus:hover{transform:translateY(-4px)}
+.bonus.dark{background:var(--ink);color:var(--ivory)}
+.bonus.wine{background:var(--wine);color:var(--ivory)}
+.bonus h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;line-height:1.15;margin-bottom:8px}
+.bonus h4 em{font-style:italic;color:var(--terracotta);font-weight:500}
+.bonus p{font-size:14px;color:var(--ink-soft);max-width:32ch;line-height:1.5}
+.bonus.dark p,.bonus.wine p{color:rgba(242,236,227,.7)}
+.bonus a{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:13px;font-weight:500;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.bonus a::after{content:"→";font-family:var(--serif);font-style:italic;font-size:18px;text-transform:none;letter-spacing:0}
+.bonus.dark a{color:var(--terracotta)}
+.bonus.wine a{color:var(--terracotta)}
+
+/* CONFETTI */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:9000;overflow:hidden}
+.confetti span{position:absolute;width:8px;height:8px;border-radius:50%;opacity:0}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+.footer-bot a{color:rgba(242,236,227,.7)}.footer-bot a:hover{color:var(--terracotta)}
+
+@media (max-width:1100px){
+  .hero-sub{grid-template-columns:1fr;gap:24px}
+  .next-head{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+  .tl-step{border-bottom:1px solid var(--line)}
+  .tl-step:nth-child(2n){border-right:0}
+  .summary-grid{grid-template-columns:1fr}
+  .summary-card{position:static}
+  .delivery-box .grid{grid-template-columns:1fr}
+  .delivery-box .row.full{grid-column:span 1}
+  .bonus-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <a href="contacts.html" class="help-link">Нужна помощь? +7 800 000-00-00</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <span class="success-badge"><span class="dot"></span><span id="success-label">Заказ принят</span></span>
+    <h1>Спасибо!<br><span class="accent">Букет</span> <em>в&nbsp;работе.</em></h1>
+
+    <div class="hero-sub">
+      <div>
+        <p>Получили ваш заказ. Сейчас флорист собирает бокс — это займёт <strong>от 60 до 90 минут</strong>. Перед отправкой пришлём фото вашего букета на email и в Telegram, чтобы вы заранее увидели результат.</p>
+        <p>Подтверждение и реквизиты заказа отправим на почту <strong id="email-display">—</strong>. Если письмо не пришло за 5 минут — проверьте «Спам» или напишите нам.</p>
+      </div>
+      <div class="order-pill">
+        Заказ <span class="num" id="order-num">— —</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S NEXT -->
+<section class="next">
+  <div class="container">
+    <div class="next-head">
+      <div>
+        <span class="eyebrow">Что дальше</span>
+        <h2 style="margin-top:18px">От оплаты <em>до двери.</em></h2>
+      </div>
+      <p>Четыре простых шага. Пока букет собирают, можно расслабиться — мы держим в курсе на каждом этапе.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-step done">
+        <span class="n">Шаг 01</span>
+        <h4>Заказ оформлен</h4>
+        <p>Подтверждение ушло на email, заказ зарегистрирован в системе.</p>
+        <span class="when" id="payment-time">только что</span>
+      </div>
+      <div class="tl-step active">
+        <span class="n">Шаг 02 · сейчас</span>
+        <h4>Сборка букета</h4>
+        <p>Флорист собирает ваш бокс из свежих стеблей. Перед отправкой — фото на согласование.</p>
+        <span class="when">≈ 60–90 минут</span>
+      </div>
+      <div class="tl-step">
+        <span class="n">Шаг 03</span>
+        <h4>Курьер в пути</h4>
+        <p>Когда курьер заберёт букет, пришлём геолокацию и контакт.</p>
+        <span class="when">в выбранный интервал</span>
+      </div>
+      <div class="tl-step">
+        <span class="n">Шаг 04</span>
+        <h4>Доставка получателю</h4>
+        <p>Курьер передаст букет по адресу. Если получателя нет — позвонит и согласует.</p>
+        <span class="when">сегодня · 14:00–16:00</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="summary-wrap">
+  <div class="container">
+    <div class="summary-grid">
+      <div>
+        <span class="eyebrow">Детали заказа</span>
+        <h2>Куда, когда <em>и&nbsp;что</em> внутри.</h2>
+        <p style="color:var(--ink-soft);max-width:48ch;margin-top:16px">Все детали — на этой странице. Если нужно что-то изменить (адрес, время, текст открытки), напишите нам в течение 30 минут — мы успеем поправить до сборки.</p>
+
+        <div class="delivery-box">
+          <h3>Доставка</h3>
+          <div class="grid" id="delivery-info"></div>
+        </div>
+
+        <div class="delivery-box" id="payment-instr-box" style="margin-top:14px;display:none">
+          <h3>Оплата</h3>
+          <p id="payment-method-name" style="font-family:var(--serif);font-size:18px;letter-spacing:-.005em;margin-bottom:8px"></p>
+          <p id="payment-instruction" style="font-size:14px;color:var(--ink-soft);white-space:pre-line"></p>
+        </div>
+      </div>
+
+      <aside class="summary-card">
+        <h3>Состав <span class="id" id="order-num-2">— —</span></h3>
+
+        <div class="s-list" id="thank-items"></div>
+
+        <div class="divider"></div>
+
+        <div class="s-rows" id="thank-rows"></div>
+
+        <div class="divider"></div>
+
+        <div class="s-total">
+          <span class="l">К оплате</span>
+          <span class="r" id="thank-total">0 ₽</span>
+        </div>
+
+        <span class="paid-pill" id="paid-pill">Заказ принят · ждём оплаты</span>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- BONUSES -->
+<section class="bonus-row">
+  <div class="container">
+    <div class="bonus-grid">
+      <div class="bonus">
+        <div>
+          <h4>Расскажите <em>друзьям</em>.</h4>
+          <p>Поделитесь своим промокодом — друг получает скидку 10%, вы — 500 ₽ на следующий заказ.</p>
+        </div>
+        <a href="referral.html">Промокод BLOOM-ANNA →</a>
+      </div>
+      <div class="bonus dark">
+        <div>
+          <h4>Реф-программа <em>СОБРАНО</em>.</h4>
+          <p>Поделитесь промокодом с другом — он получает скидку 10%, вы 500 ₽ на следующий заказ. Без баллов и квестов.</p>
+        </div>
+        <a href="referral.html">Подробнее о реф-программе →</a>
+      </div>
+      <div class="bonus wine">
+        <div>
+          <h4>Что-то <em>не так</em>?</h4>
+          <p>Если есть вопросы по заказу или что-то надо изменить — мы на связи. Ответим за 15 минут.</p>
+        </div>
+        <a href="contacts.html">Написать нам →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сделано с любовью к цветам</span>
+    </div>
+  </div>
+</footer>
+
+<!-- subtle confetti -->
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script>
+  // Лёгкие конфетти при загрузке
+  (function(){
+    const root = document.getElementById('confetti');
+    const colors = ['#5C1F25','#C97B5C','#8C9A7B','#F2ECE3','#3A1418'];
+    const N = 28;
+    for (let i=0;i<N;i++){
+      const s = document.createElement('span');
+      s.style.left = Math.random()*100 + 'vw';
+      s.style.background = colors[i % colors.length];
+      s.style.width = (6 + Math.random()*8) + 'px';
+      s.style.height = s.style.width;
+      const dur = 2.6 + Math.random()*2.4;
+      const delay = Math.random()*0.6;
+      s.animate(
+        [
+          { transform:'translateY(-20px) rotate(0)', opacity:0 },
+          { offset:0.1, opacity:0.85 },
+          { transform:`translateY(110vh) rotate(${(Math.random()*720-360)|0}deg)`, opacity:0 }
+        ],
+        { duration:dur*1000, delay:delay*1000, easing:'cubic-bezier(.2,.6,.2,1)', fill:'forwards' }
+      );
+      root.appendChild(s);
+    }
+    setTimeout(()=>root.remove(), 6500);
+  })();
+</script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script>
+(function () {
+  const Cart = window.SOBRANO_CART;
+  const C = window.SOBRANO_CATALOG;
+  if (!Cart || !C) return;
+  const order = Cart.getLastOrder();
+  if (!order) {
+    // Заказа нет — показываем общий вид
+    document.getElementById('order-num').textContent = '— —';
+    document.getElementById('order-num-2').textContent = '— —';
+    return;
+  }
+  function escape(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[ch])); }
+  function fmt(n) { return Cart.formatPrice(n); }
+
+  // Header / hero
+  document.getElementById('order-num').textContent = '№ ' + order.orderId;
+  document.getElementById('order-num-2').textContent = '№ ' + order.orderId;
+  const cust = order.customer || {};
+  document.getElementById('email-display').textContent = cust.email || 'на телефон в SMS';
+  document.getElementById('success-label').textContent = 'Заказ принят · оплата позже';
+  document.getElementById('paid-pill').textContent = 'Заказ принят · ждём оплаты';
+  // payment time
+  const t = new Date(order.createdAt);
+  document.getElementById('payment-time').textContent = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+
+  // Delivery info
+  const dInfo = document.getElementById('delivery-info');
+  const rows = [];
+  if (cust.recip || cust.name) rows.push(['Получатель', cust.recip || cust.name]);
+  if (cust.phone) rows.push(['Телефон', cust.phone]);
+  const fullAddr = [cust.addr, cust.apt].filter(Boolean).join(', ');
+  if (fullAddr) rows.push(['Адрес', fullAddr, true]);
+  if (cust.date) {
+    const d = new Date(cust.date);
+    const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    if (!isNaN(d.getTime())) rows.push(['Дата', `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`]);
+  }
+  if (cust.time) rows.push(['Интервал', cust.time]);
+  rows.push(['Способ', order.delivery === 'yandex' ? 'Яндекс Go' : 'Своя доставка']);
+  const channelLabels = { phone: 'Звонок', email: 'Email', telegram: 'Telegram', whatsapp: 'WhatsApp' };
+  if (cust.channel) rows.push(['Канал связи', channelLabels[cust.channel] || cust.channel]);
+  if (cust.note) rows.push(['Комментарий', cust.note, true]);
+  dInfo.innerHTML = rows.map(([lbl, val, full]) =>
+    `<div class="row${full ? ' full' : ''}"><span class="lbl">${escape(lbl)}</span><span class="val">${escape(val)}</span></div>`
+  ).join('');
+
+  // Payment method instruction (для custom-методов — перевод на карту и т.п.)
+  if (cust.payment) {
+    fetch('/api/payments', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => {
+        const method = (data && data.methods || []).find(m => m.id === cust.payment);
+        if (!method) return;
+        document.getElementById('payment-method-name').textContent = method.title || method.id;
+        const isRobokassa = method.type === 'robokassa-card' || method.type === 'robokassa-sbp';
+        if (method.instruction) {
+          document.getElementById('payment-instruction').textContent = method.instruction;
+          document.getElementById('payment-instr-box').style.display = '';
+        } else if (isRobokassa) {
+          document.getElementById('payment-instruction').textContent = (method.description || '') + ' Чек придёт на email сразу после оплаты.';
+          document.getElementById('payment-instr-box').style.display = '';
+        }
+      })
+      .catch(() => {});
+  }
+
+  // Items
+  const items = document.getElementById('thank-items');
+  const html = [];
+  if (order.box) {
+    const filled = Object.values(order.box.flowers || {}).reduce((a, b) => a + b, 0);
+    const composeArr = Object.entries(order.box.flowers || {})
+      .filter(([, q]) => q > 0)
+      .map(([fid, q]) => {
+        const f = C.getFlower(fid);
+        return f ? f.name.replace(/«[^»]+»/g, '').trim() || f.name : fid;
+      });
+    const compose = composeArr.length ? composeArr.slice(0, 4).join(' · ') : 'без указания состава';
+    html.push(`<div class="s-row">
+      <div class="t"><img src="${escape((order.box.image || '').replace(/w=\d+/, 'w=200'))}" alt=""></div>
+      <div>
+        <div class="name">Бокс ${escape(order.box.size)} · ${order.box.capacity} цветков</div>
+        <div class="qty">${escape(compose)}</div>
+      </div>
+      <span class="p">${escape(fmt(order.box.price))}</span>
+    </div>`);
+  }
+  (order.addons || []).forEach((a) => {
+    const meta = C.getAddon(a.id);
+    const thumb = meta && meta.image
+      ? `<div class="t"><img src="${escape(meta.image.replace(/w=\d+/, 'w=200'))}" alt=""></div>`
+      : `<div class="t" style="display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-size:18px;color:rgba(242,236,227,.6)">${escape(meta && meta.placeholder || '•')}</div>`;
+    html.push(`<div class="s-row">
+      ${thumb}
+      <div>
+        <div class="name">${escape(a.title)}</div>
+        <div class="qty">×${a.qty}</div>
+      </div>
+      <span class="p">${escape(fmt(a.price * a.qty))}</span>
+    </div>`);
+  });
+  items.innerHTML = html.join('');
+
+  // Rows
+  const tRows = document.getElementById('thank-rows');
+  const trHtml = [];
+  trHtml.push(`<div class="s-rrow"><span>Подытог</span><span class="r">${escape(fmt(order.subtotal))}</span></div>`);
+  if (order.deliveryPrice > 0) {
+    trHtml.push(`<div class="s-rrow"><span>Доставка</span><span class="r">${escape(fmt(order.deliveryPrice))}</span></div>`);
+  } else {
+    trHtml.push(`<div class="s-rrow"><span>Доставка</span><span class="r">по тарифу</span></div>`);
+  }
+  if (order.promo && order.discount) {
+    trHtml.push(`<div class="s-rrow discount"><span>Промокод ${escape(order.promo)}</span><span class="r">− ${escape(fmt(order.discount))}</span></div>`);
+  }
+  tRows.innerHTML = trHtml.join('');
+  document.getElementById('thank-total').textContent = fmt(order.total);
+})();
+</script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Контакты — СОБРАНО</title>
+<meta name="description" content="Связаться с нами: телефон, email, Telegram, WhatsApp. Время работы и SLA по ответам." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+/* HERO */
+.hero{padding:32px 0 64px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,80px);align-items:end}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,8vw,128px);line-height:.92;letter-spacing:-.03em;margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero .lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.6}
+.live-pill{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;background:var(--ivory-2);border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);align-self:flex-start}
+.live-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);box-shadow:0 0 0 0 rgba(140,154,123,.5);animation:pulseG 2s infinite}
+@keyframes pulseG{0%{box-shadow:0 0 0 0 rgba(140,154,123,.5)}70%{box-shadow:0 0 0 12px rgba(140,154,123,0)}100%{box-shadow:0 0 0 0 rgba(140,154,123,0)}}
+
+/* CHANNELS GRID */
+.channels{padding:60px 0;border-bottom:1px solid var(--line)}
+.section-h{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:36px}
+.section-h h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-top:14px}
+.section-h h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.section-h p{color:var(--ink-soft);max-width:42ch;font-size:15px}
+
+.ch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.ch-card{
+  background:var(--ivory-2);border-radius:var(--r-lg);padding:28px;
+  display:flex;flex-direction:column;gap:14px;
+  transition:all .25s;border:1px solid transparent;text-align:left
+}
+.ch-card:hover{background:var(--ink);color:var(--ivory);transform:translateY(-4px)}
+.ch-card.dark{background:var(--ink);color:var(--ivory)}
+.ch-card.dark:hover{background:var(--wine)}
+.ch-card .ic{
+  width:48px;height:48px;border-radius:50%;
+  background:var(--ivory);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:22px;font-weight:500
+}
+.ch-card.dark .ic{background:rgba(242,236,227,.12);color:var(--terracotta)}
+.ch-card:hover .ic{background:rgba(242,236,227,.12);color:var(--terracotta)}
+.ch-card h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em;line-height:1.1}
+.ch-card .num{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--ink-soft);word-break:break-word}
+.ch-card.dark .num,.ch-card:hover .num{color:rgba(242,236,227,.7)}
+.ch-card .meta{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:auto;padding-top:14px;border-top:1px solid var(--line-strong)}
+.ch-card.dark .meta,.ch-card:hover .meta{color:rgba(242,236,227,.55);border-top-color:rgba(242,236,227,.15)}
+
+/* HOURS + ADDRESS */
+.info{padding:60px 0;border-bottom:1px solid var(--line)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.info-card{
+  background:var(--ivory-2);border-radius:var(--r-lg);padding:36px clamp(24px,3vw,40px);
+  display:flex;flex-direction:column;gap:14px
+}
+.info-card.dark{background:var(--ink);color:var(--ivory)}
+.info-card h3{font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:-.01em;line-height:1.1}
+.info-card .lead-s{font-size:14px;color:var(--ink-soft);max-width:36ch}
+.info-card.dark .lead-s{color:rgba(242,236,227,.7)}
+.hours{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.h-row{display:grid;grid-template-columns:1fr auto;gap:14px;padding:14px 0;border-top:1px solid var(--line);align-items:baseline}
+.info-card.dark .h-row{border-top-color:rgba(242,236,227,.14)}
+.h-row .l{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.info-card.dark .h-row .l{color:rgba(242,236,227,.55)}
+.h-row .r{font-family:var(--serif);font-size:18px;letter-spacing:-.005em}
+
+.address-vis{
+  position:relative;border-radius:var(--r-md);overflow:hidden;
+  aspect-ratio:16/9;background:var(--ink);margin-top:14px
+}
+.address-vis::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(201,123,92,.4) 0%, transparent 30%),
+    repeating-linear-gradient(90deg, rgba(242,236,227,.05) 0 1px, transparent 1px 60px),
+    repeating-linear-gradient(0deg, rgba(242,236,227,.05) 0 1px, transparent 1px 60px),
+    var(--ink-soft)
+}
+.address-vis .pin{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:60px;height:60px;border-radius:50%;
+  background:var(--terracotta);box-shadow:0 0 0 0 rgba(201,123,92,.7);
+  animation:pingTerr 2.5s infinite;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ivory);font-family:var(--serif);font-size:24px;font-style:italic
+}
+@keyframes pingTerr{0%{box-shadow:0 0 0 0 rgba(201,123,92,.7)}70%{box-shadow:0 0 0 30px rgba(201,123,92,0)}100%{box-shadow:0 0 0 0 rgba(201,123,92,0)}}
+.address-vis .pin::after{content:"⊹"}
+.address-vis .badge{
+  position:absolute;left:20px;top:20px;
+  background:rgba(26,20,16,.6);backdrop-filter:blur(6px);
+  color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:8px 12px;border-radius:999px
+}
+
+/* FORM */
+.form-section{padding:60px 0;border-bottom:1px solid var(--line)}
+.form-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:clamp(28px,4vw,72px);align-items:start}
+.form-grid .copy h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1.05;letter-spacing:-.02em;margin-top:14px;max-width:14ch}
+.form-grid .copy h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.form-grid .copy p{color:var(--ink-soft);font-size:15px;margin-top:18px;max-width:42ch}
+.fastpath{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+.fp{
+  display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--r-md);
+  background:var(--ivory-2);transition:all .2s
+}
+.fp:hover{background:var(--ink);color:var(--ivory);transform:translateX(4px)}
+.fp .ic{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center;font-size:14px;font-family:var(--serif);flex:none}
+.fp:hover .ic{background:var(--terracotta);color:var(--ink)}
+.fp h5{font-family:var(--serif);font-size:17px;font-weight:400;letter-spacing:-.01em}
+.fp p{font-size:12px;color:var(--mute);margin-top:2px;font-family:var(--mono);letter-spacing:.06em}
+.fp:hover p{color:rgba(242,236,227,.6)}
+.fp .arr{margin-left:auto;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--ink-soft)}
+.fp:hover .arr{color:var(--terracotta)}
+
+.form{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:36px}
+.form h3{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.01em;margin-bottom:6px;color:var(--ivory)}
+.form .form-sub{font-size:13px;color:rgba(242,236,227,.6);margin-bottom:24px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.row.full{grid-template-columns:1fr}
+.field{position:relative}
+.field label{position:absolute;top:14px;left:18px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.5);pointer-events:none;transition:all .2s}
+.field input,.field textarea,.field select{
+  width:100%;background:rgba(242,236,227,.06);border:1.5px solid transparent;border-radius:var(--r-md);
+  padding:32px 18px 14px;font-size:15px;color:var(--ivory);outline:none;
+  font-family:var(--sans);transition:all .2s
+}
+.field textarea{padding-top:38px;min-height:96px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--terracotta);background:rgba(242,236,227,.1)}
+.field.has label,.field input:focus + label,.field textarea:focus + label{top:8px;font-size:9px;color:rgba(242,236,227,.7)}
+.form-cta{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:var(--terracotta);color:var(--ink);padding:18px 22px;border-radius:999px;
+  font-size:14px;font-weight:600;width:100%;margin-top:14px;
+  transition:all .2s
+}
+.form-cta:hover{background:var(--ivory);color:var(--ink)}
+.form-cta .arrow{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center;transition:transform .25s}
+.form-cta:hover .arrow{transform:rotate(-45deg)}
+.form-note{font-size:11px;color:rgba(242,236,227,.45);margin-top:14px;line-height:1.5;font-family:var(--mono);letter-spacing:.04em}
+.form-note a{color:var(--terracotta);text-decoration:underline;text-decoration-color:rgba(201,123,92,.5);text-underline-offset:3px}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .ch-grid{grid-template-columns:1fr 1fr}
+  .info-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .section-h{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .ch-grid{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Поддержка 8:00–22:00</span><span>Ответ за 15 минут</span><span>Telegram · WhatsApp · Email</span><span>Срочный заказ — звонок</span>
+  <span>Поддержка 8:00–22:00</span><span>Ответ за 15 минут</span><span>Telegram · WhatsApp · Email</span><span>Срочный заказ — звонок</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="delivery.html">Доставка</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span class="here">Контакты</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" data-cms-text="content.contacts.hero.eyebrow">Связь · СОБРАНО</span>
+        <h1 data-cms-html="content.contacts.hero.titleHtml">Напишите нам.<br>Ответим <em>быстро</em>.</h1>
+        <p class="lead" data-cms-text="content.contacts.hero.lead">Звонок, мессенджер или почта — выберите удобный канал. По срочным вопросам быстрее всего в Telegram. Все обращения видим в одной системе и отвечаем по очереди.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+        <span class="live-pill"><span class="dot"></span>Сейчас на связи · ответим за 5 минут</span>
+        <p style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)">Среднее время ответа сегодня</p>
+        <p style="font-family:var(--serif);font-size:48px;letter-spacing:-.02em;font-weight:300;line-height:1">4 мин <span style="font-family:var(--mono);font-size:.32em;letter-spacing:.08em;color:var(--mute);text-transform:uppercase;font-weight:500">36 сек</span></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CHANNELS -->
+<section class="channels">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 01 — Каналы связи</span>
+        <h2>Четыре <em>способа</em> написать.</h2>
+      </div>
+      <p>Все каналы ведут в одну систему — продублировать сообщение в нескольких местах не нужно. Если что-то срочное и платная история — лучше звонок.</p>
+    </div>
+
+    <div class="ch-grid">
+      <a href="https://t.me/sobrano" target="_blank" rel="noopener" class="ch-card dark">
+        <span class="ic">T</span>
+        <h3>Telegram</h3>
+        <span class="num">@sobrano</span>
+        <span class="meta">Самый быстрый канал · 24/7</span>
+      </a>
+      <a href="https://wa.me/78000000000" target="_blank" rel="noopener" class="ch-card">
+        <span class="ic">W</span>
+        <h3>WhatsApp</h3>
+        <span class="num">+7 800 000-00-00</span>
+        <span class="meta">Удобно для голосовых · 8:00–22:00</span>
+      </a>
+      <a href="tel:+78000000000" class="ch-card">
+        <span class="ic">☎</span>
+        <h3>Звонок</h3>
+        <span class="num">+7 800 000-00-00</span>
+        <span class="meta">Срочные вопросы · 9:00–21:00</span>
+      </a>
+      <a href="mailto:hello@sobrano.store" class="ch-card">
+        <span class="ic">@</span>
+        <h3>Email</h3>
+        <span class="num">hello@sobrano.store</span>
+        <span class="meta">Документы и претензии · ответ за 4 часа</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- HOURS & ADDRESS -->
+<section class="info">
+  <div class="container">
+    <div class="section-h" style="margin-bottom:36px">
+      <div>
+        <span class="eyebrow">№ 02 — Часы и расположение</span>
+        <h2>Когда <em>работаем</em>.</h2>
+      </div>
+      <p>Сборка идёт пн–вс с 9:00 до 22:00. Сайт принимает заказы круглосуточно — ночные обрабатываем с утра.</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card dark">
+        <h3 style="color:var(--ivory)">Часы работы</h3>
+        <p class="lead-s">Поддержка отвечает с 8:00 до 22:00. Сборка — с 9:00. Доставка идёт до 22:00 — позже доставляем индивидуально по согласованию.</p>
+        <div class="hours">
+          <div class="h-row"><span class="l">Сайт и заказы</span><span class="r">круглосуточно</span></div>
+          <div class="h-row"><span class="l">Поддержка</span><span class="r">пн–вс · 8:00–22:00</span></div>
+          <div class="h-row"><span class="l">Сборка</span><span class="r">пн–вс · 9:00–22:00</span></div>
+          <div class="h-row"><span class="l">Доставка</span><span class="r">пн–вс · 10:00–22:00</span></div>
+          <div class="h-row"><span class="l">Праздники</span><span class="r">8 марта · круглосуточно</span></div>
+          <div class="h-row"><span class="l">SLA на ответ</span><span class="r">15 минут</span></div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Где собираем</h3>
+        <p class="lead-s">Студия и склад в Санкт-Петербурге. Самовывоз пока не предусмотрен — букеты собираются индивидуально и сразу едут к получателю.</p>
+        <div class="address-vis">
+          <span class="badge">Санкт-Петербург</span>
+          <span class="pin"></span>
+        </div>
+        <div class="hours" style="margin-top:14px">
+          <div class="h-row"><span class="l">Город</span><span class="r">Санкт-Петербург</span></div>
+          <div class="h-row"><span class="l">Зона доставки</span><span class="r">в пределах КАД</span></div>
+          <div class="h-row"><span class="l">Подробнее</span><span class="r"><a href="delivery.html" style="color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px">Карта зон →</a></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORM -->
+<section class="form-section">
+  <div class="container">
+    <div class="form-grid">
+      <div class="copy">
+        <span class="eyebrow">№ 03 — Форма</span>
+        <h2>Не любите <em>писать</em>? Отправьте форму.</h2>
+        <p>Опишите ситуацию в свободной форме — флорист или менеджер свяжется с вами в выбранный канал. Если вопрос про существующий заказ — добавьте номер.</p>
+
+        <div class="fastpath">
+          <a href="returns.html" class="fp"><span class="ic">!</span><div><h5>Что-то не так с букетом</h5><p>Гарантия пересборки</p></div><span class="arr">→</span></a>
+          <a href="delivery.html" class="fp"><span class="ic">⌗</span><div><h5>Вопрос про доставку</h5><p>Зоны и сроки</p></div><span class="arr">→</span></a>
+          <a href="#" class="fp"><span class="ic">B</span><div><h5>Корпоративный заказ</h5><p>От 5 боксов</p></div><span class="arr">→</span></a>
+        </div>
+      </div>
+
+      <form class="form" id="contactForm" novalidate>
+        <h3>Написать нам</h3>
+        <p class="form-sub">Все поля заполняются на латинице или кириллице — не важно.</p>
+
+        <div class="row">
+          <div class="field">
+            <input type="text" id="cf-name" placeholder=" " required>
+            <label for="cf-name">Как вас зовут <span style="color:var(--terracotta)">*</span></label>
+          </div>
+          <div class="field">
+            <input type="tel" id="cf-phone" placeholder=" " required>
+            <label for="cf-phone">Телефон <span style="color:var(--terracotta)">*</span></label>
+          </div>
+        </div>
+
+        <div class="row full">
+          <div class="field">
+            <input type="email" id="cf-email" placeholder=" ">
+            <label for="cf-email">Email · если ждёте письма</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <select id="cf-topic">
+              <option>Общий вопрос</option>
+              <option>Вопрос по заказу</option>
+              <option>Корпоративный заказ</option>
+              <option>Доставка / адрес</option>
+              <option>Претензия по качеству</option>
+              <option>Сотрудничество</option>
+            </select>
+            <label for="cf-topic">Тема обращения</label>
+          </div>
+          <div class="field">
+            <input type="text" id="cf-order" placeholder=" ">
+            <label for="cf-order">№ заказа · если есть</label>
+          </div>
+        </div>
+
+        <div class="row full">
+          <div class="field">
+            <textarea id="cf-msg" placeholder=" "></textarea>
+            <label for="cf-msg">Сообщение</label>
+          </div>
+        </div>
+
+        <button type="submit" class="form-cta">Отправить сообщение <span class="arrow">→</span></button>
+
+        <p class="form-note">Нажимая «Отправить», вы соглашаетесь с <a href="privacy-policy.html">политикой конфиденциальности</a> и <a href="consent.html">обработкой персональных данных</a>.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script>
+  document.querySelectorAll('.field input, .field textarea, .field select').forEach(el => {
+    const update = () => el.closest('.field').classList.toggle('has', !!el.value && el.value.length > 0);
+    update();
+    el.addEventListener('input', update);
+    el.addEventListener('change', update);
+  });
+
+  document.getElementById('contactForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('cf-name').value.trim();
+    const phone = document.getElementById('cf-phone').value.trim();
+    if (!name || !phone) {
+      window.showToast?.('Заполните имя и телефон', 'warning');
+      return;
+    }
+    window.showToast?.('Сообщение отправлено. Ответим в течение 15 минут.', 'success', 5000);
+    e.target.reset();
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('has'));
+  });
+</script>
+
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

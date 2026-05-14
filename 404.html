@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Страница не найдена — СОБРАНО</title>
+<meta name="description" content="К сожалению, такой страницы у нас не растёт. Вернитесь к боксам или подборкам флористов." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;
+  --mute:#7A6B5E;--line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;min-height:100vh}
+body{font-size:16px;line-height:1.55;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut);width:100%}
+
+/* NAV — minimal */
+.nav{position:sticky;top:0;z-index:50;background:rgba(242,236,227,.78);backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;transition:all .2s}
+.btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
+
+/* MAIN */
+main{flex:1;display:flex;align-items:center;padding:clamp(40px,6vw,100px) 0;position:relative}
+main::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 25% 30%, rgba(201,123,92,.18), transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(92,31,37,.12), transparent 55%);
+  pointer-events:none;z-index:0
+}
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(28px,4vw,72px);align-items:center;width:100%;position:relative;z-index:1}
+
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.h-404{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(140px,28vw,440px);
+  line-height:.85;letter-spacing:-.05em;
+  color:var(--ink);margin-top:24px;display:flex;align-items:center;gap:0
+}
+.h-404 .digit{display:inline-block}
+.h-404 .digit.it{font-style:italic;font-weight:400;color:var(--wine)}
+.h-404 .flower{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:.9em;height:.9em;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#F4D5BD,var(--terracotta) 50%,var(--wine) 100%);
+  margin:0 -.05em;flex:none;position:relative;
+  box-shadow:0 30px 80px -20px rgba(92,31,37,.5)
+}
+.h-404 .flower::after{
+  content:"";position:absolute;inset:18%;border-radius:50%;
+  background:radial-gradient(circle at 50% 30%, var(--wine-deep), transparent 60%);
+  opacity:.6
+}
+
+.copy{margin-top:36px;display:flex;flex-direction:column;gap:24px}
+.copy h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.015em;line-height:1.15}
+.copy h2 em{font-style:italic;color:var(--wine);font-weight:500}
+.copy p{color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:54ch}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.btn-xl{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:var(--ivory);padding:18px 26px;border-radius:999px;font-size:14px;font-weight:500;transition:all .25s}
+.btn-xl:hover{background:var(--wine);transform:translateY(-2px)}
+.btn-xl .arrow{width:30px;height:30px;border-radius:50%;background:var(--ivory);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;transition:transform .25s}
+.btn-xl:hover .arrow{transform:rotate(-45deg)}
+.btn-ghost{display:inline-flex;align-items:center;gap:10px;padding:16px 22px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px;font-weight:500;transition:all .2s}
+.btn-ghost:hover{border-color:var(--ink);background:var(--ivory-2)}
+
+/* SUGGEST RIGHT */
+.suggest{display:flex;flex-direction:column;gap:14px}
+.suggest h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.suggest a{
+  display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+  padding:18px 20px;background:var(--ivory-2);border-radius:var(--r-md);
+  transition:all .25s;border:1px solid transparent
+}
+.suggest a:hover{background:var(--ink);color:var(--ivory);transform:translateX(4px)}
+.suggest a .n{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase;font-weight:500}
+.suggest a:hover .n{color:rgba(242,236,227,.55)}
+.suggest a h5{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:-.01em;line-height:1.1}
+.suggest a p{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.suggest a:hover p{color:rgba(242,236,227,.65)}
+.suggest a .arrow{font-family:var(--serif);font-size:24px;font-style:italic;color:var(--ink-soft);transition:transform .2s}
+.suggest a:hover .arrow{color:var(--terracotta);transform:translateX(4px)}
+
+/* MARQUEE FOOTER STRIP */
+.strip{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:14px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.footer-mini{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;color:rgba(242,236,227,.55)}
+.footer-mini a{color:rgba(242,236,227,.85)}
+.footer-mini a:hover{color:var(--terracotta)}
+
+@media (max-width:1100px){
+  .grid{grid-template-columns:1fr}
+  .h-404{font-size:clamp(160px,40vw,300px)}
+}
+@media (max-width:680px){
+  main{padding:30px 0}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="grid">
+      <div>
+        <span class="eyebrow">Ошибка 404 · Страница не найдена</span>
+        <div class="h-404" aria-hidden="true">
+          <span class="digit">4</span>
+          <span class="flower"></span>
+          <span class="digit it">4</span>
+        </div>
+
+        <div class="copy">
+          <h2>Здесь ничего <em>не растёт</em>.</h2>
+          <p>Похоже, вы перешли по ссылке, которая больше не работает, или адрес страницы изменился. Букет не пострадал — всё на местах. Можно вернуться на главную или собрать бокс прямо сейчас.</p>
+
+          <div class="cta-row">
+            <a href="index.html" class="btn-xl">На главную <span class="arrow" aria-hidden="true">→</span></a>
+            <a href="index.html#boxes" class="btn-ghost">Выбрать бокс</a>
+            <a href="contacts.html" class="btn-ghost">Написать нам</a>
+          </div>
+        </div>
+      </div>
+
+      <aside class="suggest">
+        <h6>Может быть, вы искали</h6>
+        <a href="index.html#boxes">
+          <span class="n">/01</span>
+          <div>
+            <h5>Боксы — S, M, L, XL</h5>
+            <p>Четыре размера с фиксированной ценой</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+        <a href="index.html#flowers">
+          <span class="n">/02</span>
+          <div>
+            <h5>Витрина цветов</h5>
+            <p>8–10 видов в наличии, со сменой раз в 2 дня</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+        <a href="index.html#picks">
+          <span class="n">/03</span>
+          <div>
+            <h5>Подборки флористов</h5>
+            <p>Готовые сборки: для дома, в подарок, экзотика</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+        <a href="delivery.html">
+          <span class="n">/04</span>
+          <div>
+            <h5>Доставка и оплата</h5>
+            <p>Зоны, тарифы, способы оплаты</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<div class="strip"><div class="marquee">
+  <span>СОБРАНО · цветочная коробочка</span><span>Фиксированная цена</span><span>Доставка от 60 минут</span><span>8–10 видов в наличии</span>
+  <span>СОБРАНО · цветочная коробочка</span><span>Фиксированная цена</span><span>Доставка от 60 минут</span><span>8–10 видов в наличии</span>
+</div></div>
+
+<footer>
+  <div class="container footer-mini">
+    <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+    <div style="display:flex;gap:18px">
+      <a href="privacy-policy.html">Политика</a>
+      <a href="terms.html">Соглашение</a>
+      <a href="contacts.html">Контакты</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

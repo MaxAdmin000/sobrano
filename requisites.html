@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Реквизиты компании — СОБРАНО</title>
+<meta name="description" content="Реквизиты Индивидуального предпринимателя Горбулёва А. Ю. — компании, владеющей сервисом СОБРАНО." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.6}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;transition:all .2s}
+.btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+.head{padding:20px 0 56px;border-bottom:1px solid var(--line)}
+.head h1{font-family:var(--serif);font-weight:300;font-size:clamp(48px,7vw,96px);line-height:.95;letter-spacing:-.025em;margin:18px 0 24px}
+.head h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.head .lead{color:var(--ink-soft);max-width:64ch;font-size:17px}
+
+/* MAIN GRID */
+.main{padding:48px 0 80px;display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(28px,4vw,72px);align-items:start}
+
+/* Big info card */
+.big-card{
+  background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);
+  padding:clamp(36px,5vw,56px) clamp(28px,4vw,48px);
+  position:relative;overflow:hidden
+}
+.big-card::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 0%, rgba(201,123,92,.18), transparent 50%);
+  pointer-events:none
+}
+.big-card .label{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(242,236,227,.55);position:relative;display:inline-flex;align-items:center;gap:10px;margin-bottom:14px}
+.big-card .label::before{content:"";width:24px;height:1px;background:rgba(242,236,227,.55);display:inline-block}
+.big-card h2{font-family:var(--serif);font-weight:300;font-size:clamp(32px,4vw,52px);line-height:1.05;letter-spacing:-.02em;color:var(--ivory);margin-bottom:14px;position:relative}
+.big-card h2 em{font-style:italic;color:var(--terracotta);font-weight:400}
+.big-card p{color:rgba(242,236,227,.7);max-width:48ch;line-height:1.6;position:relative}
+
+/* Requisites table */
+.req-table{margin-top:36px;display:flex;flex-direction:column;gap:0;position:relative}
+.req-row{
+  display:grid;grid-template-columns:200px 1fr auto;gap:24px;align-items:center;
+  padding:18px 0;border-top:1px solid rgba(242,236,227,.18);
+  transition:background .2s;
+}
+.req-row:last-child{border-bottom:1px solid rgba(242,236,227,.18)}
+.req-row:hover{background:rgba(242,236,227,.04)}
+.req-row .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55)}
+.req-row .val{font-family:var(--serif);font-size:18px;letter-spacing:-.005em;color:var(--ivory);word-break:break-all}
+.req-row .copy-btn{
+  width:32px;height:32px;border-radius:50%;background:rgba(242,236,227,.08);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:all .2s;cursor:pointer
+}
+.req-row .copy-btn:hover{background:var(--terracotta);color:var(--ink)}
+.req-row .copy-btn.copied{background:var(--sage);color:var(--ivory)}
+
+/* SIDEBAR */
+.side{position:sticky;top:96px;display:flex;flex-direction:column;gap:18px}
+.s-block{background:var(--ivory-2);border-radius:var(--r-lg);padding:28px}
+.s-block h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em;margin-bottom:14px}
+.s-block p{font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:8px}
+.s-block .row{display:flex;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.s-block .row:first-of-type{border-top:0}
+.s-block .row .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);min-width:64px}
+.s-block .row .val{font-family:var(--serif);font-size:15px;letter-spacing:-.005em}
+.s-block a.link{color:var(--wine);text-decoration:underline;text-decoration-color:rgba(92,31,37,.4);text-underline-offset:3px}
+.s-block a.link:hover{text-decoration-color:var(--wine)}
+
+.dl-pdf{
+  display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:var(--ivory);
+  padding:14px 22px;border-radius:999px;font-size:13px;font-weight:500;
+  margin-top:8px;transition:all .2s
+}
+.dl-pdf:hover{background:var(--wine);transform:translateY(-1px)}
+.dl-pdf .ic{width:24px;height:24px;border-radius:6px;background:rgba(242,236,227,.16);display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-size:12px}
+
+/* BENEFICIARY ALERT */
+.alert{
+  background:var(--wine);color:var(--ivory);border-radius:var(--r-lg);padding:24px 28px;
+  display:flex;gap:16px;align-items:flex-start;margin-top:28px
+}
+.alert .ic{width:36px;height:36px;border-radius:50%;background:var(--terracotta);color:var(--ivory);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;flex:none}
+.alert h4{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.01em;margin-bottom:4px}
+.alert p{font-size:13px;color:rgba(242,236,227,.78);line-height:1.5}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+.footer-bot a{color:rgba(242,236,227,.7)}.footer-bot a:hover{color:var(--terracotta)}
+
+@media (max-width:1100px){
+  .main{grid-template-columns:1fr}
+  .side{position:static}
+  .req-row{grid-template-columns:1fr auto;gap:8px}
+  .req-row .lbl{grid-column:1 / -1;margin-bottom:-8px}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Реквизиты компании</span><span>ИП Горбулёв А. Ю.</span><span>ИНН 781700477351</span><span>ОГРНИП 321784700154873</span>
+  <span>Реквизиты компании</span><span>ИП Горбулёв А. Ю.</span><span>ИНН 781700477351</span><span>ОГРНИП 321784700154873</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <a href="about.html">О бренде</a><span class="sep">/</span>
+    <span class="here">Реквизиты</span>
+  </div>
+
+  <header class="head">
+    <span class="eyebrow">Юридическая информация</span>
+    <h1>Реквизиты <em>компании</em></h1>
+    <p class="lead">Сервис СОБРАНО принадлежит и обслуживается Индивидуальным предпринимателем. Все договорные отношения, выставление чеков и приём платежей идут от имени указанного ниже юридического лица. Раскрытие информации обязательно по ст. 9 закона «О защите прав потребителей».</p>
+  </header>
+
+  <div class="main">
+    <div class="big-card">
+      <span class="label">Юридическое лицо</span>
+      <h2 data-cms-text="requisites.legalName">ИП Горбулёв Андрей Юрьевич</h2>
+      <p>Зарегистрирован в качестве индивидуального предпринимателя в МИФНС России. Действует на основании свидетельства о государственной регистрации.</p>
+
+      <div class="req-table">
+        <div class="req-row">
+          <span class="lbl">ИНН</span>
+          <span class="val" id="v-inn" data-cms-text="requisites.inn">781700477351</span>
+          <button class="copy-btn" data-copy="781700477351" aria-label="Скопировать">⎘</button>
+        </div>
+        <div class="req-row">
+          <span class="lbl">ОГРНИП</span>
+          <span class="val" id="v-ogrn" data-cms-text="requisites.ogrnip">321784700154873</span>
+          <button class="copy-btn" data-copy="321784700154873" aria-label="Скопировать">⎘</button>
+        </div>
+        <div class="req-row">
+          <span class="lbl">Должность</span>
+          <span class="val">Директор</span>
+          <span></span>
+        </div>
+        <div class="req-row">
+          <span class="lbl">Юридический адрес</span>
+          <span class="val" data-cms-text="requisites.address">г. Санкт-Петербург</span>
+          <button class="copy-btn" data-copy="г. Санкт-Петербург" aria-label="Скопировать">⎘</button>
+        </div>
+        <div class="req-row">
+          <span class="lbl">Расчётный счёт</span>
+          <span class="val" data-cms-text="requisites.account">40802810355000126858</span>
+          <button class="copy-btn" data-copy="40802810355000126858" aria-label="Скопировать">⎘</button>
+        </div>
+        <div class="req-row">
+          <span class="lbl">Корр. счёт</span>
+          <span class="val" data-cms-text="requisites.correspAccount">30101810500000000653</span>
+          <button class="copy-btn" data-copy="30101810500000000653" aria-label="Скопировать">⎘</button>
+        </div>
+        <div class="req-row">
+          <span class="lbl">БИК</span>
+          <span class="val" data-cms-text="requisites.bik">044030653</span>
+          <button class="copy-btn" data-copy="044030653" aria-label="Скопировать">⎘</button>
+        </div>
+        <div class="req-row">
+          <span class="lbl">Банк</span>
+          <span class="val" data-cms-text="requisites.bank">Северо-Западный банк ПАО Сбербанк, г. Санкт-Петербург</span>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="alert">
+        <span class="ic">i</span>
+        <div>
+          <h4>Налоговый режим</h4>
+          <p><span data-cms-text="requisites.taxRegime">ИП ведёт деятельность на упрощённой системе налогообложения</span>. Чеки выдаются автоматически через систему фискализации Robokassa и направляются Покупателю на указанный email в момент оплаты заказа.</p>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="s-block">
+        <h3>Контактные данные</h3>
+        <div class="row"><span class="lbl">Email</span><span class="val"><a href="mailto:hello@sobrano.store" class="link" data-cms-attr-href="contacts.emailMailto" data-cms-text="contacts.email">hello@sobrano.store</a></span></div>
+        <div class="row"><span class="lbl">Телефон</span><span class="val"><a href="tel:+78000000000" class="link" data-cms-text="contacts.phone">+7 800 000-00-00</a></span></div>
+        <div class="row"><span class="lbl">Telegram</span><span class="val"><a href="https://t.me/sobrano" target="_blank" rel="noopener" class="link">@sobrano</a></span></div>
+        <div class="row"><span class="lbl">WhatsApp</span><span class="val"><a href="tel:+78000000000" class="link">+7 800 000-00-00</a></span></div>
+      </div>
+
+      <div class="s-block">
+        <h3>Время работы</h3>
+        <div class="row"><span class="lbl">Сайт</span><span class="val">круглосуточно</span></div>
+        <div class="row"><span class="lbl">Сборка</span><span class="val">пн–вс · 09:00–22:00</span></div>
+        <div class="row"><span class="lbl">Поддержка</span><span class="val">пн–вс · 08:00–22:00</span></div>
+        <div class="row"><span class="lbl">SLA</span><span class="val">ответ за 15 минут</span></div>
+      </div>
+
+      <div class="s-block">
+        <h3>Документы</h3>
+        <p style="margin-bottom:14px">Для бухгалтерии партнёров доступна выгрузка реквизитов в формате Word/PDF.</p>
+        
+        <p style="margin-top:14px;font-size:12px;color:var(--mute)">Если нужны сканы свидетельства о регистрации или выписки из ЕГРИП — напишите на <a href="mailto:hello@sobrano.store" class="link">hello@sobrano.store</a>.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span> · ОГРНИП <span data-cms-text="requisites.ogrnip">321784700154873</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script>
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    const text = btn.dataset.copy;
+    navigator.clipboard?.writeText(text).then(() => {
+      btn.classList.add('copied');
+      btn.textContent = '✓';
+      window.showToast?.('Скопировано: ' + text, 'success', 2400);
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = '⎘';
+      }, 2000);
+    });
+  });
+</script>
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>

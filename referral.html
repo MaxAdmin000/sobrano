@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Расскажи друзьям — реф-программа СОБРАНО</title>
+<meta name="description" content="Поделитесь промокодом — друг получит скидку 10%, вы 500 ₽ на следующий заказ. Простая реф-программа без баллов и квестов." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#F2ECE3;--ivory-2:#E8DDD0;--ink:#1A1410;--ink-soft:#3A2D24;
+  --wine:#5C1F25;--wine-deep:#3A1418;--terracotta:#C97B5C;--sage:#8C9A7B;--mute:#7A6B5E;
+  --line:rgba(26,20,16,.14);--line-strong:rgba(26,20,16,.28);
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-lg:24px;--r-md:14px;--maxw:1480px;--gut:clamp(20px,4vw,56px)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body{font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--wine);color:var(--ivory)}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
+
+.top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
+.marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
+.marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
+.marquee span::after{content:"✦";color:var(--terracotta);opacity:.7}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);background:rgba(242,236,227,.78);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
+.nav-links{display:flex;gap:34px;align-items:center}
+.nav-links a{font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--wine)}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500}
+.btn-primary:hover{background:var(--wine)}
+
+.crumbs{display:flex;align-items:center;gap:10px;padding:24px 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}.crumbs .sep{opacity:.5}.crumbs .here{color:var(--ink)}
+
+/* HERO */
+.hero{padding:32px 0 64px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(201,123,92,.18),transparent 50%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(28px,4vw,80px);align-items:center;position:relative}
+.hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,10vw,160px);line-height:.9;letter-spacing:-.04em;margin:18px 0 24px}
+.hero h1 em{font-style:italic;color:var(--wine);font-weight:400}
+.hero h1 .accent{background:linear-gradient(90deg,var(--wine),var(--terracotta));-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;font-weight:400}
+.hero p.lead{color:var(--ink-soft);font-size:17px;max-width:48ch;line-height:1.6}
+
+.promo-card{
+  background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);
+  padding:36px;display:flex;flex-direction:column;gap:18px;
+  position:relative;overflow:hidden
+}
+.promo-card::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 100%,rgba(201,123,92,.32),transparent 55%);
+  pointer-events:none
+}
+.promo-card .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.6);position:relative;display:inline-flex;align-items:center;gap:10px}
+.promo-card .label::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--terracotta)}
+.promo-card .code-row{
+  display:flex;align-items:center;gap:14px;background:rgba(242,236,227,.08);
+  border:1.5px dashed rgba(242,236,227,.32);border-radius:var(--r-md);padding:18px 22px;
+  position:relative
+}
+.promo-card .code{
+  font-family:var(--serif);font-style:italic;font-size:32px;letter-spacing:-.01em;color:var(--ivory);font-weight:400;flex:1
+}
+.promo-card .copy-btn{
+  background:var(--terracotta);color:var(--ink);padding:12px 18px;border-radius:999px;
+  font-size:13px;font-weight:600;transition:all .2s
+}
+.promo-card .copy-btn:hover{background:var(--ivory);color:var(--ink);transform:translateY(-1px)}
+.promo-card .copy-btn.copied{background:var(--sage);color:var(--ivory)}
+.promo-card .nums{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(242,236,227,.18);position:relative}
+.promo-card .num{padding:18px 0;border-right:1px solid rgba(242,236,227,.18)}
+.promo-card .num:last-child{border-right:0;padding-left:18px}
+.promo-card .num strong{display:block;font-family:var(--serif);font-size:36px;letter-spacing:-.02em;font-weight:300;line-height:1}
+.promo-card .num strong em{font-style:italic;color:var(--terracotta)}
+.promo-card .num .sub{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-top:6px}
+
+/* HOW */
+.how{padding:80px 0;border-bottom:1px solid var(--line)}
+.section-h{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:48px}
+.section-h h2{font-family:var(--serif);font-weight:300;font-size:clamp(40px,5.5vw,72px);line-height:1;letter-spacing:-.02em;margin-top:14px}
+.section-h h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.section-h p{color:var(--ink-soft);max-width:42ch;font-size:15px}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.step{padding:32px 24px 32px 0;border-right:1px solid var(--line);position:relative}
+.step:last-child{border-right:0}
+.step .n{font-family:var(--serif);font-style:italic;font-size:clamp(48px,6vw,80px);font-weight:300;line-height:1;color:var(--terracotta)}
+.step h4{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.01em;margin:14px 0 8px}
+.step p{font-size:14px;color:var(--ink-soft);line-height:1.55;max-width:28ch}
+
+/* SHARE OPTIONS */
+.share{padding:80px 0;border-bottom:1px solid var(--line)}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:32px}
+.share-card{
+  background:var(--ivory-2);border-radius:var(--r-lg);padding:24px;
+  display:flex;flex-direction:column;gap:14px;text-align:left;
+  transition:all .25s;cursor:pointer
+}
+.share-card:hover{background:var(--ink);color:var(--ivory);transform:translateY(-3px)}
+.share-card .ic{
+  width:46px;height:46px;border-radius:14px;background:var(--ink);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;font-weight:500
+}
+.share-card:hover .ic{background:var(--terracotta);color:var(--ink)}
+.share-card h4{font-family:var(--serif);font-weight:400;font-size:20px;letter-spacing:-.01em}
+.share-card p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+.share-card:hover p{color:rgba(242,236,227,.7)}
+
+/* RULES */
+.rules{padding:80px 0;border-bottom:1px solid var(--line)}
+.rule-list{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rule{
+  display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:flex-start;
+  padding:24px 28px;background:var(--ivory-2);border-radius:var(--r-md)
+}
+.rule .ic{
+  width:36px;height:36px;border-radius:50%;background:var(--terracotta);color:var(--ivory);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:16px;flex:none
+}
+.rule h5{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.01em;margin-bottom:6px}
+.rule p{font-size:14px;color:var(--ink-soft);line-height:1.55}
+.rule p strong{color:var(--ink)}
+
+/* HISTORY */
+.history{padding:80px 0;border-bottom:1px solid var(--line)}
+.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,72px);align-items:start}
+.history h2{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1.05;letter-spacing:-.02em;margin-top:14px}
+.history h2 em{font-style:italic;color:var(--wine);font-weight:400}
+.history p{color:var(--ink-soft);font-size:15px;margin-top:18px;max-width:46ch;line-height:1.6}
+
+.h-table{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+.h-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.h-row .who{font-family:var(--serif);font-size:16px;letter-spacing:-.005em}
+.h-row .who small{display:block;font-family:var(--mono);font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.h-row .when{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mute)}
+.h-row .amount{font-family:var(--serif);font-size:16px;letter-spacing:-.005em;color:var(--wine);font-style:italic}
+.h-row .amount.pending{color:var(--mute)}
+
+.summary-card{background:var(--ink);color:var(--ivory);border-radius:var(--r-lg);padding:32px;display:flex;flex-direction:column;gap:18px}
+.summary-card h3{font-family:var(--serif);font-size:24px;font-weight:400;letter-spacing:-.01em;color:var(--ivory)}
+.summary-card .row{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(242,236,227,.14);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,236,227,.6)}
+.summary-card .row:first-of-type{border-top:0}
+.summary-card .row .v{font-family:var(--serif);font-size:18px;letter-spacing:-.01em;color:var(--ivory);text-transform:none;font-weight:400}
+.summary-card .row.big .v{font-size:32px;font-weight:300;color:var(--terracotta);font-style:italic}
+.summary-card a.use{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--terracotta);color:var(--ink);padding:16px 22px;border-radius:999px;font-size:14px;font-weight:600;margin-top:6px;transition:all .2s}
+.summary-card a.use:hover{background:var(--ivory);transform:translateY(-1px)}
+.summary-card a.use .arrow{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--ivory);display:flex;align-items:center;justify-content:center}
+
+/* FAQ */
+.faq{padding:80px 0;border-bottom:1px solid var(--line)}
+.faq-list{margin-top:32px;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-q{
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:24px 0;cursor:pointer;font-family:var(--serif);font-size:clamp(18px,2vw,22px);
+  font-weight:400;letter-spacing:-.005em;transition:color .2s;width:100%;text-align:left
+}
+.faq-q:hover{color:var(--wine)}
+.faq-q .plus{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--line-strong);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;
+  transition:all .3s
+}
+.faq-item.open .plus{transform:rotate(45deg);background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease, padding .35s ease;font-size:14.5px;color:var(--ink-soft);line-height:1.65}
+.faq-item.open .faq-a{max-height:240px;padding-bottom:22px}
+
+footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
+.footer-brand .brand{color:var(--ivory)}
+.footer-brand p{margin-top:18px;color:rgba(242,236,227,.62);font-size:14px;max-width:32ch;line-height:1.5}
+.footer-col h6{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,236,227,.55);margin-bottom:18px}
+.footer-col a{display:block;font-size:14px;color:rgba(242,236,227,.85);margin-bottom:10px}
+.footer-col a:hover{color:var(--terracotta)}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:12px;color:rgba(242,236,227,.55);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;padding-top:24px}
+
+@media (max-width:1100px){
+  .hero-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+  .step{border-bottom:1px solid var(--line)}
+  .step:nth-child(2n){border-right:0}
+  .share-grid{grid-template-columns:1fr 1fr}
+  .rule-list{grid-template-columns:1fr}
+  .history-grid{grid-template-columns:1fr}
+  .section-h{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{display:none}
+  .share-grid{grid-template-columns:1fr}
+  .promo-card .nums{grid-template-columns:1fr}
+  .promo-card .num{border-right:0;border-bottom:1px solid rgba(242,236,227,.18)}
+  .promo-card .num:last-child{padding-left:0;border-bottom:0}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109191756', 'ym');
+
+    ym(109191756, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109191756" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+<div class="top-bar"><div class="marquee">
+  <span>Реф-программа СОБРАНО</span><span>Друг получает 10% · вы 500 ₽</span><span>Промокод за каждый заказ</span><span>Без срока действия</span>
+  <span>Реф-программа СОБРАНО</span><span>Друг получает 10% · вы 500 ₽</span><span>Промокод за каждый заказ</span><span>Без срока действия</span>
+</div></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+    <nav class="nav-links">
+      <a href="index.html#concept">Концепция</a>
+      <a href="index.html#boxes">Боксы</a>
+      <a href="flowers.html">Цветы</a>
+      <a href="picks.html">Подборки</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <a href="index.html#boxes" class="btn-primary">Собрать бокс →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="crumbs">
+    <a href="index.html">Главная</a><span class="sep">/</span>
+    <span class="here">Расскажи друзьям</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" data-cms-text="content.referral.hero.eyebrow">Реф-программа · СОБРАНО</span>
+        <h1 data-cms-html="content.referral.hero.titleHtml">Расскажи<br><em>друзьям</em>.<br><span class="accent">Получишь 500 ₽.</span></h1>
+        <p class="lead" data-cms-text="content.referral.hero.lead">Простая логика без баллов и квестов: вы делитесь промокодом, друг оплачивает первый заказ — друг получает скидку 10%, вы 500 ₽ на следующий заказ. Промокод не сгорает и работает столько раз, сколько раз им воспользуются.</p>
+      </div>
+
+      <div class="promo-card">
+        <span class="label">Ваш персональный промокод</span>
+
+        <div class="code-row">
+          <span class="code">BLOOM-ANNA-2026</span>
+          <button class="copy-btn" data-code="BLOOM-ANNA-2026">Скопировать</button>
+        </div>
+
+        <div class="nums">
+          <div class="num">
+            <strong><em>2</em></strong>
+            <div class="sub">Друга воспользовались</div>
+          </div>
+          <div class="num">
+            <strong>1&nbsp;000<span style="font-family:var(--mono);font-size:.4em;color:rgba(242,236,227,.6);font-weight:500;letter-spacing:.06em">&nbsp;₽</span></strong>
+            <div class="sub">Накоплено бонусов</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 01 — Как работает</span>
+        <h2>Четыре <em>простых</em> шага.</h2>
+      </div>
+      <p>Без регистрации, без личного кабинета, без накопительных уровней. Просто промокод, которым делитесь.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="n">01</span>
+        <h4>Заказываете бокс</h4>
+        <p>После оплаты в письме приходит ваш персональный промокод-«реферал».</p>
+      </div>
+      <div class="step">
+        <span class="n">02</span>
+        <h4>Делитесь промокодом</h4>
+        <p>Telegram, WhatsApp, по почте или ссылкой — как удобно.</p>
+      </div>
+      <div class="step">
+        <span class="n">03</span>
+        <h4>Друг применяет на первом заказе</h4>
+        <p>Получает скидку 10% от суммы заказа в момент оформления.</p>
+      </div>
+      <div class="step">
+        <span class="n">04</span>
+        <h4>Вам — 500 ₽ на следующий</h4>
+        <p>Бонус начисляется автоматически после оплаты заказа другом и применяется автоматически на следующий ваш заказ.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHARE OPTIONS -->
+<section class="share">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 02 — Как поделиться</span>
+        <h2>Один клик — <em>и&nbsp;готово</em>.</h2>
+      </div>
+      <p>Берём шаблон сообщения с описанием магазина и вашим промокодом. Можно отредактировать перед отправкой.</p>
+    </div>
+
+    <div class="share-grid">
+      <button class="share-card" data-share="telegram">
+        <span class="ic">T</span>
+        <h4>Telegram</h4>
+        <p>Открыть Telegram с готовым сообщением и промокодом.</p>
+      </button>
+      <button class="share-card" data-share="whatsapp">
+        <span class="ic">W</span>
+        <h4>WhatsApp</h4>
+        <p>Поделиться через WhatsApp одним нажатием.</p>
+      </button>
+      <button class="share-card" data-share="email">
+        <span class="ic">@</span>
+        <h4>Email</h4>
+        <p>Открыть почтовую программу с заполненным письмом.</p>
+      </button>
+      <button class="share-card" data-share="link">
+        <span class="ic">⌗</span>
+        <h4>Скопировать ссылку</h4>
+        <p>Реферальная ссылка с автоприменением промокода.</p>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section class="history">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 03 — Ваша история</span>
+        <h2>Кто <em>уже воспользовался</em>.</h2>
+      </div>
+      <p>Список друзей, которые применили ваш промокод. Когда друг оплачивает заказ — у вас на счету появляется 500 ₽.</p>
+    </div>
+
+    <div class="history-grid">
+      <div class="h-table">
+        <div class="h-row">
+          <div class="who">Алексей М.<small>+7 ··· 67-89 · заказ № SBR-271</small></div>
+          <span class="when">3 дня назад</span>
+          <span class="amount">+ 500 ₽</span>
+        </div>
+        <div class="h-row">
+          <div class="who">Дарья К.<small>+7 ··· 12-34 · заказ № SBR-198</small></div>
+          <span class="when">2 недели назад</span>
+          <span class="amount">+ 500 ₽</span>
+        </div>
+        <div class="h-row">
+          <div class="who">Никита Р.<small>оплатит до 12.05 · заказ оформлен</small></div>
+          <span class="when">сегодня</span>
+          <span class="amount pending">·&nbsp;ожидает</span>
+        </div>
+        <div class="h-row">
+          <div class="who" style="color:var(--mute);font-style:italic">Друзья, которые ещё не воспользовались — здесь не показываются</div>
+          <span></span><span></span>
+        </div>
+      </div>
+
+      <aside class="summary-card">
+        <h3>Ваш счёт</h3>
+        <div class="row"><span>Накоплено</span><span class="v">1 000 ₽</span></div>
+        <div class="row"><span>Ожидается</span><span class="v">500 ₽</span></div>
+        <div class="row"><span>Использовано</span><span class="v">0 ₽</span></div>
+        <div class="row big"><span>Доступно сейчас</span><span class="v">1 000 ₽</span></div>
+        <a class="use" href="index.html#boxes">Применить на следующий заказ <span class="arrow">→</span></a>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section class="rules">
+  <div class="container">
+    <div class="section-h">
+      <div>
+        <span class="eyebrow">№ 04 — Условия</span>
+        <h2>Что важно <em>знать</em>.</h2>
+      </div>
+      <p>Шесть пунктов, чтобы не было сюрпризов. Если что-то непонятно — напишите, ответим.</p>
+    </div>
+
+    <div class="rule-list">
+      <div class="rule">
+        <span class="ic">1</span>
+        <div>
+          <h5>Только для новых клиентов</h5>
+          <p>Промокод применяется на <strong>первый</strong> заказ человека, который им воспользовался. Если друг уже заказывал — скидка не сработает.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">2</span>
+        <div>
+          <h5>Не суммируется с другими акциями</h5>
+          <p>На один заказ — один промокод. Если применили скидку магазина или другой реф-код — наш не суммируется.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">3</span>
+        <div>
+          <h5>Бонус начисляется после оплаты</h5>
+          <p>500 ₽ зачисляются автоматически в момент успешной оплаты заказа другом. <strong>Если друг отменил заказ или не оплатил</strong> — бонус не начисляется.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">4</span>
+        <div>
+          <h5>Бонусы не сгорают</h5>
+          <p>Накопленные 500 ₽ ждут вас сколько угодно. Можно копить и потратить все за раз — например, на бокс XL или несколько подборок.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">5</span>
+        <div>
+          <h5>Минимальная сумма заказа — 1 990 ₽</h5>
+          <p>Бонус применяется к заказам от стоимости бокса S (1 990 ₽). На допы отдельно бонус не работает.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <span class="ic">6</span>
+        <div>
+          <h5>Нельзя обналичить</h5>
+          <p>Бонусы — это скидка на следующий заказ, не деньги. Перевести на карту или вывести нельзя.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="container">
+    <span class="eyebrow">№ 05 — Частые вопросы</span>
+    <h2 style="font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;letter-spacing:-.02em;margin-top:14px">Вопросы <em>и&nbsp;ответы</em>.</h2>
+
+    <div class="faq-list">
+      <div class="faq-item open">
+        <button class="faq-q">А если друг подарит промокод обратно мне?<span class="plus">+</span></button>
+        <div class="faq-a">Не сработает — у каждого человека свой промокод, и применить его на собственный заказ нельзя. Это для друзей и близких, не для самого себя.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Можно отдать промокод курьеру или оператору?<span class="plus">+</span></button>
+        <div class="faq-a">Промокод применяется только в момент оформления заказа на сайте, в поле «Промокод» в корзине. Курьеру передавать нечего.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">У меня нет промокода — где взять?<span class="plus">+</span></button>
+        <div class="faq-a">Промокод приходит автоматически на email после оплаты вашего <strong>первого</strong> заказа. Если письма нет — проверьте «Спам» или напишите нам, пришлём.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Сколько раз можно использовать один промокод?<span class="plus">+</span></button>
+        <div class="faq-a">Без ограничений по числу применений. Если 100 ваших друзей воспользуются — у вас будет 50 000 ₽ бонусов.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Что если я хочу отменить участие?<span class="plus">+</span></button>
+        <div class="faq-a">Просто перестаньте делиться промокодом. Накопленные бонусы остаются на вашем счету и доступны для применения.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
+        <p>Цветочные боксы с фиксированной ценой. Простая логика, честная сборка, доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Магазин</h6>
+        <a href="index.html#boxes">Боксы</a>
+        <a href="flowers.html">Цветы</a>
+        <a href="picks.html">Подборки</a>
+        <a href="about.html">О бренде</a>
+      </div>
+      <div class="footer-col">
+        <h6>Помощь</h6>
+        <a href="contacts.html">Контакты</a>
+        <a href="delivery.html">Доставка и оплата</a>
+        <a href="returns.html">Возврат и гарантия</a>
+        <a href="referral.html">Расскажи друзьям</a>
+      </div>
+      <div class="footer-col">
+        <h6>Документы</h6>
+        <a href="privacy-policy.html">Политика</a>
+        <a href="terms.html">Соглашение</a>
+        <a href="offer.html">Оферта</a>
+        <a href="consent.html">Согласие на ОПД</a>
+        <a href="requisites.html">Реквизиты</a>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 <span data-cms-text="requisites.legalNameShort">ИП Горбулёв А. Ю.</span> · ИНН <span data-cms-text="requisites.inn">781700477351</span></span>
+      <span>Сайт разработан командой РОЯЛТИ ТИМС</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/cookie-banner.js" defer></script>
+<script src="assets/toast.js" defer></script>
+<script>
+  // Copy promo
+  document.querySelectorAll('.copy-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      navigator.clipboard?.writeText(b.dataset.code).then(() => {
+        b.classList.add('copied');
+        b.textContent = '✓ Скопировано';
+        window.showToast?.('Промокод ' + b.dataset.code + ' скопирован', 'success', 2400);
+        setTimeout(() => { b.classList.remove('copied'); b.textContent = 'Скопировать'; }, 2400);
+      });
+    });
+  });
+
+  // Share
+  const code = 'BLOOM-ANNA-2026';
+  const msg = `СОБРАНО — цветочные боксы с фиксированной ценой. Промокод на скидку 10% при первом заказе: ${code}. https://sobrano.store/?ref=${code}`;
+  document.querySelectorAll('.share-card').forEach(c => {
+    c.addEventListener('click', () => {
+      const t = c.dataset.share;
+      if (t === 'telegram') window.open('https://t.me/share/url?url=https://sobrano.store/?ref=' + code + '&text=' + encodeURIComponent(msg), '_blank');
+      else if (t === 'whatsapp') window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+      else if (t === 'email') window.location.href = 'mailto:?subject=' + encodeURIComponent('Цветы по честной цене — СОБРАНО') + '&body=' + encodeURIComponent(msg);
+      else if (t === 'link') {
+        navigator.clipboard?.writeText('https://sobrano.store/?ref=' + code).then(() =>
+          window.showToast?.('Реферальная ссылка скопирована', 'success'));
+      }
+    });
+  });
+
+  // FAQ
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const open = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!open) item.classList.add('open');
+    });
+  });
+</script>
+
+<script src="assets/sobrano-config.js"></script>
+<script src="assets/content.js" defer></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/cart.js"></script>
+<script src="assets/popups.js" defer></script>
+</body>
+</html>
