@@ -1,0 +1,95 @@
+# СОБРАНО · автодеплой на sobrano.store
+# Триггер: push в main, либо ручной запуск из вкладки Actions.
+#
+# Что делает:
+#   1. Чекаут репозитория.
+#   2. Подключает приватный deploy-ключ (DEPLOY_KEY) и добавляет known_hosts.
+#   3. rsync статики в /var/www/sobrano/ (всё, что не backend/components/.claude/ROADMAP.md).
+#   4. rsync бэкенда в /opt/sobrano-backend/, исключая .env, data/store.json, data/uploads/.
+#   5. chown + chmod, рестарт sobrano-backend.service.
+#
+# Требуемые secrets:
+#   SSH_HOST  — IP сервера (80.249.150.166)
+#   DEPLOY_KEY — приватный ed25519 ключ, публичная часть прописана в /root/.ssh/authorized_keys
+#
+# Если деплой упал — смотри Actions → workflow → шаги. Чаще всего: SSH ban (fail2ban), сервер недоступен,
+# или права/пути изменились.
+
+name: Deploy to sobrano.store
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # ручной запуск из UI
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false  # не отменяем уже идущий деплой — лучше дождаться, чем оставить полузалитый стейт
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          SSH_HOST:   ${{ secrets.SSH_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -T 8 "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Sanity-check, что ключ принимают:
+          ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes -o ConnectTimeout=10 root@"$SSH_HOST" "echo ssh-ok && hostname"
+
+      - name: Deploy static frontend → /var/www/sobrano/
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          rsync -avz --delete \
+            --exclude='.DS_Store' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='backend/' \
+            --exclude='components/' \
+            --exclude='.claude/' \
+            --exclude='ROADMAP.md' \
+            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new" \
+            ./ root@"$SSH_HOST":/var/www/sobrano/
+          ssh -i ~/.ssh/id_ed25519 root@"$SSH_HOST" \
+            'chown -R www-data:www-data /var/www/sobrano && find /var/www/sobrano -type f -exec chmod 644 {} \;'
+
+      - name: Deploy backend → /opt/sobrano-backend/
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          rsync -avz --delete \
+            --exclude='.DS_Store' \
+            --exclude='node_modules/' \
+            --exclude='data/store.json' \
+            --exclude='data/store.json.bak-*' \
+            --exclude='data/uploads/' \
+            --exclude='.env' \
+            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new" \
+            ./backend/ root@"$SSH_HOST":/opt/sobrano-backend/
+          ssh -i ~/.ssh/id_ed25519 root@"$SSH_HOST" \
+            'chown -R www-data:www-data /opt/sobrano-backend && systemctl restart sobrano-backend && sleep 1 && systemctl is-active sobrano-backend'
+
+      - name: Smoke test on prod
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          # /health должен ответить 200 после рестарта.
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 https://sobrano.store/health)
+            echo "attempt $i: /health → $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 3
+          done
+          echo "health check failed"
+          exit 1
