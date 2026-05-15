@@ -359,6 +359,7 @@ function ordersToCsv(orders) {
     ["box.size", "Размер бокса"], ["box.capacity", "Стеблей"],
     ["addonsList", "Допы"],
     ["delivery", "Канал доставки"], ["deliveryPrice", "Стоимость доставки"],
+    ["customer.timeSurcharge", "Доплата за слот"],
     ["promo", "Промокод"], ["discount", "Скидка"],
     ["subtotal", "Подытог"], ["total", "Итого"],
     ["trackNo", "Трек-номер"], ["courier", "Курьер"],

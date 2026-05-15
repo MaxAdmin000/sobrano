@@ -1271,9 +1271,12 @@ input,select,textarea{font:inherit;color:inherit}
       body += '<div class="detail-section"><h4>Допы</h4>' + ah + '</div>';
     }
 
+    const slotSurcharge = Math.max(0, Number((cust && cust.timeSurcharge) || 0));
+    const baseDelivery = Math.max(0, (o.deliveryPrice || 0) - slotSurcharge);
     body += '<div class="detail-section"><h4>Сумма</h4><div class="kv">' +
       '<div class="lbl">Подытог</div><div class="val">' + escapeHtml(fmt(o.subtotal||0)) + '</div>' +
-      '<div class="lbl">Доставка</div><div class="val">' + escapeHtml(o.deliveryPrice ? fmt(o.deliveryPrice) : "по тарифу") + '</div>' +
+      '<div class="lbl">Доставка</div><div class="val">' + escapeHtml(baseDelivery ? fmt(baseDelivery) : "по тарифу") + '</div>' +
+      (slotSurcharge ? ('<div class="lbl">Срочный слот</div><div class="val">+ ' + escapeHtml(fmt(slotSurcharge)) + '</div>') : '') +
       (o.discount ? ('<div class="lbl">Промокод ' + escapeHtml(o.promo||'') + '</div><div class="val">−' + escapeHtml(fmt(o.discount)) + '</div>') : '') +
       '<div class="lbl">Итого</div><div class="val"><strong>' + escapeHtml(fmt(o.total||0)) + '</strong></div>' +
     '</div></div>';

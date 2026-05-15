@@ -477,14 +477,49 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
   // ----- Дата и слоты -----
   // Логика: на сегодня доступны только те слоты, в окно которых попадает "сейчас + 1 час"
   // (т.е. конец слота должен быть позже now+1h). На будущие даты — все слоты.
-  const ALL_SLOTS = [
-    { start: 10, end: 12, label: '10:00 — 12:00' },
-    { start: 12, end: 14, label: '12:00 — 14:00' },
-    { start: 14, end: 16, label: '14:00 — 16:00' },
-    { start: 16, end: 18, label: '16:00 — 18:00' },
-    { start: 18, end: 20, label: '18:00 — 20:00' },
-    { start: 20, end: 22, label: '20:00 — 22:00' },
+  // Слоты грузятся из CMS (`content.delivery.slotsBlock.list`) через assets/content.js,
+  // фоллбэк — стандартные 6 окон по 2 часа. Поля slot'a: id/t/startHour/endHour/surcharge/checkoutHidden.
+  const FALLBACK_SLOTS = [
+    { id: 's1', t: '10:00 — 12:00', startHour: 10, endHour: 12, surcharge: 0 },
+    { id: 's2', t: '12:00 — 14:00', startHour: 12, endHour: 14, surcharge: 0 },
+    { id: 's3', t: '14:00 — 16:00', startHour: 14, endHour: 16, surcharge: 0 },
+    { id: 's4', t: '16:00 — 18:00', startHour: 16, endHour: 18, surcharge: 0 },
+    { id: 's5', t: '18:00 — 20:00', startHour: 18, endHour: 20, surcharge: 0 },
+    { id: 's6', t: '20:00 — 22:00', startHour: 20, endHour: 22, surcharge: 0 },
   ];
+  function parseSlotTime(t) {
+    if (!t) return null;
+    // "10:00 — 12:00" или "10:00 - 12:00" или "10 — 12"
+    const m = String(t).match(/^\s*(\d{1,2})(?:[:.](\d{1,2}))?\s*[—\-–]\s*(\d{1,2})(?:[:.](\d{1,2}))?/);
+    if (!m) return null;
+    return {
+      startHour: Number(m[1]) + (m[2] ? Number(m[2]) / 60 : 0),
+      endHour:   Number(m[3]) + (m[4] ? Number(m[4]) / 60 : 0),
+    };
+  }
+  function normalizeSlots() {
+    const cms = ((window.__SOBRANO_CONTENT__ || {}).content || {}).delivery;
+    const list = cms && cms.slotsBlock && Array.isArray(cms.slotsBlock.list) ? cms.slotsBlock.list : null;
+    const source = list && list.length ? list : FALLBACK_SLOTS;
+    return source.map((raw) => {
+      if (!raw || raw.hidden || raw.checkoutHidden) return null;
+      let start = Number(raw.startHour);
+      let end = Number(raw.endHour);
+      if (!isFinite(start) || !isFinite(end)) {
+        const parsed = parseSlotTime(raw.t);
+        if (!parsed) return null; // нерасшифровываемый слот → информационный, в чекауте не показываем
+        start = parsed.startHour;
+        end = parsed.endHour;
+      }
+      return {
+        id: String(raw.id || raw.t || ''),
+        label: String(raw.t || ''),
+        startHour: start,
+        endHour: end,
+        surcharge: Math.max(0, Number(raw.surcharge) || 0),
+      };
+    }).filter(Boolean);
+  }
   function todayStr() {
     const t = new Date();
     return new Date(t.getTime() - t.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -495,13 +530,14 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
     return new Date(t.getTime() - t.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   }
   function availableSlotsFor(dateStr) {
+    const all = normalizeSlots();
     const today = todayStr();
     if (!dateStr || dateStr < today) return [];
-    if (dateStr > today) return ALL_SLOTS.slice();
+    if (dateStr > today) return all.slice();
     // Для сегодняшней даты гейтим по now+1h
     const now = new Date();
     const cutoff = now.getHours() + now.getMinutes() / 60 + 1;
-    return ALL_SLOTS.filter((s) => s.end > cutoff);
+    return all.filter((s) => s.endHour > cutoff);
   }
   function renderTimeSlots() {
     const sel = document.getElementById('time');
@@ -510,13 +546,17 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
     const slots = availableSlotsFor(dEl.value);
     if (!slots.length) {
       sel.innerHTML = '<option value="" disabled selected>На эту дату слотов нет</option>';
-      Cart.setCustomer({ time: '' });
+      Cart.setCustomer({ time: '', timeSlotId: '', timeSurcharge: 0 });
       sel.closest('.field').classList.toggle('has', false);
       return;
     }
-    sel.innerHTML = slots.map((s) => '<option value="' + s.label + '">' + s.label + '</option>').join('');
-    if (slots.find((s) => s.label === prev)) sel.value = prev;
-    Cart.setCustomer({ time: sel.value });
+    sel.innerHTML = slots.map((s) => {
+      const text = s.surcharge > 0 ? (s.label + ' · +' + s.surcharge + ' ₽') : s.label;
+      return '<option value="' + escape(s.label) + '" data-slot-id="' + escape(s.id) + '" data-surcharge="' + s.surcharge + '">' + escape(text) + '</option>';
+    }).join('');
+    const chosen = slots.find((s) => s.label === prev) || slots[0];
+    sel.value = chosen.label;
+    Cart.setCustomer({ time: chosen.label, timeSlotId: chosen.id, timeSurcharge: chosen.surcharge });
     sel.closest('.field').classList.toggle('has', !!sel.value);
   }
 
@@ -539,8 +579,14 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
     renderTimeSlots();
   });
   document.getElementById('time').addEventListener('change', (e) => {
-    Cart.setCustomer({ time: e.target.value });
+    const opt = e.target.options[e.target.selectedIndex];
+    const slotId = opt && opt.dataset ? (opt.dataset.slotId || '') : '';
+    const surcharge = opt && opt.dataset ? (Number(opt.dataset.surcharge) || 0) : 0;
+    Cart.setCustomer({ time: e.target.value, timeSlotId: slotId, timeSurcharge: surcharge });
   });
+  // Контент грузится асинхронно (assets/content.js → /api/content). Когда CMS-данные
+  // прилетят, перерисовываем слоты — в фоллбэке могло отсутствовать surcharge и админские поля.
+  document.addEventListener('sobrano:content-ready', () => { renderTimeSlots(); renderSummary(); });
   // Restore channel & payment
   if (cur.channel) {
     document.querySelectorAll('.ch[data-channel]').forEach(c => c.classList.toggle('active', c.dataset.channel === cur.channel));
@@ -601,7 +647,12 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
     const rows = [];
     rows.push(`<div class="s-rrow"><span class="l">Подытог</span><span class="r">${escape(Cart.formatPrice(subtotal))}</span></div>`);
     const dLabel = s.delivery === 'yandex' ? 'Яндекс Go' : 'своя';
-    rows.push(`<div class="s-rrow"><span class="l">Доставка · ${escape(dLabel)}</span><span class="r">${delivery > 0 ? escape(Cart.formatPrice(delivery)) : 'по тарифу'}</span></div>`);
+    const slotSurcharge = (typeof Cart.getSlotSurcharge === 'function') ? Cart.getSlotSurcharge() : 0;
+    const baseDelivery = delivery - slotSurcharge;
+    rows.push(`<div class="s-rrow"><span class="l">Доставка · ${escape(dLabel)}</span><span class="r">${baseDelivery > 0 ? escape(Cart.formatPrice(baseDelivery)) : 'по тарифу'}</span></div>`);
+    if (slotSurcharge > 0) {
+      rows.push(`<div class="s-rrow"><span class="l">Срочный слот</span><span class="r">+ ${escape(Cart.formatPrice(slotSurcharge))}</span></div>`);
+    }
     if (s.promo) rows.push(`<div class="s-rrow discount"><span class="l">Промокод ${escape(s.promo)}</span><span class="r">− ${escape(Cart.formatPrice(discount))}</span></div>`);
     document.getElementById('checkout-rows').innerHTML = rows.join('');
     document.getElementById('checkout-total').textContent = Cart.formatPrice(total);

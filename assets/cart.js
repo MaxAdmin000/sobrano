@@ -218,11 +218,23 @@
     return total;
   }
 
-  function getDeliveryPrice() {
+  function getDeliveryBase() {
     const d = C() && C().DELIVERY;
     if (!d) return 0;
     const opt = d[state.delivery] || d.own;
     return opt.price || 0;
+  }
+
+  // Доплата за выбранный временной слот (пиковый/срочный). Сохраняется на чекауте
+  // в customer.timeSurcharge при выборе слота из CMS (delivery.slotsBlock.list[].surcharge).
+  function getSlotSurcharge() {
+    const c = state.customer || {};
+    const v = Number(c.timeSurcharge);
+    return isFinite(v) && v > 0 ? Math.round(v) : 0;
+  }
+
+  function getDeliveryPrice() {
+    return getDeliveryBase() + getSlotSurcharge();
   }
 
   function getDiscount() {
@@ -482,7 +494,7 @@
     setDelivery,
     applyPromo, removePromo,
     setCustomer,
-    getSubtotal, getDeliveryPrice, getDiscount, getTotal,
+    getSubtotal, getDeliveryBase, getDeliveryPrice, getSlotSurcharge, getDiscount, getTotal,
     getItemCount, getStemCount, getFilledStems, getCapacity, getRemainingCapacity,
     subscribe,
     clear, finalize, getLastOrder, getOrders,

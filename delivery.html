@@ -337,21 +337,17 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
   <div class="container">
     <div class="section-h">
       <div>
-        <span class="eyebrow">№ 03 — Временные интервалы</span>
-        <h2>Когда привезти <em>букет</em>.</h2>
+        <span class="eyebrow" data-cms-text="content.delivery.slotsBlock.eyebrow">№ 03 — Временные интервалы</span>
+        <h2 data-cms-html="content.delivery.slotsBlock.titleHtml">Когда привезти <em>букет</em>.</h2>
       </div>
-      <p>Слоты по 2 часа. В пиковые часы (вечер, праздники) запись может быть плотнее — собираем по очереди. Точное время сообщит курьер за 30 минут до выезда.</p>
+      <p data-cms-text="content.delivery.slotsBlock.lead">Слоты по 2 часа. В пиковые часы (вечер, праздники) запись может быть плотнее — собираем по очереди. Точное время сообщит курьер за 30 минут до выезда.</p>
     </div>
 
-    <div class="slot-grid">
-      <div class="slot"><span class="t">10:00 — 12:00</span><span class="lbl">Утренний слот</span></div>
-      <div class="slot"><span class="t">12:00 — 14:00</span><span class="lbl">Дневной слот</span></div>
-      <div class="slot"><span class="t">14:00 — 16:00</span><span class="lbl">Дневной слот</span></div>
-      <div class="slot"><span class="t">16:00 — 18:00</span><span class="lbl">Послеобеденный</span></div>
-      <div class="slot peak"><span class="t">18:00 — 20:00</span><span class="lbl">Пик · вечерний</span></div>
-      <div class="slot"><span class="t">20:00 — 22:00</span><span class="lbl">Поздний вечер</span></div>
-      <div class="slot"><span class="t">К конкретному часу</span><span class="lbl">+ 300 ₽ · точно по часу</span></div>
-      <div class="slot"><span class="t">Срочно · 60 мин</span><span class="lbl">Только Яндекс Go</span></div>
+    <div class="slot-grid" data-cms-list="content.delivery.slotsBlock.list">
+      <div class="slot" data-cms-loop-class-peak="@peak">
+        <span class="t" data-cms-text="@t">10:00 — 12:00</span>
+        <span class="lbl" data-cms-text="@lbl">Утренний слот</span>
+      </div>
     </div>
   </div>
 </section>

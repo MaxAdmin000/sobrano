@@ -535,10 +535,15 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
   const tRows = document.getElementById('thank-rows');
   const trHtml = [];
   trHtml.push(`<div class="s-rrow"><span>Подытог</span><span class="r">${escape(fmt(order.subtotal))}</span></div>`);
-  if (order.deliveryPrice > 0) {
-    trHtml.push(`<div class="s-rrow"><span>Доставка</span><span class="r">${escape(fmt(order.deliveryPrice))}</span></div>`);
+  const slotSurcharge = Math.max(0, Number((cust && cust.timeSurcharge) || 0));
+  const baseDelivery = Math.max(0, (order.deliveryPrice || 0) - slotSurcharge);
+  if (baseDelivery > 0) {
+    trHtml.push(`<div class="s-rrow"><span>Доставка</span><span class="r">${escape(fmt(baseDelivery))}</span></div>`);
   } else {
     trHtml.push(`<div class="s-rrow"><span>Доставка</span><span class="r">по тарифу</span></div>`);
+  }
+  if (slotSurcharge > 0) {
+    trHtml.push(`<div class="s-rrow"><span>Срочный слот</span><span class="r">+ ${escape(fmt(slotSurcharge))}</span></div>`);
   }
   if (order.promo && order.discount) {
     trHtml.push(`<div class="s-rrow discount"><span>Промокод ${escape(order.promo)}</span><span class="r">− ${escape(fmt(order.discount))}</span></div>`);

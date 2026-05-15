@@ -113,6 +113,35 @@ function load() {
       ensureBuiltinPayments(cache.catalog.payments, def.catalog.payments);
       if (!Array.isArray(cache.content.faq)) cache.content.faq = def.content.faq || [];
       if (!cache.content.legal || typeof cache.content.legal !== "object") cache.content.legal = def.content.legal;
+      // Подмиграция полей delivery slots: добавляем поля A7 (id/startHour/endHour/surcharge/checkoutHidden)
+      // в существующие записи, не затирая значения, которые админ мог уже отредактировать.
+      const slotsList = cache.content && cache.content.delivery && cache.content.delivery.slotsBlock && cache.content.delivery.slotsBlock.list;
+      if (Array.isArray(slotsList)) {
+        const defSlots = (def.content.delivery.slotsBlock.list || []);
+        const parseT = (t) => {
+          const m = String(t || "").match(/^\s*(\d{1,2})(?:[:.](\d{1,2}))?\s*[—\-–]\s*(\d{1,2})(?:[:.](\d{1,2}))?/);
+          if (!m) return null;
+          return { startHour: Number(m[1]) + (m[2] ? Number(m[2]) / 60 : 0), endHour: Number(m[3]) + (m[4] ? Number(m[4]) / 60 : 0) };
+        };
+        slotsList.forEach((slot, i) => {
+          if (!slot || typeof slot !== "object") return;
+          const refDef = defSlots[i] || {};
+          if (slot.id == null)        slot.id        = refDef.id || ("s" + (i + 1));
+          if (slot.surcharge == null) slot.surcharge = refDef.surcharge || 0;
+          if (slot.peak == null)      slot.peak      = !!refDef.peak;
+          if (slot.startHour == null || slot.endHour == null) {
+            const parsed = parseT(slot.t);
+            if (parsed) {
+              if (slot.startHour == null) slot.startHour = parsed.startHour;
+              if (slot.endHour == null)   slot.endHour   = parsed.endHour;
+            } else if (slot.checkoutHidden == null) {
+              // Нерасшифровываемый текст («К конкретному часу», «Срочно · 60 мин») →
+              // оставляем информационным: на delivery.html виден, в чекауте скрыт.
+              slot.checkoutHidden = true;
+            }
+          }
+        });
+      }
     } else {
       cache = DEFAULT();
       save();

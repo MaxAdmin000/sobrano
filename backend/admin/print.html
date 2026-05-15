@@ -136,9 +136,12 @@ function render(o, settings){
   html += '</div></div>';
 
   // Суммы
+  const slotSurcharge = Math.max(0, Number((cust && cust.timeSurcharge) || 0));
+  const baseDelivery = Math.max(0, (o.deliveryPrice || 0) - slotSurcharge);
   html += '<div class="section"><h2>Суммы</h2><div class="totals">' +
     '<div class="tr"><span>Подытог</span><span>' + fmt(o.subtotal||0) + '</span></div>' +
-    '<div class="tr"><span>Доставка</span><span>' + (o.deliveryPrice ? fmt(o.deliveryPrice) : "по тарифу") + '</span></div>' +
+    '<div class="tr"><span>Доставка</span><span>' + (baseDelivery ? fmt(baseDelivery) : "по тарифу") + '</span></div>' +
+    (slotSurcharge ? '<div class="tr"><span>Срочный слот</span><span>+ ' + fmt(slotSurcharge) + '</span></div>' : '') +
     (o.discount ? '<div class="tr"><span>Промокод ' + escapeHtml(o.promo||"") + '</span><span>− ' + fmt(o.discount) + '</span></div>' : '') +
     '<div class="tr big"><span>Итого</span><span>' + fmt(o.total||0) + '</span></div>' +
   '</div></div>';
