@@ -490,6 +490,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "PATCH" && custMatch) {
     return wrapCors(req, res, () => adminApi.patchCustomer(req, res, custMatch[1]));
   }
+
+  // ---- Admin: dashboard stats ----
+  if (req.method === "GET" && pathname === "/api/admin/stats") {
+    return wrapCors(req, res, () => adminApi.getStats(req, res));
+  }
   if (req.method === "GET" && pathname === "/api/admin/robokassa") {
     return wrapCors(req, res, () => adminApi.getRobokassa(req, res));
   }

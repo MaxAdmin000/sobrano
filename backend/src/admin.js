@@ -940,6 +940,152 @@ function rebuildCustomers(req, res) {
   sendJson(res, 200, { ok: true, total: n });
 }
 
+// ===== DASHBOARD STATS =====
+// Возвращает агрегаты для G36: КPI, дневная серия выручки/заказов, топы по боксам/цветам/промо.
+// Параметр ?period=7d|30d|90d|all (по умолчанию 30d).
+function getStats(req, res) {
+  if (!requireSession(req, res)) return;
+  const url = new URL(req.url, "http://x");
+  const period = (url.searchParams.get("period") || "30d").toLowerCase();
+  const PAID = store.PAID_STATUSES || ["paid", "doing", "shipped", "done"];
+  const dayMs = 24 * 3600 * 1000;
+  const now = Date.now();
+  let windowMs = null;
+  if (period === "7d") windowMs = 7 * dayMs;
+  else if (period === "30d") windowMs = 30 * dayMs;
+  else if (period === "90d") windowMs = 90 * dayMs;
+  else windowMs = null; // all time
+
+  const allOrders = store.getOrders();
+  const inWin = (o) => {
+    if (!windowMs) return true;
+    return (now - (o.createdAt || 0)) <= windowMs;
+  };
+  const orders = allOrders.filter(inWin);
+  const paid = orders.filter((o) => PAID.indexOf(o.status || "new") >= 0);
+  const cancelled = orders.filter((o) => (o.status || "new") === "cancelled");
+
+  const revenue = paid.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const avgCheck = paid.length ? Math.round(revenue / paid.length) : 0;
+  const conversion = orders.length ? Math.round((paid.length / orders.length) * 100) : 0;
+
+  // Daily series — сколько заказов и выручки в каждый день периода (для графика)
+  const series = buildDailySeries(orders, paid, windowMs, now);
+
+  // Top boxes — по числу заказов с этим боксом
+  const boxesCount = {};
+  for (const o of paid) {
+    if (o.box && o.box.id) boxesCount[o.box.id] = (boxesCount[o.box.id] || 0) + 1;
+  }
+  const topBoxes = Object.entries(boxesCount)
+    .map(([id, count]) => ({ id, size: (id || "").toUpperCase(), count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  // Top flowers — по сумме стеблей внутри boxes
+  const flowersCount = {};
+  for (const o of paid) {
+    const fl = (o.box && o.box.flowers) || {};
+    for (const [fid, qty] of Object.entries(fl)) {
+      flowersCount[fid] = (flowersCount[fid] || 0) + (Number(qty) || 0);
+    }
+  }
+  // Подмешаем имена цветов из каталога
+  const catalogFlowers = store.listSection("flowers");
+  const flowerName = (id) => {
+    const f = catalogFlowers.find((x) => x.id === id);
+    return f ? f.name : id;
+  };
+  const topFlowers = Object.entries(flowersCount)
+    .map(([id, count]) => ({ id, name: flowerName(id), count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  // Top promos — по числу заказов с применённым промо
+  const promosCount = {};
+  const promosDiscount = {};
+  for (const o of paid) {
+    if (o.promo) {
+      promosCount[o.promo] = (promosCount[o.promo] || 0) + 1;
+      promosDiscount[o.promo] = (promosDiscount[o.promo] || 0) + (Number(o.discount) || 0);
+    }
+  }
+  const topPromos = Object.entries(promosCount)
+    .map(([code, count]) => ({ code, count, discount: promosDiscount[code] || 0 }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  // Top payment methods
+  const paymentsCount = {};
+  for (const o of paid) {
+    const p = (o.customer && o.customer.payment) || "—";
+    paymentsCount[p] = (paymentsCount[p] || 0) + 1;
+  }
+  const topPayments = Object.entries(paymentsCount)
+    .map(([id, count]) => ({ id, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Customers stats для периода: новые (firstOrderAt в окне) и активные (хоть один заказ в окне)
+  const allCustomers = store.listCustomers();
+  const newCustomers = windowMs
+    ? allCustomers.filter((c) => (now - (c.firstOrderAt || 0)) <= windowMs && (c.paidCount || 0) > 0).length
+    : allCustomers.filter((c) => (c.paidCount || 0) > 0).length;
+  const returningCount = allCustomers.filter((c) => (c.paidCount || 0) >= 2).length;
+  const returningRate = allCustomers.length ? Math.round((returningCount / allCustomers.length) * 100) : 0;
+
+  sendJson(res, 200, {
+    ok: true,
+    period,
+    kpis: {
+      orders: orders.length,
+      paid: paid.length,
+      cancelled: cancelled.length,
+      revenue,
+      avgCheck,
+      conversion,
+      newCustomers,
+      returningRate,
+    },
+    series,
+    topBoxes,
+    topFlowers,
+    topPromos,
+    topPayments,
+  });
+}
+
+function buildDailySeries(orders, paid, windowMs, now) {
+  const dayMs = 24 * 3600 * 1000;
+  // Сколько дней показывать
+  let days;
+  if (windowMs === null) {
+    // all-time: считаем от самого старого заказа, но не больше 365 дней назад (чтобы не разнести график)
+    const oldest = orders.reduce((min, o) => Math.min(min, o.createdAt || now), now);
+    days = Math.min(365, Math.max(7, Math.ceil((now - oldest) / dayMs) + 1));
+  } else {
+    days = Math.ceil(windowMs / dayMs);
+  }
+  const series = [];
+  // dayStart считаем по локальному времени сервера (UTC на сервере, но клиент покажет ru-RU дату).
+  const todayMid = new Date();
+  todayMid.setHours(0, 0, 0, 0);
+  for (let i = days - 1; i >= 0; i--) {
+    const dayStart = todayMid.getTime() - i * dayMs;
+    const dayEnd = dayStart + dayMs;
+    const inDay = (o) => (o.createdAt || 0) >= dayStart && (o.createdAt || 0) < dayEnd;
+    const dayOrders = orders.filter(inDay);
+    const dayPaid = paid.filter(inDay);
+    series.push({
+      date: new Date(dayStart).toISOString().slice(0, 10),
+      orders: dayOrders.length,
+      paid: dayPaid.length,
+      revenue: dayPaid.reduce((s, o) => s + (Number(o.total) || 0), 0),
+    });
+  }
+  return series;
+}
+
 module.exports = {
   // public
   getSettings,
@@ -989,6 +1135,8 @@ module.exports = {
   getCustomer,
   patchCustomer,
   rebuildCustomers,
+  // dashboard
+  getStats,
   // uploads
   uploadImage,
   listUploads,

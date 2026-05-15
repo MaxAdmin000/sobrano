@@ -145,10 +145,49 @@ input,select,textarea{font:inherit;color:inherit}
 .toggle.off .dot{background:var(--terracotta)}
 
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:18px;transition:border-color .15s, transform .15s}
+.stat.clickable{cursor:pointer}
+.stat.clickable:hover{border-color:var(--ink);transform:translateY(-2px)}
+.stat.clickable.active{border-color:var(--wine);box-shadow:0 0 0 2px rgba(92,31,37,.12)}
 .stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
 .stat .val{font-family:var(--serif);font-size:30px;letter-spacing:-.02em;font-weight:300}
 .stat .val em{color:var(--wine);font-style:italic;font-weight:400}
+
+/* SEGMENT CHIPS (CRM filter) */
+.seg-chips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0}
+.seg-chip{
+  padding:8px 14px;border:1px solid var(--line-strong);border-radius:999px;
+  font-size:13px;color:var(--ink-soft);background:#fff;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;transition:all .15s
+}
+.seg-chip:hover{border-color:var(--ink);color:var(--ink)}
+.seg-chip.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.seg-chip .cnt{
+  font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+  background:var(--ivory-2);color:var(--mute);padding:2px 7px;border-radius:999px;min-width:18px;text-align:center
+}
+.seg-chip.active .cnt{background:rgba(242,236,227,.16);color:var(--ivory)}
+
+/* DASHBOARD */
+.dash-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.dash-kpi .stat .sub{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--mute);margin-top:6px;text-transform:uppercase}
+.dash-tops{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dash-legend{display:flex;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+.dash-legend .leg{display:inline-flex;align-items:center;gap:6px}
+.dash-legend .leg::before{content:"";width:10px;height:10px;border-radius:50%}
+.dash-legend .leg-rev::before{background:var(--wine)}
+.dash-legend .leg-ord::before{background:var(--terracotta)}
+.top-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);align-items:center}
+.top-row:last-child{border-bottom:0}
+.top-row .lbl{font-size:13.5px;color:var(--ink)}
+.top-row .lbl .meta{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--mute);text-transform:uppercase;margin-top:2px}
+.top-row .val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--wine)}
+.top-bar-fill{height:4px;background:var(--ivory-2);border-radius:999px;overflow:hidden;margin-top:6px;grid-column:1 / -1}
+.top-bar-fill .fl{display:block;height:100%;background:linear-gradient(90deg,var(--wine),var(--terracotta));border-radius:999px}
+@media (max-width:780px){
+  .dash-kpi{grid-template-columns:1fr 1fr}
+  .dash-tops{grid-template-columns:1fr}
+}
 
 .detail-modal{
   position:fixed;inset:0;background:rgba(15,11,8,.55);display:none;align-items:flex-start;justify-content:center;
@@ -339,7 +378,8 @@ input,select,textarea{font:inherit;color:inherit}
   </header>
 
   <nav class="tabs">
-    <button class="tab active" data-tab="orders">Заказы</button>
+    <button class="tab active" data-tab="dashboard">Дашборд</button>
+    <button class="tab" data-tab="orders">Заказы</button>
     <button class="tab" data-tab="customers">Клиенты</button>
     <button class="tab" data-tab="catalog">Каталог</button>
     <button class="tab" data-tab="content">Контент</button>
@@ -351,8 +391,64 @@ input,select,textarea{font:inherit;color:inherit}
 
   <main class="main">
 
+    <!-- DASHBOARD -->
+    <section class="tab-panel" id="panel-dashboard">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:18px;flex-wrap:wrap">
+        <div>
+          <h2 style="font-family:var(--serif);font-weight:300;font-size:32px;letter-spacing:-.01em">Дашборд</h2>
+          <p style="color:var(--mute);font-size:13px;margin-top:4px">Обзор операционки за выбранный период.</p>
+        </div>
+        <div class="seg-chips" id="dash-period-chips" role="tablist">
+          <button class="seg-chip" data-period="7d" type="button">7 дней</button>
+          <button class="seg-chip active" data-period="30d" type="button">30 дней</button>
+          <button class="seg-chip" data-period="90d" type="button">90 дней</button>
+          <button class="seg-chip" data-period="all" type="button">Всё время</button>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="dash-kpi">
+        <div class="stat"><div class="lbl">Выручка</div><div class="val" id="kpi-revenue">—</div><div class="sub" id="kpi-revenue-sub">за период</div></div>
+        <div class="stat"><div class="lbl">Заказов оплачено</div><div class="val" id="kpi-paid">—</div><div class="sub" id="kpi-paid-sub">всего · конверсия</div></div>
+        <div class="stat"><div class="lbl">Средний чек</div><div class="val" id="kpi-avg">—</div><div class="sub">по оплаченным</div></div>
+        <div class="stat"><div class="lbl">Новые клиенты</div><div class="val" id="kpi-new"><em>—</em></div><div class="sub" id="kpi-new-sub">возвратность</div></div>
+      </div>
+
+      <!-- Revenue chart -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+          <h3 style="font-family:var(--serif);font-size:18px;font-weight:400">Выручка и заказы по дням</h3>
+          <div class="dash-legend">
+            <span class="leg leg-rev">Выручка ₽</span>
+            <span class="leg leg-ord">Заказы</span>
+          </div>
+        </div>
+        <div id="dash-chart"></div>
+      </div>
+
+      <!-- Tops -->
+      <div class="dash-tops">
+        <div class="card">
+          <h3 style="font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:10px">Топ боксов</h3>
+          <div id="top-boxes"></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:10px">Топ цветов</h3>
+          <div id="top-flowers"></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:10px">Топ промокодов</h3>
+          <div id="top-promos"></div>
+        </div>
+        <div class="card">
+          <h3 style="font-family:var(--serif);font-size:16px;font-weight:400;margin-bottom:10px">Способы оплаты</h3>
+          <div id="top-payments"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ORDERS -->
-    <section class="tab-panel" id="panel-orders">
+    <section class="tab-panel" id="panel-orders" style="display:none">
       <div class="summary-grid">
         <div class="stat"><div class="lbl">Всего заказов</div><div class="val" id="stat-total">—</div></div>
         <div class="stat"><div class="lbl">За 24 часа</div><div class="val" id="stat-day">—</div></div>
@@ -600,10 +696,10 @@ input,select,textarea{font:inherit;color:inherit}
     <!-- CUSTOMERS / CRM -->
     <section class="tab-panel" id="panel-customers" style="display:none">
       <div class="summary-grid">
-        <div class="stat"><div class="lbl">Всего клиентов</div><div class="val" id="cust-stat-total">—</div></div>
-        <div class="stat"><div class="lbl">Новые (1 оплата)</div><div class="val" id="cust-stat-new"><em>—</em></div></div>
-        <div class="stat"><div class="lbl">Постоянные (≥2)</div><div class="val" id="cust-stat-active">—</div></div>
-        <div class="stat"><div class="lbl">Спящие (>30 дней)</div><div class="val" id="cust-stat-dormant">—</div></div>
+        <div class="stat clickable" data-cust-segment=""><div class="lbl">Всего клиентов</div><div class="val" id="cust-stat-total">—</div></div>
+        <div class="stat clickable" data-cust-segment="new"><div class="lbl">Новые (1 оплата)</div><div class="val" id="cust-stat-new"><em>—</em></div></div>
+        <div class="stat clickable" data-cust-segment="active"><div class="lbl">Постоянные (≥2)</div><div class="val" id="cust-stat-active">—</div></div>
+        <div class="stat clickable" data-cust-segment="dormant"><div class="lbl">Спящие (>30 дней)</div><div class="val" id="cust-stat-dormant">—</div></div>
       </div>
 
       <div class="card" style="padding:0;overflow:hidden">
@@ -623,14 +719,14 @@ input,select,textarea{font:inherit;color:inherit}
             <label for="cust-query">Поиск (ФИО, email, телефон, тег)</label>
             <input type="search" id="cust-query" placeholder="напр. Анна, +7999, vip" autocomplete="off">
           </div>
-          <div class="field" style="min-width:200px">
-            <label for="cust-segment">Сегмент</label>
-            <select id="cust-segment">
-              <option value="">— все —</option>
-              <option value="new">Новые (1 оплата)</option>
-              <option value="active">Постоянные (≥2)</option>
-              <option value="dormant">Спящие (>30 дней)</option>
-            </select>
+          <div class="field" style="flex:2;min-width:280px">
+            <label>Сегмент</label>
+            <div class="seg-chips" id="cust-seg-chips" role="tablist">
+              <button class="seg-chip active" data-seg="" type="button">Все</button>
+              <button class="seg-chip" data-seg="new" type="button">Новые <span class="cnt" id="seg-cnt-new">—</span></button>
+              <button class="seg-chip" data-seg="active" type="button">Постоянные <span class="cnt" id="seg-cnt-active">—</span></button>
+              <button class="seg-chip" data-seg="dormant" type="button">Спящие <span class="cnt" id="seg-cnt-dormant">—</span></button>
+            </div>
           </div>
         </div>
 
@@ -906,8 +1002,9 @@ input,select,textarea{font:inherit;color:inherit}
   // Активация по имени + синхронизация с URL hash (например #customers),
   // чтобы при F5 / открытии в новой вкладке / шеринге ссылки оставаться на том же разделе.
   function activateTab(name, opts) {
-    const KNOWN = ["orders","customers","catalog","content","media","settings","contacts","payment"];
-    const tab = KNOWN.indexOf(name) >= 0 ? name : "orders";
+    const KNOWN = ["dashboard","orders","customers","catalog","content","media","settings","contacts","payment"];
+    const tab = KNOWN.indexOf(name) >= 0 ? name : "dashboard";
+    if (tab === "dashboard" && typeof loadStats === "function") loadStats();
     $$(".tab").forEach(x => x.classList.toggle("active", x.dataset.tab === tab));
     $$(".tab-panel").forEach(p => p.style.display = "none");
     const panel = $("#panel-" + tab);
@@ -2967,12 +3064,18 @@ input,select,textarea{font:inherit;color:inherit}
     api("GET", "/api/admin/customers").then(r => {
       const all = r.customers || [];
       const dayMs = 24*3600*1000;
+      const nNew = all.filter(c => (c.paidCount||0) === 1).length;
+      const nActive = all.filter(c => (c.paidCount||0) >= 2).length;
+      const nDormant = all.filter(c => (c.paidCount||0) >= 1 && (Date.now() - (c.lastOrderAt||0)) > 30*dayMs).length;
       $("#cust-stat-total").textContent = all.length;
-      $("#cust-stat-new").innerHTML = "<em>" + all.filter(c => (c.paidCount||0) === 1).length + "</em>";
-      $("#cust-stat-active").textContent = all.filter(c => (c.paidCount||0) >= 2).length;
-      $("#cust-stat-dormant").textContent = all.filter(c =>
-        (c.paidCount||0) >= 1 && (Date.now() - (c.lastOrderAt||0)) > 30*dayMs
-      ).length;
+      $("#cust-stat-new").innerHTML = "<em>" + nNew + "</em>";
+      $("#cust-stat-active").textContent = nActive;
+      $("#cust-stat-dormant").textContent = nDormant;
+      // Счётчики в чипсах
+      const el = (id, n) => { const x = $("#" + id); if (x) x.textContent = n; };
+      el("seg-cnt-new", nNew);
+      el("seg-cnt-active", nActive);
+      el("seg-cnt-dormant", nDormant);
     }).catch(()=>{});
   }
 
@@ -3144,8 +3247,17 @@ input,select,textarea{font:inherit;color:inherit}
   $("#cust-modal").addEventListener("click", e => { if (e.target === $("#cust-modal")) $("#cust-modal").classList.remove("show"); });
 
   // Filters wiring
+  function setCustSegment(seg) {
+    custFilters.segment = seg || "";
+    // Чипсы
+    $$("#cust-seg-chips .seg-chip").forEach(c => c.classList.toggle("active", (c.dataset.seg || "") === custFilters.segment));
+    // Stat-карточки
+    $$('.stat.clickable[data-cust-segment]').forEach(s => s.classList.toggle("active", (s.dataset.custSegment || "") === custFilters.segment));
+    loadCustomers();
+  }
   $("#cust-query").addEventListener("input", () => { custFilters.query = $("#cust-query").value; loadCustomers(); });
-  $("#cust-segment").addEventListener("change", () => { custFilters.segment = $("#cust-segment").value; loadCustomers(); });
+  $$("#cust-seg-chips .seg-chip").forEach(c => c.addEventListener("click", () => setCustSegment(c.dataset.seg || "")));
+  $$('.stat.clickable[data-cust-segment]').forEach(s => s.addEventListener("click", () => setCustSegment(s.dataset.custSegment || "")));
   $("#cust-refresh-btn").addEventListener("click", loadCustomers);
   $("#cust-rebuild-btn").addEventListener("click", async () => {
     if (!confirm("Пересобрать клиентов из заказов? Заметки/теги обнулятся.")) return;
@@ -3154,6 +3266,150 @@ input,select,textarea{font:inherit;color:inherit}
       window.showToast?.("Пересобрано: " + r.total + " клиентов", "success");
       await loadCustomers();
     } catch (err) { alert("Ошибка: " + (err.message||"")); }
+  });
+
+  // ============================================================
+  //                           DASHBOARD
+  // ============================================================
+  let dashPeriod = "30d";
+  let dashCache = null;
+
+  function fmtRu(n) { return Number(n || 0).toLocaleString("ru-RU"); }
+  function fmtMoneyRu(n) { return fmtRu(n) + " ₽"; }
+
+  async function loadStats() {
+    try {
+      const r = await api("GET", "/api/admin/stats?period=" + encodeURIComponent(dashPeriod));
+      dashCache = r;
+      renderDashboard();
+    } catch (err) {
+      if (err.status === 401) { tokenSet(null); showLogin("Сессия истекла"); return; }
+      const wrap = $("#dash-chart");
+      if (wrap) wrap.innerHTML = '<div class="empty"><h3>Ошибка</h3><p>' + escapeHtml(err.message || "") + '</p></div>';
+    }
+  }
+
+  function renderDashboard() {
+    if (!dashCache) return;
+    const k = dashCache.kpis || {};
+    const periodLbl = ({ "7d": "7 дней", "30d": "30 дней", "90d": "90 дней", "all": "всё время" })[dashCache.period] || "период";
+    $("#kpi-revenue").textContent = fmtMoneyRu(k.revenue);
+    $("#kpi-revenue-sub").textContent = "за " + periodLbl;
+    $("#kpi-paid").textContent = fmtRu(k.paid);
+    $("#kpi-paid-sub").textContent = "из " + fmtRu(k.orders) + " · конверсия " + (k.conversion || 0) + "%";
+    $("#kpi-avg").textContent = fmtMoneyRu(k.avgCheck);
+    $("#kpi-new").innerHTML = "<em>" + fmtRu(k.newCustomers) + "</em>";
+    $("#kpi-new-sub").textContent = "возвратность " + (k.returningRate || 0) + "%";
+
+    renderDashChart(dashCache.series || []);
+    renderTopList("#top-boxes", (dashCache.topBoxes || []).map(b => ({
+      lbl: "Бокс " + (b.size || b.id),
+      meta: "",
+      val: fmtRu(b.count) + " шт",
+      n: b.count,
+    })));
+    renderTopList("#top-flowers", (dashCache.topFlowers || []).map(f => ({
+      lbl: f.name || f.id,
+      meta: f.id,
+      val: fmtRu(f.count) + " стеблей",
+      n: f.count,
+    })));
+    renderTopList("#top-promos", (dashCache.topPromos || []).map(p => ({
+      lbl: p.code,
+      meta: "− " + fmtMoneyRu(p.discount) + " скидок всего",
+      val: fmtRu(p.count) + " прим.",
+      n: p.count,
+    })));
+    const PAY_LBL = { "robokassa-card": "Карта (Robokassa)", "robokassa-sbp": "СБП", "cash": "Наличные", "card": "Карта" };
+    renderTopList("#top-payments", (dashCache.topPayments || []).map(p => ({
+      lbl: PAY_LBL[p.id] || p.id || "—",
+      meta: "",
+      val: fmtRu(p.count) + " зак.",
+      n: p.count,
+    })));
+  }
+
+  function renderTopList(sel, rows) {
+    const el = $(sel);
+    if (!el) return;
+    if (!rows.length) {
+      el.innerHTML = '<div style="color:var(--mute);font-style:italic;font-family:var(--serif);padding:8px 0">пусто за период</div>';
+      return;
+    }
+    const max = Math.max.apply(null, rows.map(r => r.n || 0)) || 1;
+    el.innerHTML = rows.map(r => {
+      const pct = Math.max(2, Math.round((r.n || 0) / max * 100));
+      return '<div class="top-row">'
+        + '<div class="lbl">' + escapeHtml(r.lbl) + (r.meta ? '<span class="meta">' + escapeHtml(r.meta) + '</span>' : '') + '</div>'
+        + '<div class="val">' + escapeHtml(r.val) + '</div>'
+        + '<div class="top-bar-fill"><span class="fl" style="width:' + pct + '%"></span></div>'
+      + '</div>';
+    }).join('');
+  }
+
+  // Простой inline-SVG: бары выручки (за день) + точки на оси заказов (вторая ось справа).
+  function renderDashChart(series) {
+    const wrap = $("#dash-chart");
+    if (!wrap) return;
+    if (!series.length) { wrap.innerHTML = '<div class="empty"><h3>Нет данных за период</h3></div>'; return; }
+    const W = 880, H = 220, pl = 50, pr = 40, pt = 16, pb = 36;
+    const cw = W - pl - pr, ch = H - pt - pb;
+    const maxRev = Math.max(1, ...series.map(s => s.revenue || 0));
+    const maxOrd = Math.max(1, ...series.map(s => s.orders || 0));
+    const barW = Math.max(2, Math.floor(cw / series.length) - 2);
+
+    let bars = "";
+    let dots = "";
+    let xLabels = "";
+    series.forEach((s, i) => {
+      const x = pl + Math.round(i * (cw / series.length));
+      const cx = x + barW / 2;
+      // Бар выручки
+      const bh = Math.round((s.revenue || 0) / maxRev * ch);
+      const by = pt + ch - bh;
+      bars += '<rect x="' + x + '" y="' + by + '" width="' + barW + '" height="' + bh + '" rx="2" fill="url(#g-rev)"></rect>';
+      // Точка заказов (по второй шкале)
+      if (s.orders > 0) {
+        const oy = pt + ch - Math.round((s.orders / maxOrd) * ch);
+        dots += '<circle cx="' + cx + '" cy="' + oy + '" r="3" fill="var(--terracotta)" stroke="#fff" stroke-width="1.5"></circle>';
+      }
+      // Лейблы по X — каждый N-й чтобы не мельчили
+      const step = Math.max(1, Math.floor(series.length / 7));
+      if (i % step === 0 || i === series.length - 1) {
+        const d = new Date(s.date);
+        const label = d.getDate() + "." + String(d.getMonth() + 1).padStart(2, "0");
+        xLabels += '<text x="' + cx + '" y="' + (H - pb + 18) + '" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--mute)">' + label + '</text>';
+      }
+    });
+
+    // Y-метки слева — выручка (4 деления)
+    let yLabels = "";
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round((maxRev / 4) * i);
+      const y = pt + ch - Math.round((v / maxRev) * ch);
+      yLabels += '<line x1="' + pl + '" y1="' + y + '" x2="' + (W - pr) + '" y2="' + y + '" stroke="rgba(26,20,16,.06)"/>';
+      yLabels += '<text x="' + (pl - 8) + '" y="' + (y + 3) + '" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--mute)">' + (v >= 1000 ? Math.round(v / 1000) + "к" : v) + '</text>';
+    }
+    // Y-метки справа — заказы
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round((maxOrd / 4) * i);
+      const y = pt + ch - Math.round((v / maxOrd) * ch);
+      yLabels += '<text x="' + (W - pr + 8) + '" y="' + (y + 3) + '" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--terracotta)">' + v + '</text>';
+    }
+
+    wrap.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="240" xmlns="http://www.w3.org/2000/svg">'
+      + '<defs><linearGradient id="g-rev" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--wine)" stop-opacity="0.95"/><stop offset="100%" stop-color="var(--wine)" stop-opacity="0.55"/></linearGradient></defs>'
+      + yLabels + bars + dots + xLabels
+      + '</svg>';
+  }
+
+  // Wire period chips
+  document.addEventListener("click", (e) => {
+    const c = e.target.closest && e.target.closest("#dash-period-chips .seg-chip");
+    if (!c) return;
+    dashPeriod = c.dataset.period || "30d";
+    $$("#dash-period-chips .seg-chip").forEach(x => x.classList.toggle("active", x === c));
+    loadStats();
   });
 
   // ----- BOOT -----
@@ -3167,7 +3423,7 @@ input,select,textarea{font:inherit;color:inherit}
       await Promise.all([
         loadOrders(), loadSettings(), loadRobokassa(), loadCatalog(), loadMedia(),
         loadContent(), loadLegal(), loadNotifications(),
-        loadCustomers(),
+        loadCustomers(), loadStats(),
       ]);
       renderContentEditor();
       // Восстанавливаем выбранный таб из URL hash (например, #customers).
