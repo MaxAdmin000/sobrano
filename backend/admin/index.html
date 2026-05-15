@@ -304,7 +304,7 @@ input,select,textarea{font:inherit;color:inherit}
 .refund-block.processed{background:rgba(140,154,123,.08);border-color:rgba(140,154,123,.3)}
 
 /* CONTENT EDITOR */
-.cms-section{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:20px;margin-bottom:14px;scroll-margin-top:14px}
+.cms-section{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:20px;margin-bottom:14px;scroll-margin-top:90px}
 .cms-section h3{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.005em;margin-bottom:10px;color:var(--ink)}
 .cms-section h3.cms-collapsible{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;margin:-4px -4px 6px;padding:4px 4px 8px;border-bottom:1px solid var(--line);transition:color .15s}
 .cms-section h3.cms-collapsible:hover{color:var(--wine)}
@@ -325,7 +325,8 @@ input,select,textarea{font:inherit;color:inherit}
 
 /* CONTENT EDITOR · layout с sidebar */
 .cms-layout{display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start}
-.cms-sidebar{position:sticky;top:14px;background:var(--ivory);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;max-height:calc(100vh - 40px);overflow-y:auto}
+/* top равен высоте sticky-header .top (≈60px) + небольшой gap, чтобы сайдбар прилипал прямо под навигацию, а не за неё. */
+.cms-sidebar{position:sticky;top:80px;background:var(--ivory);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;max-height:calc(100vh - 100px);overflow-y:auto}
 .cms-side-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:2px 8px 8px}
 .cms-side-list{display:flex;flex-direction:column;gap:1px}
 .cms-side-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;color:var(--ink);text-decoration:none;font-size:13px;border-radius:var(--r-sm);cursor:pointer;border:none;background:transparent;text-align:left;font-family:inherit;width:100%;transition:background .15s,color .15s}
@@ -792,7 +793,9 @@ input,select,textarea{font:inherit;color:inherit}
 
     <!-- CONTENT -->
     <section class="tab-panel" id="panel-content" style="display:none">
-      <div class="card" style="padding:0;overflow:hidden">
+      <!-- overflow:visible нужен, чтобы position:sticky на .cms-sidebar мог работать
+           (иначе card обрезает sticky-контекст и сайдбар скроллится вместе с формой). -->
+      <div class="card" style="padding:0;overflow:visible">
         <div style="padding:18px 22px;border-bottom:1px solid var(--line)">
           <h2 style="font-size:20px">Контент сайта</h2>
           <p class="sub" style="margin:0">Тексты, заголовки, FAQ, юридические документы и реквизиты. Изменения применяются на сайте мгновенно (через <code style="font-family:var(--mono);font-size:12px">/api/content</code>).</p>
