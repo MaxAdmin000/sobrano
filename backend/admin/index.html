@@ -903,12 +903,28 @@ input,select,textarea{font:inherit;color:inherit}
   });
 
   // ----- TABS -----
-  $$(".tab").forEach(t => t.addEventListener("click", () => {
-    $$(".tab").forEach(x => x.classList.remove("active"));
-    t.classList.add("active");
+  // Активация по имени + синхронизация с URL hash (например #customers),
+  // чтобы при F5 / открытии в новой вкладке / шеринге ссылки оставаться на том же разделе.
+  function activateTab(name, opts) {
+    const KNOWN = ["orders","customers","catalog","content","media","settings","contacts","payment"];
+    const tab = KNOWN.indexOf(name) >= 0 ? name : "orders";
+    $$(".tab").forEach(x => x.classList.toggle("active", x.dataset.tab === tab));
     $$(".tab-panel").forEach(p => p.style.display = "none");
-    $("#panel-" + t.dataset.tab).style.display = "";
-  }));
+    const panel = $("#panel-" + tab);
+    if (panel) panel.style.display = "";
+    if (!opts || opts.writeHash !== false) {
+      const hash = "#" + tab;
+      if (location.hash !== hash) {
+        try { history.replaceState(null, "", hash); } catch (e) { location.hash = hash; }
+      }
+    }
+  }
+  $$(".tab").forEach(t => t.addEventListener("click", () => activateTab(t.dataset.tab)));
+  // Back/Forward между табами и ручная правка хеша
+  window.addEventListener("hashchange", () => {
+    const name = (location.hash || "").replace(/^#/, "");
+    activateTab(name, { writeHash: false });
+  });
 
   // ----- ORDERS -----
   let ordersCache = [];
@@ -3154,6 +3170,10 @@ input,select,textarea{font:inherit;color:inherit}
         loadCustomers(),
       ]);
       renderContentEditor();
+      // Восстанавливаем выбранный таб из URL hash (например, #customers).
+      // Без хеша остаёмся на "Заказы" по умолчанию.
+      const fromHash = (location.hash || "").replace(/^#/, "");
+      if (fromHash) activateTab(fromHash, { writeHash: false });
     } catch (err) {
       tokenSet(null);
       showLogin();
