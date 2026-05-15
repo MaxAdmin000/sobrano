@@ -304,8 +304,13 @@ input,select,textarea{font:inherit;color:inherit}
 .refund-block.processed{background:rgba(140,154,123,.08);border-color:rgba(140,154,123,.3)}
 
 /* CONTENT EDITOR */
-.cms-section{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:20px;margin-bottom:14px}
+.cms-section{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:20px;margin-bottom:14px;scroll-margin-top:14px}
 .cms-section h3{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-.005em;margin-bottom:10px;color:var(--ink)}
+.cms-section h3.cms-collapsible{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;margin:-4px -4px 6px;padding:4px 4px 8px;border-bottom:1px solid var(--line);transition:color .15s}
+.cms-section h3.cms-collapsible:hover{color:var(--wine)}
+.cms-section h3 .cms-toggle{font-size:11px;color:var(--mute);transition:transform .2s;display:inline-block;width:12px;text-align:center}
+.cms-section.cms-collapsed h3 .cms-toggle{transform:rotate(-90deg)}
+.cms-section.cms-collapsed > .cms-fields{display:none}
 .cms-section .help{font-size:12px;color:var(--mute);margin-bottom:14px}
 .cms-fields{display:flex;flex-direction:column;gap:12px}
 .cms-fields .row{margin-bottom:0}
@@ -316,7 +321,25 @@ input,select,textarea{font:inherit;color:inherit}
 .cms-array-item .item-head .del:hover{background:rgba(92,31,37,.1)}
 .cms-array-add{background:transparent;color:var(--wine);font-size:12px;padding:8px 12px;border:1px dashed var(--line-strong);border-radius:var(--r-sm);width:100%;margin-top:4px}
 .cms-array-add:hover{background:var(--ivory-2);border-color:var(--ink);color:var(--ink)}
-.cms-save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:14px 0;display:flex;gap:10px;align-items:center;margin-top:14px}
+.cms-save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:14px 0;display:flex;gap:10px;align-items:center;margin-top:14px;z-index:5}
+
+/* CONTENT EDITOR · layout с sidebar */
+.cms-layout{display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start}
+.cms-sidebar{position:sticky;top:14px;background:var(--ivory);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;max-height:calc(100vh - 40px);overflow-y:auto}
+.cms-side-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:2px 8px 8px}
+.cms-side-list{display:flex;flex-direction:column;gap:1px}
+.cms-side-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;color:var(--ink);text-decoration:none;font-size:13px;border-radius:var(--r-sm);cursor:pointer;border:none;background:transparent;text-align:left;font-family:inherit;width:100%;transition:background .15s,color .15s}
+.cms-side-link:hover{background:rgba(92,31,37,.06)}
+.cms-side-link.active{background:var(--ink);color:var(--ivory)}
+.cms-side-link.active .cms-side-count{color:rgba(242,236,227,.6)}
+.cms-side-count{font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:.05em}
+.cms-side-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.cms-side-actions button{flex:1;background:transparent;color:var(--mute);font-size:10px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px;border:1px solid var(--line);border-radius:var(--r-sm);cursor:pointer;transition:background .15s,color .15s}
+.cms-side-actions button:hover{background:#fff;color:var(--ink)}
+@media (max-width:900px){
+  .cms-layout{grid-template-columns:1fr}
+  .cms-sidebar{position:static;max-height:none}
+}
 
 /* LEGAL EDITOR */
 .legal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:18px}
@@ -2438,18 +2461,82 @@ input,select,textarea{font:inherit;color:inherit}
       return;
     }
     wrap.innerHTML = '';
+
+    // Двух-колоночный layout: sidebar (sticky навигация по top-level подсекциям) + основная форма.
+    const layout = document.createElement('div');
+    layout.className = 'cms-layout';
+
+    const sidebar = document.createElement('aside');
+    sidebar.className = 'cms-sidebar';
+
+    const main = document.createElement('div');
+    main.className = 'cms-main';
+
     const form = document.createElement('div');
     form.id = "cms-form";
     form.appendChild(renderJsonGroup(data, [activeCmsTab], cmsLabel(activeCmsTab)));
-    wrap.appendChild(form);
+    main.appendChild(form);
 
-    // Save bar
+    // Save bar — внутри main, чтобы sticky-bottom не перекрывал sidebar
     const bar = document.createElement('div');
     bar.className = "cms-save-bar";
     bar.innerHTML = '<button class="btn" id="cms-save-btn" type="button">Сохранить</button>' +
       '<button class="btn btn-ghost" id="cms-reset-btn" type="button">Перечитать с сервера</button>' +
       '<span style="font-size:12px;color:var(--mute);margin-left:8px">Изменения мгновенно появятся на сайте.</span>';
-    wrap.appendChild(bar);
+    main.appendChild(bar);
+
+    // Собираем top-level подсекции (только прямые потомки .cms-fields корневой секции).
+    // У каждой такой секции выставлен dataset.section в renderJsonGroup/renderJsonField.
+    const rootSection = form.firstElementChild; // div.cms-section (root)
+    const rootFields = rootSection ? rootSection.querySelector(':scope > .cms-fields') : null;
+    const topSections = rootFields
+      ? Array.from(rootFields.querySelectorAll(':scope > .cms-section[data-section]'))
+      : [];
+
+    if (topSections.length > 0) {
+      const sideTitle = document.createElement('div');
+      sideTitle.className = 'cms-side-title';
+      sideTitle.textContent = 'Разделы';
+      sidebar.appendChild(sideTitle);
+
+      const list = document.createElement('div');
+      list.className = 'cms-side-list';
+      topSections.forEach((sect, i) => {
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'cms-side-link' + (i === 0 ? ' active' : '');
+        link.dataset.target = sect.id;
+        const arrayList = sect.querySelector(':scope > .cms-array-list');
+        const countSpan = arrayList
+          ? '<span class="cms-side-count">' + arrayList.children.length + '</span>'
+          : '';
+        link.innerHTML = '<span>' + escapeHtml(cmsLabel(sect.dataset.section)) + '</span>' + countSpan;
+        link.addEventListener('click', () => {
+          sect.classList.remove('cms-collapsed');
+          sect.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        list.appendChild(link);
+      });
+      sidebar.appendChild(list);
+
+      const actions = document.createElement('div');
+      actions.className = 'cms-side-actions';
+      const collapseBtn = document.createElement('button');
+      collapseBtn.type = 'button';
+      collapseBtn.textContent = 'Свернуть всё';
+      let allCollapsed = false;
+      collapseBtn.addEventListener('click', () => {
+        allCollapsed = !allCollapsed;
+        topSections.forEach(s => s.classList.toggle('cms-collapsed', allCollapsed));
+        collapseBtn.textContent = allCollapsed ? 'Развернуть всё' : 'Свернуть всё';
+      });
+      actions.appendChild(collapseBtn);
+      sidebar.appendChild(actions);
+
+      layout.appendChild(sidebar);
+    }
+    layout.appendChild(main);
+    wrap.appendChild(layout);
 
     $("#cms-save-btn").addEventListener("click", saveCurrentContent);
     $("#cms-reset-btn").addEventListener("click", async () => {
@@ -2457,6 +2544,24 @@ input,select,textarea{font:inherit;color:inherit}
       await loadContent();
       renderContentEditor();
     });
+
+    // Подсветка активной ссылки sidebar по позиции в viewport.
+    if (topSections.length > 0 && 'IntersectionObserver' in window) {
+      const links = sidebar.querySelectorAll('.cms-side-link');
+      const visible = new Set();
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        });
+        // Активной считаем первую видимую секцию сверху вниз
+        const firstVisible = topSections.find(s => visible.has(s.id));
+        if (firstVisible) {
+          links.forEach(l => l.classList.toggle('active', l.dataset.target === firstVisible.id));
+        }
+      }, { rootMargin: '-15% 0px -55% 0px' });
+      topSections.forEach(s => observer.observe(s));
+    }
   }
 
   function fieldId(pathArr) { return "cms_" + pathArr.join("_").replace(/[^a-zA-Z0-9_]/g, "_"); }
@@ -2465,9 +2570,23 @@ input,select,textarea{font:inherit;color:inherit}
     const wrap = document.createElement("div");
     wrap.className = "cms-section";
 
+    // Top-level подсекция внутри активного таба → ставим id для anchor
+    // и помечаем h3 как collapsible (чтобы можно было схлопывать секцию для уменьшения шума).
+    const isTopSection = pathArr.length === 2;
+    if (isTopSection) {
+      wrap.id = "cms-sect-" + pathArr.join("-");
+      wrap.dataset.section = pathArr[1];
+    }
+
     if (label) {
       const h = document.createElement("h3");
-      h.textContent = label;
+      if (isTopSection) {
+        h.className = "cms-collapsible";
+        h.innerHTML = '<span class="cms-toggle">▾</span><span>' + escapeHtml(label) + '</span>';
+        h.addEventListener("click", () => wrap.classList.toggle("cms-collapsed"));
+      } else {
+        h.textContent = label;
+      }
       wrap.appendChild(h);
     }
 
@@ -2521,8 +2640,20 @@ input,select,textarea{font:inherit;color:inherit}
     if (Array.isArray(v)) {
       wrap.className = "cms-section";
       wrap.style.background = "var(--ivory)";
+      // Top-level массив активного таба → anchor + collapse, как и для object-секций.
+      const isTopSection = pathArr.length === 2;
+      if (isTopSection) {
+        wrap.id = "cms-sect-" + pathArr.join("-");
+        wrap.dataset.section = pathArr[1];
+      }
       const h = document.createElement("h3");
-      h.textContent = cmsLabel(key);
+      if (isTopSection) {
+        h.className = "cms-collapsible";
+        h.innerHTML = '<span class="cms-toggle">▾</span><span>' + escapeHtml(cmsLabel(key)) + '</span> <span style="font-family:var(--mono);font-size:11px;color:var(--mute);font-weight:400">· ' + v.length + '</span>';
+        h.addEventListener("click", () => wrap.classList.toggle("cms-collapsed"));
+      } else {
+        h.textContent = cmsLabel(key);
+      }
       wrap.appendChild(h);
       const list = document.createElement("div");
       list.dataset.array = pathArr.join(".");
