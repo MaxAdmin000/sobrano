@@ -469,11 +469,6 @@ const server = http.createServer(async (req, res) => {
     return wrapCors(req, res, () => adminApi.saveLegal(req, res, legalMatch[1]));
   }
 
-  // ---- Admin: referral ----
-  if (req.method === "POST" && pathname === "/api/admin/referral/generate-promo") {
-    return wrapCors(req, res, () => adminApi.generateReferralPromo(req, res));
-  }
-
   // ---- Admin: notifications ----
   if (req.method === "POST" && pathname === "/api/admin/notifications/test") {
     return wrapCors(req, res, () => adminApi.notificationsTest(req, res));

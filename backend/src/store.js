@@ -64,14 +64,11 @@ const DEFAULT = () => ({
   },
   // Каталог: при первом запуске — из seed-catalog.js. Дальше правится только из админки.
   catalog: JSON.parse(JSON.stringify(seedCatalog)),
-  // Контент сайта (тексты страниц, FAQ, реф-программа, юр.доки)
+  // Контент сайта (тексты страниц, FAQ, юр.доки)
   content: JSON.parse(JSON.stringify(seedContent)),
   orders: [],
   // CRM: клиенты автогенерируются из заказов на ходу.
   customers: [],
-  // Журнал начислений реф-бонусов: куда и от какого заказа пришла копейка.
-  // [{ id, ownerCustomerId, fromOrderId, amount, status: pending|credited|spent, at }]
-  bonuses: [],
   // События для воронки (G37): [{ event, sid, at }], где event = view-box|view-cart|view-checkout|view-thanks
   // Уникальные сессии считаются по `sid` (короткий клиентский cookie/localStorage id).
   // Лог обрезается до 50k последних записей.
@@ -102,7 +99,6 @@ function load() {
         content: deepMerge(def.content, parsed.content || {}),
         orders: Array.isArray(parsed.orders) ? parsed.orders : [],
         customers: Array.isArray(parsed.customers) ? parsed.customers : [],
-        bonuses: Array.isArray(parsed.bonuses) ? parsed.bonuses : [],
         events: Array.isArray(parsed.events) ? parsed.events : [],
       };
       ["boxes", "flowers", "picks", "addons", "promos", "payments"].forEach((k) => {
@@ -245,13 +241,6 @@ function updateOrder(id, patch) {
       bumpPromoUsage(next.promo);
       next.promoUsageDecremented = false;
     }
-
-    // Реф-бонусы: переводим pending → credited когда заказ-источник стал оплаченным,
-    // и обнуляем (void) если заказ-источник отменили.
-    const becamePaid = PAID_STATUSES.indexOf(patch.status) >= 0 && PAID_STATUSES.indexOf(prev.status || "new") < 0;
-    const becameCancelled = patch.status === "cancelled" && prev.status !== "cancelled";
-    if (becamePaid) creditPendingBonusesForOrder(next.id);
-    if (becameCancelled) voidBonusesForOrder(next.id);
   }
 
   s.orders[idx] = next;
@@ -341,11 +330,6 @@ function upsertCustomerFromOrder(order) {
       cancelledCount: 0,
       totalSpent: 0,
       avgCheck: 0,
-      wallet: 0,            // доступный реф-бонус для следующего заказа
-      bonusPending: 0,      // ожидает зачисления (заказ ещё не paid)
-      bonusEarned: 0,       // всего заработано бонусов за всё время
-      bonusSpent: 0,        // всего потрачено
-      referralPromo: null,  // персональный реф-код (создаётся при первой оплате)
       notes: "",
       tags: [],
       createdAt: Date.now(),
@@ -420,78 +404,6 @@ function patchCustomer(id, patch) {
   save();
   return c;
 }
-
-// ---------- BONUSES (для реф-программы) ----------
-
-function addBonus({ ownerCustomerId, fromOrderId, amount, status }) {
-  const s = load();
-  const b = {
-    id: crypto.randomBytes(4).toString("hex"),
-    ownerCustomerId,
-    fromOrderId,
-    amount: Number(amount) || 0,
-    status: status || "pending",
-    at: Date.now(),
-  };
-  s.bonuses.push(b);
-  const cust = s.customers.find((c) => c.id === ownerCustomerId);
-  if (cust) {
-    if (b.status === "pending") cust.bonusPending = (cust.bonusPending || 0) + b.amount;
-    else if (b.status === "credited") {
-      cust.wallet = (cust.wallet || 0) + b.amount;
-      cust.bonusEarned = (cust.bonusEarned || 0) + b.amount;
-    }
-  }
-  save();
-  return b;
-}
-
-// Перевести pending → credited (вызывается когда заказ-источник стал оплачен).
-function creditPendingBonusesForOrder(fromOrderId) {
-  const s = load();
-  let credited = 0;
-  for (const b of s.bonuses) {
-    if (b.fromOrderId === fromOrderId && b.status === "pending") {
-      b.status = "credited";
-      b.at = Date.now();
-      const cust = s.customers.find((c) => c.id === b.ownerCustomerId);
-      if (cust) {
-        cust.bonusPending = Math.max(0, (cust.bonusPending || 0) - b.amount);
-        cust.wallet = (cust.wallet || 0) + b.amount;
-        cust.bonusEarned = (cust.bonusEarned || 0) + b.amount;
-      }
-      credited++;
-    }
-  }
-  if (credited) save();
-  return credited;
-}
-
-// Если заказ-источник отменён — pending бонусы по нему стираются, credited переводим в "voided".
-function voidBonusesForOrder(fromOrderId) {
-  const s = load();
-  let voided = 0;
-  for (const b of s.bonuses) {
-    if (b.fromOrderId === fromOrderId && (b.status === "pending" || b.status === "credited")) {
-      const cust = s.customers.find((c) => c.id === b.ownerCustomerId);
-      if (cust) {
-        if (b.status === "pending") {
-          cust.bonusPending = Math.max(0, (cust.bonusPending || 0) - b.amount);
-        } else if (b.status === "credited") {
-          cust.wallet = Math.max(0, (cust.wallet || 0) - b.amount);
-          cust.bonusEarned = Math.max(0, (cust.bonusEarned || 0) - b.amount);
-        }
-      }
-      b.status = "voided";
-      b.at = Date.now();
-      voided++;
-    }
-  }
-  if (voided) save();
-  return voided;
-}
-
-function listBonuses() { return load().bonuses.slice(); }
 
 // ---------- EVENTS (G37 — воронка) ----------
 // Принимает событие от фронта. Хранит { event, sid, at }. Без PII.
@@ -821,11 +733,6 @@ module.exports = {
   upsertCustomerFromOrder,
   patchCustomer,
   rebuildCustomersFromOrders,
-  // bonuses
-  addBonus,
-  listBonuses,
-  creditPendingBonusesForOrder,
-  voidBonusesForOrder,
   // events / funnel
   trackEvent,
   getEvents,

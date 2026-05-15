@@ -423,23 +423,21 @@
     catch (e) { return []; }
   }
 
-  // ---------- URL PROMO/REF ----------
-  // Когда юзер заходит по ссылке вида https://sobrano.store/?ref=REF-ANNA-XXXX или ?promo=BLOOM10,
+  // ---------- URL PROMO ----------
+  // Когда юзер заходит по ссылке вида https://sobrano.store/?promo=BLOOM10 —
   // сохраняем код в localStorage и применяем как только каталог загрузится.
-  // Так реф-ссылки и шеры реально работают, а не висят красивым URL без эффекта.
   const PENDING_PROMO_KEY = "sobrano_pending_promo_v1";
 
   function captureUrlPromoRef() {
     try {
       const params = new URLSearchParams(location.search);
-      const raw = params.get("ref") || params.get("promo");
+      const raw = params.get("promo");
       if (!raw) return;
       const code = String(raw).trim().toUpperCase();
       if (!code) return;
       localStorage.setItem(PENDING_PROMO_KEY, code);
-      // Чистим URL чтобы не таскать ?ref= при дальнейших навигациях и шерах
+      // Чистим URL чтобы не таскать ?promo= при дальнейших навигациях и шерах
       const url = new URL(location.href);
-      url.searchParams.delete("ref");
       url.searchParams.delete("promo");
       const cleaned = url.pathname + (url.search || "") + url.hash;
       try { history.replaceState(null, "", cleaned); } catch (e) {}

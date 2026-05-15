@@ -37,8 +37,8 @@ html{scroll-behavior:smooth;scroll-padding-top:96px}
 .brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em}
 .brand-mark{width:30px;height:30px;border-radius:50%;background:var(--wine);position:relative;display:inline-block;flex:none}
 .brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--terracotta),var(--wine) 70%)}
-.nav-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
-.nav-links a{font-size:13px;color:var(--ink-soft);white-space:nowrap}
+.nav-links{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.nav-links a{font-size:14px;color:var(--ink-soft);white-space:nowrap}
 .nav-links a:hover{color:var(--wine)}
 .btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;transition:all .2s}
 .btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
@@ -134,14 +134,11 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
   <div class="container nav-inner">
     <a href="index.html" class="brand"><span class="brand-mark"></span> Собрано</a>
     <nav class="nav-links">
-      <a href="index.html#concept">Концепция</a>
-      <a href="index.html#boxes">Боксы</a>
       <a href="flowers.html">Цветы</a>
       <a href="picks.html">Подборки</a>
       <a href="about.html">О бренде</a>
       <a href="delivery.html">Доставка</a>
       <a href="returns.html">Возврат</a>
-      <a href="referral.html">Реф</a>
       <a href="documents.html">Документы</a>
       <a href="contacts.html">Контакты</a>
     </nav>
@@ -350,8 +347,7 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
         <a href="contacts.html">Контакты</a>
         <a href="delivery.html">Доставка и оплата</a>
         <a href="returns.html">Возврат и гарантия</a>
-        <a href="referral.html">Расскажи друзьям</a>
-      </div>
+              </div>
       <div class="footer-col">
         <h6>Документы</h6>
         <a href="documents.html">Все документы</a>
@@ -397,6 +393,8 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
 <script src="assets/content.js" defer></script>
 <script src="assets/catalog.js"></script>
 <script src="assets/cart.js"></script>
+<script src="assets/floating-cart.js" defer></script>
+<script src="assets/consult-button.js" defer></script>
 <script src="assets/popups.js" defer></script>
 </body>
 </html>

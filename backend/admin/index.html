@@ -807,7 +807,6 @@ input,select,textarea{font:inherit;color:inherit}
             <button class="subtab" data-cms="delivery">Доставка</button>
             <button class="subtab" data-cms="returns">Возврат</button>
             <button class="subtab" data-cms="contacts">Контакты</button>
-            <button class="subtab" data-cms="referral">Реф-программа</button>
             <button class="subtab" data-cms="faq">FAQ</button>
             <button class="subtab" data-cms="legal">Юр. документы</button>
             <button class="subtab" data-cms="requisites">Реквизиты</button>
@@ -838,7 +837,6 @@ input,select,textarea{font:inherit;color:inherit}
             <span style="font-size:12px;color:var(--mute)" id="cat-hint">Кликните по строке, чтобы редактировать.</span>
             <div style="display:flex;gap:8px">
               <button class="btn btn-ghost" id="cat-refresh-btn" type="button">Обновить</button>
-              <button class="btn btn-ghost" id="ref-gen-btn" type="button" style="display:none">＋ Реф-промокод</button>
               <button class="btn" id="cat-add-btn" type="button">＋ Добавить</button>
             </div>
           </div>
@@ -1634,7 +1632,6 @@ input,select,textarea{font:inherit;color:inherit}
     $$("[data-cat]").forEach(x => x.classList.remove("active"));
     t.classList.add("active");
     catActive = t.dataset.cat;
-    $("#ref-gen-btn").style.display = catActive === "promos" ? "" : "none";
     updateCatHint();
     renderCatalogTable();
   }));
@@ -1701,18 +1698,6 @@ input,select,textarea{font:inherit;color:inherit}
 
   $("#cat-refresh-btn").addEventListener("click", loadCatalog);
   $("#cat-add-btn").addEventListener("click", () => openCatModal(null));
-
-  $("#ref-gen-btn").addEventListener("click", async () => {
-    const name = prompt("ФИО клиента (на ком будет привязан реф-промокод):");
-    if (!name) return;
-    const email = prompt("Email клиента (опционально):", "") || "";
-    const phone = prompt("Телефон клиента (опционально):", "") || "";
-    try {
-      const r = await api("POST", "/api/admin/referral/generate-promo", { name, email, phone });
-      await loadCatalog();
-      alert("Создан промокод: " + r.promo.code + "\nДля " + name + " · скидка " + r.promo.discountPct + "% · бонус приглашающему " + (r.promo.bonusForOwner || 0) + " ₽");
-    } catch (err) { alert("Ошибка: " + (err.message || "")); }
-  });
 
   function renderCatalogTable(){
     const wrap = $("#catalog-table-wrap");
@@ -2352,12 +2337,6 @@ input,select,textarea{font:inherit;color:inherit}
     feats: "Характеристики",
     list: "Список",
     rows: "Строки",
-    template: "Шаблон сообщения",
-    mechanics: "Параметры начисления",
-    friendDiscountPct: "Скидка для друга, %",
-    ownerBonusAmount: "Бонус приглашающему, ₽",
-    minOrderForBonus: "Мин. сумма для начисления, ₽",
-    promoPrefix: "Префикс реф-промокода",
     compareThem: "Они (классические магазины)",
     compareUs: "Мы (СОБРАНО)",
     own: "Свой курьер",
@@ -2374,7 +2353,6 @@ input,select,textarea{font:inherit;color:inherit}
     delivery: "Доставка",
     returns: "Возврат",
     contacts: "Контакты",
-    referral: "Реф-программа",
     peak: "Пиковый слот",
     t: "Время / интервал",
     lbl: "Подпись слота",
@@ -2881,7 +2859,7 @@ input,select,textarea{font:inherit;color:inherit}
   function renderFaqEditor(wrap) {
     const faq = (contentCache.faq || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
     let html = '<div class="cms-section"><h3>FAQ — частые вопросы</h3>' +
-      '<p class="help">Один список на весь сайт. Каждый вопрос можно показать на нескольких страницах: главная, доставка, возврат, реф-программа.</p>' +
+      '<p class="help">Один список на весь сайт. Каждый вопрос можно показать на нескольких страницах: главная, доставка, возврат.</p>' +
       '<div style="margin-bottom:12px"><button class="btn" id="faq-add-btn" type="button">＋ Добавить вопрос</button></div>';
     if (!faq.length) {
       html += '<div class="empty"><h3>Пока пусто</h3><p>Добавьте первый вопрос.</p></div>';
@@ -2908,8 +2886,8 @@ input,select,textarea{font:inherit;color:inherit}
     $("#cat-modal-title").textContent = isNew ? "Новый вопрос FAQ" : "Редактирование вопроса";
     $("#cat-delete-btn").style.display = isNew ? "none" : "";
 
-    const PAGES = ["home", "delivery", "returns", "referral"];
-    const PAGE_LABEL = { home: "Главная", delivery: "Доставка", returns: "Возврат", referral: "Реф-программа" };
+    const PAGES = ["home", "delivery", "returns"];
+    const PAGE_LABEL = { home: "Главная", delivery: "Доставка", returns: "Возврат" };
     const checkedPages = (item && item.pages) || ["home"];
 
     $("#cat-form").innerHTML = '<div class="field"><label>Вопрос</label><input type="text" id="faq-q" value="' + escapeHtml((item && item.q) || "") + '"></div>' +
@@ -3286,7 +3264,7 @@ input,select,textarea{font:inherit;color:inherit}
       return;
     }
     let html = '<table class="orders-table"><thead><tr>'
-      + '<th>Клиент</th><th>Контакты</th><th>Заказы</th><th>Сумма</th><th>Средний чек</th><th>Бонусы</th><th>Сегмент</th>'
+      + '<th>Клиент</th><th>Контакты</th><th>Заказы</th><th>Сумма</th><th>Средний чек</th><th>Сегмент</th>'
       + '</tr></thead><tbody>';
     customersCache.forEach(c => {
       const seg = segmentLabel(c);
@@ -3300,13 +3278,7 @@ input,select,textarea{font:inherit;color:inherit}
         +   '<div class="meta" style="font-family:var(--mono);font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">оплачено: ' + (c.paidCount||0) + (c.cancelledCount ? ' · отмен: ' + c.cancelledCount : '') + '</div></td>'
         + '<td class="total"><strong>' + fmt(c.totalSpent||0) + '</strong></td>'
         + '<td>' + fmt(c.avgCheck||0) + '</td>'
-        + '<td>'
-        +   ((c.wallet||0) > 0 ? '<strong>' + fmt(c.wallet) + '</strong>' : '<span style="color:var(--mute)">—</span>')
-        +   ((c.bonusPending||0) > 0 ? ' <span class="tag-pill tag-sale">+ pending ' + fmt(c.bonusPending) + '</span>' : '')
-        +   '</td>'
-        + '<td><span class="' + seg.cls + '">' + seg.label + '</span>'
-        +   (c.referralPromo ? '<div style="font-family:var(--mono);font-size:10px;color:var(--mute);margin-top:4px;letter-spacing:.04em">' + escapeHtml(c.referralPromo) + '</div>' : '')
-        +   '</td>'
+        + '<td><span class="' + seg.cls + '">' + seg.label + '</span></td>'
         + '</tr>';
     });
     html += '</tbody></table>';
@@ -3321,7 +3293,6 @@ input,select,textarea{font:inherit;color:inherit}
       const r = await api("GET", "/api/admin/customers/" + encodeURIComponent(id));
       const c = r.customer;
       const orders = r.orders || [];
-      const bonuses = r.bonuses || [];
       $("#cust-modal-title").textContent = c.name || c.email || c.phone || "Клиент";
 
       const seg = segmentLabel(c);
@@ -3344,18 +3315,7 @@ input,select,textarea{font:inherit;color:inherit}
         +   '<div class="lbl">Отменено</div><div class="val">' + (c.cancelledCount||0) + '</div>'
         +   '<div class="lbl">Сумма заказов</div><div class="val"><strong>' + fmt(c.totalSpent||0) + '</strong></div>'
         +   '<div class="lbl">Средний чек</div><div class="val">' + fmt(c.avgCheck||0) + '</div>'
-        +   '<div class="lbl">Бонусный баланс</div><div class="val"><strong>' + fmt(c.wallet||0) + '</strong></div>'
-        +   ((c.bonusPending||0) > 0 ? '<div class="lbl">Ожидает зачисления</div><div class="val">' + fmt(c.bonusPending) + '</div>' : '')
-        +   ((c.bonusEarned||0) > 0 ? '<div class="lbl">Всего заработано</div><div class="val">' + fmt(c.bonusEarned) + '</div>' : '')
         + '</div></div>';
-
-      if (c.referralPromo) {
-        body += '<div class="detail-section"><h4>Реф-промокод</h4>'
-          + '<div style="display:flex;align-items:center;gap:10px;background:var(--ivory-2);padding:10px 14px;border-radius:var(--r-sm);font-family:var(--mono);font-size:13px;letter-spacing:.04em">'
-          +   '<strong>' + escapeHtml(c.referralPromo) + '</strong>'
-          +   '<button type="button" class="mini-btn" id="cust-copy-promo" style="margin-left:auto">Скопировать</button>'
-          + '</div></div>';
-      }
 
       // История заказов (компактно)
       if (orders.length) {
@@ -3372,20 +3332,6 @@ input,select,textarea{font:inherit;color:inherit}
           + '</tbody></table></div></div>';
       }
 
-      // Бонусы (компактно)
-      if (bonuses.length) {
-        body += '<div class="detail-section"><h4>Журнал бонусов</h4>'
-          + '<div style="max-height:160px;overflow-y:auto">'
-          + bonuses.map(b => {
-              const stCls = { pending: "tag-sale", credited: "tag-fresh", spent: "tag-hidden", voided: "tag-hidden" }[b.status] || "tag-hidden";
-              return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">'
-                + '<span><strong>' + fmt(b.amount) + '</strong> <span class="tag-pill ' + stCls + '" style="margin-left:6px">' + b.status + '</span></span>'
-                + '<span style="font-family:var(--mono);font-size:11px;color:var(--mute)">от ' + escapeHtml(b.fromOrderId) + ' · ' + fmtDt(b.at) + '</span>'
-                + '</div>';
-            }).join("")
-          + '</div></div>';
-      }
-
       // Редактирование: имя, заметки, теги
       body += '<div class="detail-section"><h4>Заметки и теги (видны только админу)</h4>'
         + '<div class="row"><div class="field"><label>Имя</label><input type="text" id="cust-name" value="' + escapeHtml(c.name||"") + '"></div>'
@@ -3398,12 +3344,6 @@ input,select,textarea{font:inherit;color:inherit}
       $("#cust-modal").classList.add("show");
 
       // Скрепить хендлеры
-      const copyBtn = $("#cust-copy-promo");
-      if (copyBtn) copyBtn.addEventListener("click", () => {
-        navigator.clipboard?.writeText(c.referralPromo).then(() =>
-          window.showToast?.("Промокод " + c.referralPromo + " скопирован", "success", 2400)
-        );
-      });
       $$("[data-go-order]", $("#cust-modal-body")).forEach(tr => {
         tr.addEventListener("click", () => {
           const oid = tr.dataset.goOrder;

@@ -372,41 +372,10 @@ async function testEmail(to) {
   }
 }
 
-// H39: письмо клиенту с его персональным реф-промокодом после первой оплаченной покупки.
-async function sendReferralPromoEmail(customer, code, mechanics) {
-  if (!emailEnabled()) return { skipped: "disabled" };
-  if (!customer || !customer.email) return { skipped: "no-email" };
-  const cfg = emailConfig();
-  const friendPct = (mechanics && mechanics.friendDiscountPct) || 10;
-  const ownerBonus = (mechanics && mechanics.ownerBonusAmount) || 500;
-  const subject = "СОБРАНО · ваш персональный промокод";
-  const html = `<!doctype html><html><body style="font-family:Helvetica,Arial,sans-serif;color:#1A1410;line-height:1.5;max-width:560px;margin:auto;padding:24px">
-    <p>Привет${customer.name ? ", " + escapeHtml(customer.name) : ""}!</p>
-    <p>Спасибо за заказ — теперь у вас есть персональный реф-промокод СОБРАНО:</p>
-    <p style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;background:#F2ECE3;padding:14px 20px;border-radius:10px;letter-spacing:.04em;text-align:center">${escapeHtml(code)}</p>
-    <p>Делитесь с друзьями. По нему друг получает скидку <b>${friendPct}%</b> на первый заказ, а вам капают <b>${fmtMoney(ownerBonus)}</b> на бонусный баланс — применятся автоматически на следующий ваш заказ.</p>
-    <p>Реферальная ссылка: <a href="https://sobrano.store/?ref=${escapeHtml(code)}">https://sobrano.store/?ref=${escapeHtml(code)}</a></p>
-    <p style="color:#888;font-size:12px;margin-top:32px">— команда СОБРАНО</p>
-  </body></html>`;
-  try {
-    await sendSmtp({
-      host: cfg.host, port: cfg.port || 587, secure: !!cfg.secure,
-      user: cfg.user, pass: cfg.pass,
-      from: cfg.from, to: customer.email,
-      subject, html,
-    });
-    return { ok: true };
-  } catch (e) {
-    console.warn("ref-promo email failed:", e.message);
-    return { ok: false, error: e.message };
-  }
-}
-
 module.exports = {
   onOrderCreated,
   onOrderStatusChanged,
   onRefundChanged,
-  sendReferralPromoEmail,
   testTelegram,
   testEmail,
 };
