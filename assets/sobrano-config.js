@@ -32,4 +32,47 @@
       if (window.SOBRANO && window.SOBRANO.refresh) window.SOBRANO.refresh();
     })
     .catch(() => { /* offline / no backend — используем дефолты */ });
+
+  // ---------- FUNNEL TRACKING (G37) ----------
+  // Раз в сессию (sid в localStorage) отправляем событие шага воронки на /api/track.
+  // Типы событий определяются по path:
+  //   /box.html       → view-box
+  //   /cart.html      → view-cart
+  //   /checkout.html  → view-checkout
+  //   /thank-you.html → view-thanks
+  const SID_KEY = "sobrano_sid_v1";
+  function sid() {
+    try {
+      let s = localStorage.getItem(SID_KEY);
+      if (!s) {
+        // короткий случайный id (12 символов), без PII
+        const arr = new Uint8Array(8);
+        (window.crypto || window.msCrypto).getRandomValues(arr);
+        s = Array.from(arr).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 12);
+        localStorage.setItem(SID_KEY, s);
+      }
+      return s;
+    } catch (e) { return ""; }
+  }
+  function detectEvent() {
+    const p = (location.pathname || "").toLowerCase();
+    if (p.endsWith("/box.html") || /\/box-[a-z]+\.html$/.test(p)) return "view-box";
+    if (p.endsWith("/cart.html")) return "view-cart";
+    if (p.endsWith("/checkout.html")) return "view-checkout";
+    if (p.endsWith("/thank-you.html")) return "view-thanks";
+    return null;
+  }
+  const ev = detectEvent();
+  if (ev) {
+    // fire-and-forget, не блокирует пользовательский опыт
+    try {
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ event: ev, sid: sid() }),
+        credentials: "same-origin",
+        keepalive: true,
+      }).catch(() => {});
+    } catch (e) {}
+  }
 })();

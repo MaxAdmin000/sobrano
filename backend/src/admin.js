@@ -210,6 +210,19 @@ function getCatalog(req, res) {
   sendJson(res, 200, { ok: true, catalog: c });
 }
 
+// Публичный приём событий воронки от фронтенда.
+// Body: { event: "view-box"|"view-cart"|"view-checkout"|"view-thanks", sid: "<short id>" }
+// Идемпотентен в окне 30с (один sid не может задвоить один и тот же шаг).
+async function postTrack(req, res) {
+  try {
+    const payload = await parseJsonBody(req);
+    const ok = store.trackEvent(payload && payload.event, payload && payload.sid);
+    sendJson(res, 200, { ok: !!ok });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: "bad payload" });
+  }
+}
+
 // Публичный список способов оплаты для чекаута: фильтр по active/hidden + Robokassa-методы скрываются если креды не заполнены.
 function getPayments(req, res) {
   const all = store.listSection("payments");
@@ -1034,6 +1047,22 @@ function getStats(req, res) {
   const returningCount = allCustomers.filter((c) => (c.paidCount || 0) >= 2).length;
   const returningRate = allCustomers.length ? Math.round((returningCount / allCustomers.length) * 100) : 0;
 
+  // Воронка G37: уникальные сессии (sid) на каждом шаге за окно периода.
+  // view-box → view-cart → view-checkout → оплачено (orders.paid)
+  const sinceMs = windowMs ? now - windowMs : 0;
+  const events = store.getEvents(sinceMs);
+  const uniqSids = (filterEvent) => {
+    const s = new Set();
+    for (const e of events) if (e.event === filterEvent) s.add(e.sid);
+    return s.size;
+  };
+  const funnel = {
+    viewBox: uniqSids("view-box"),
+    viewCart: uniqSids("view-cart"),
+    viewCheckout: uniqSids("view-checkout"),
+    paid: paid.length,
+  };
+
   sendJson(res, 200, {
     ok: true,
     period,
@@ -1052,6 +1081,7 @@ function getStats(req, res) {
     topFlowers,
     topPromos,
     topPayments,
+    funnel,
   });
 }
 
@@ -1090,6 +1120,7 @@ module.exports = {
   // public
   getSettings,
   postOrder,
+  postTrack,
   getCatalog,
   getPayments,
   getContentPublic,

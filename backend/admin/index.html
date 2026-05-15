@@ -184,6 +184,23 @@ input,select,textarea{font:inherit;color:inherit}
 .top-row .val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--wine)}
 .top-bar-fill{height:4px;background:var(--ivory-2);border-radius:999px;overflow:hidden;margin-top:6px;grid-column:1 / -1}
 .top-bar-fill .fl{display:block;height:100%;background:linear-gradient(90deg,var(--wine),var(--terracotta));border-radius:999px}
+
+/* FUNNEL */
+.funnel{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.funnel-step{flex:1;min-width:140px;padding:18px 16px;background:var(--ivory);border-radius:var(--r-md);position:relative;display:flex;flex-direction:column;justify-content:center}
+.funnel-step + .funnel-step{margin-left:12px}
+.funnel-step .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.funnel-step .num{font-family:var(--serif);font-size:30px;letter-spacing:-.02em;font-weight:300;line-height:1}
+.funnel-step .num em{color:var(--wine);font-style:italic;font-weight:400}
+.funnel-step .pct{font-family:var(--mono);font-size:11px;color:var(--terracotta);margin-top:6px;letter-spacing:.06em}
+.funnel-step .bar{height:4px;background:var(--ivory-2);border-radius:999px;overflow:hidden;margin-top:10px}
+.funnel-step .bar .fl{display:block;height:100%;background:linear-gradient(90deg,var(--wine),var(--terracotta));border-radius:999px;transition:width .3s}
+.funnel-arrow{display:flex;align-items:center;color:var(--mute);font-family:var(--mono);font-size:14px;padding:0 4px}
+@media (max-width:780px){
+  .funnel{flex-direction:column}
+  .funnel-step + .funnel-step{margin-left:0;margin-top:8px}
+  .funnel-arrow{display:none}
+}
 @media (max-width:780px){
   .dash-kpi{grid-template-columns:1fr 1fr}
   .dash-tops{grid-template-columns:1fr}
@@ -424,6 +441,15 @@ input,select,textarea{font:inherit;color:inherit}
           </div>
         </div>
         <div id="dash-chart"></div>
+      </div>
+
+      <!-- Funnel -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+          <h3 style="font-family:var(--serif);font-size:18px;font-weight:400">Воронка</h3>
+          <div class="dash-legend"><span style="color:var(--mute);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase">Уникальные сессии за период</span></div>
+        </div>
+        <div id="funnel"></div>
       </div>
 
       <!-- Tops -->
@@ -3327,6 +3353,41 @@ input,select,textarea{font:inherit;color:inherit}
       val: fmtRu(p.count) + " зак.",
       n: p.count,
     })));
+
+    renderFunnel(dashCache.funnel || {});
+  }
+
+  // G37 — Воронка: 4 шага с количеством уникальных сессий и конверсиями.
+  function renderFunnel(f) {
+    const wrap = $("#funnel");
+    if (!wrap) return;
+    const steps = [
+      { key: "viewBox",      lbl: "Просмотр бокса", n: f.viewBox || 0 },
+      { key: "viewCart",     lbl: "Корзина",        n: f.viewCart || 0 },
+      { key: "viewCheckout", lbl: "Чекаут",         n: f.viewCheckout || 0 },
+      { key: "paid",         lbl: "Оплачено",       n: f.paid || 0 },
+    ];
+    const max = Math.max(1, steps[0].n || 0);
+    let html = '<div class="funnel">';
+    steps.forEach((s, i) => {
+      const prev = i > 0 ? (steps[i - 1].n || 0) : null;
+      const stepPct = prev !== null && prev > 0 ? Math.round((s.n / prev) * 100) : null;
+      const totalPct = i > 0 && max > 0 ? Math.round((s.n / max) * 100) : 100;
+      html += '<div class="funnel-step">'
+        + '<div class="lbl">' + escapeHtml(s.lbl) + '</div>'
+        + '<div class="num"><em>' + fmtRu(s.n) + '</em></div>'
+        + (stepPct !== null ? '<div class="pct">' + stepPct + '% с прошлого шага</div>' : '<div class="pct">первый шаг</div>')
+        + '<div class="bar"><span class="fl" style="width:' + Math.max(2, totalPct) + '%"></span></div>'
+        + '</div>';
+      if (i < steps.length - 1) html += '<div class="funnel-arrow">→</div>';
+    });
+    html += '</div>';
+    // Итоговая конверсия (просмотр бокса → оплата)
+    if (steps[0].n > 0) {
+      const fullPct = ((steps[steps.length - 1].n / steps[0].n) * 100).toFixed(1);
+      html += '<div style="margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--mute);text-transform:uppercase">Сквозная конверсия: <strong style="color:var(--ink)">' + fullPct + '%</strong></div>';
+    }
+    wrap.innerHTML = html;
   }
 
   function renderTopList(sel, rows) {

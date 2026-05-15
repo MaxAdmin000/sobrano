@@ -68,6 +68,10 @@ const DEFAULT = () => ({
   // Журнал начислений реф-бонусов: куда и от какого заказа пришла копейка.
   // [{ id, ownerCustomerId, fromOrderId, amount, status: pending|credited|spent, at }]
   bonuses: [],
+  // События для воронки (G37): [{ event, sid, at }], где event = view-box|view-cart|view-checkout|view-thanks
+  // Уникальные сессии считаются по `sid` (короткий клиентский cookie/localStorage id).
+  // Лог обрезается до 50k последних записей.
+  events: [],
 });
 
 let cache = null;
@@ -95,6 +99,7 @@ function load() {
         orders: Array.isArray(parsed.orders) ? parsed.orders : [],
         customers: Array.isArray(parsed.customers) ? parsed.customers : [],
         bonuses: Array.isArray(parsed.bonuses) ? parsed.bonuses : [],
+        events: Array.isArray(parsed.events) ? parsed.events : [],
       };
       ["boxes", "flowers", "picks", "addons", "promos", "payments"].forEach((k) => {
         if (!Array.isArray(cache.catalog[k])) cache.catalog[k] = def.catalog[k] || [];
@@ -455,6 +460,39 @@ function voidBonusesForOrder(fromOrderId) {
 
 function listBonuses() { return load().bonuses.slice(); }
 
+// ---------- EVENTS (G37 — воронка) ----------
+// Принимает событие от фронта. Хранит { event, sid, at }. Без PII.
+// Защита от мусора: тип события — из белого списка, sid укорачивается до 32 символов,
+// и одна сессия не может слать одно и то же событие чаще раза в 30 секунд (де-дуп).
+
+const FUNNEL_EVENTS = new Set(["view-box", "view-cart", "view-checkout", "view-thanks"]);
+const DEDUP_WINDOW_MS = 30 * 1000;
+
+function trackEvent(event, sid) {
+  const e = String(event || "").trim();
+  if (!FUNNEL_EVENTS.has(e)) return false;
+  const s = String(sid || "").slice(0, 32);
+  if (!s) return false;
+  const list = load().events;
+  // де-дуп: если эта же связка event+sid была < 30 секунд назад — игнорируем
+  const now = Date.now();
+  for (let i = list.length - 1; i >= 0 && i > list.length - 50; i--) {
+    const it = list[i];
+    if (now - (it.at || 0) > DEDUP_WINDOW_MS) break;
+    if (it.event === e && it.sid === s) return false;
+  }
+  list.push({ event: e, sid: s, at: now });
+  if (list.length > 50000) list.splice(0, list.length - 50000);
+  save();
+  return true;
+}
+
+function getEvents(sinceMs) {
+  const list = load().events;
+  if (!sinceMs) return list.slice();
+  return list.filter((e) => (e.at || 0) >= sinceMs);
+}
+
 // ---------- CATALOG ----------
 
 function getCatalog() {
@@ -755,6 +793,10 @@ module.exports = {
   listBonuses,
   creditPendingBonusesForOrder,
   voidBonusesForOrder,
+  // events / funnel
+  trackEvent,
+  getEvents,
+  FUNNEL_EVENTS,
   // helpers (для admin/notifications)
   normalizeEmail,
   normalizePhone,

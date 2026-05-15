@@ -396,6 +396,9 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/orders") {
     return wrapCors(req, res, () => adminApi.postOrder(req, res, env));
   }
+  if (req.method === "POST" && pathname === "/api/track") {
+    return wrapCors(req, res, () => adminApi.postTrack(req, res));
+  }
 
   // ---- Admin auth + endpoints ----
   if (req.method === "POST" && pathname === "/api/admin/login") {

@@ -314,54 +314,19 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
   <div class="container">
     <div class="section-h">
       <div>
-        <span class="eyebrow">№ 02 — Зоны и тарифы</span>
-        <h2>Тариф зависит <em>от района</em>.</h2>
+        <span class="eyebrow" data-cms-text="content.delivery.zones.eyebrow">№ 02 — Зоны и тарифы</span>
+        <h2 data-cms-html="content.delivery.zones.titleHtml">Тариф зависит <em>от района</em>.</h2>
       </div>
-      <p>Шесть зон в Петербурге. Чем дальше от центра — тем больше времени на доставку. Точная стоимость рассчитывается автоматически в корзине, как только вы укажете адрес.</p>
+      <p data-cms-text="content.delivery.zones.lead">Шесть зон в Петербурге. Чем дальше от центра — тем больше времени на доставку. Точная стоимость рассчитывается автоматически в корзине, как только вы укажете адрес.</p>
     </div>
 
-    <div class="zone-table">
+    <div class="zone-table" data-cms-list="content.delivery.zones.list">
       <div class="zr">
-        <span class="ix">/01</span>
-        <div class="name">Центральный район<small>Адмиралтейский, Петроградский, Василеостровский</small></div>
-        <span class="time">от 60 мин</span>
-        <span class="price">500 ₽</span>
+        <span class="ix" data-cms-text="@ix">/01</span>
+        <div class="name"><span data-cms-text="@name">Центральный район</span><small data-cms-text="@note">Адмиралтейский, Петроградский, Василеостровский</small></div>
+        <span class="time" data-cms-text="@time">от 60 мин</span>
+        <span class="price" data-cms-text="@price">500 ₽</span>
         <span class="icon">→</span>
-      </div>
-      <div class="zr">
-        <span class="ix">/02</span>
-        <div class="name">Ближняя зона<small>Калининский, Невский, Московский, Кировский</small></div>
-        <span class="time">от 90 мин</span>
-        <span class="price">650 ₽</span>
-        <span class="icon">→</span>
-      </div>
-      <div class="zr">
-        <span class="ix">/03</span>
-        <div class="name">Средняя зона<small>Фрунзенский, Красногвардейский, Приморский</small></div>
-        <span class="time">от 120 мин</span>
-        <span class="price">800 ₽</span>
-        <span class="icon">→</span>
-      </div>
-      <div class="zr">
-        <span class="ix">/04</span>
-        <div class="name">Дальняя зона<small>Выборгский, Курортный, Колпинский, Красносельский</small></div>
-        <span class="time">от 150 мин</span>
-        <span class="price">1 100 ₽</span>
-        <span class="icon">→</span>
-      </div>
-      <div class="zr">
-        <span class="ix">/05</span>
-        <div class="name">За КАД<small>Только по согласованию</small></div>
-        <span class="time">по запросу</span>
-        <span class="price">от 1 500 ₽</span>
-        <span class="icon">→</span>
-      </div>
-      <div class="zr">
-        <span class="ix">/06</span>
-        <div class="name">Яндекс Go<small>Любой адрес в зоне сервиса</small></div>
-        <span class="time">от 60 мин</span>
-        <span class="price">по тарифу</span>
-        <span class="icon">⌗</span>
       </div>
     </div>
   </div>
