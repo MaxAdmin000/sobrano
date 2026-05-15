@@ -28,6 +28,13 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:10px}
 .eyebrow::before{content:"";width:24px;height:1px;background:var(--ink-soft);display:inline-block}
 
+/* CTA buttons (использованы в empty-state и других местах) */
+.btn-primary,.btn-secondary{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;font-size:13px;font-weight:500;letter-spacing:.02em;line-height:1;transition:transform .2s, background .2s, color .2s, border-color .2s}
+.btn-primary{background:var(--ink);color:var(--ivory)}
+.btn-primary:hover{background:var(--wine);transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
+.btn-secondary:hover{border-color:var(--ink);transform:translateY(-1px)}
+
 .top-bar{background:var(--ink);color:var(--ivory);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;overflow:hidden}
 .marquee{display:flex;gap:48px;white-space:nowrap;animation:slide 38s linear infinite}
 .marquee span{display:inline-flex;align-items:center;gap:14px;opacity:.85}
@@ -334,9 +341,9 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
     <span class="eyebrow center" style="justify-content:center">Корзина пуста</span>
     <h1 style="font-family:var(--serif);font-weight:300;font-size:clamp(48px,7vw,96px);letter-spacing:-.025em;line-height:1;margin:24px 0 18px">Ничего ещё <em style="font-style:italic;color:var(--wine);font-weight:400">не выбрано</em>.</h1>
     <p style="color:var(--ink-soft);font-size:16px;max-width:48ch;margin:0 auto 32px;line-height:1.6">Начните с выбора бокса по размеру — а внутри можно собрать любые цветы. Цена за бокс фиксированная.</p>
-    <div style="display:inline-flex;gap:14px;flex-wrap:wrap;justify-content:center">
+    <div style="display:inline-flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center">
       <a href="index.html#boxes" class="btn-primary">Выбрать бокс →</a>
-      <a href="picks.html" style="display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px;font-weight:500">Подборки флориста →</a>
+      <a href="picks.html" class="btn-secondary">Подборки флориста →</a>
     </div>
   </div>
 </div>
