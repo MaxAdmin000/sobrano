@@ -650,6 +650,13 @@ input,select,textarea{font:inherit;color:inherit}
           </div>
         </div>
         <div class="field" style="margin-top:8px">
+          <label for="tg-proxy">URL прокси (необязательно)</label>
+          <input type="text" id="tg-proxy" autocomplete="off" spellcheck="false" placeholder="напр. https://sobrano-tg.your-name.workers.dev">
+          <div style="font-size:11px;color:var(--mute);margin-top:6px;font-family:var(--sans);text-transform:none;letter-spacing:0;line-height:1.5">
+            Заполнить, если сервер не может достучаться до <code style="font-family:var(--mono);font-size:11px">api.telegram.org</code> напрямую (например, хостинг в РФ + блокировка). Прокси прозрачно форвардит запросы. См. <code style="font-family:var(--mono);font-size:11px">docs/telegram-proxy.md</code> в репо для пошаговой настройки Cloudflare Worker (бесплатно, 5 минут).
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px">
           <label>Получать уведомления при событиях</label>
           <div id="tg-events" style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px"></div>
         </div>
@@ -2965,6 +2972,7 @@ input,select,textarea{font:inherit;color:inherit}
       $("#tg-token").value = "";
       $("#tg-token").placeholder = tg.hasToken ? "••• сохранён · введите, чтобы изменить" : "Введите, чтобы задать";
       $("#tg-chat").value = tg.chatId || "";
+      $("#tg-proxy").value = tg.proxyUrl || "";
       renderTgEvents(tg.events || {});
 
       // REQUISITES
@@ -3030,6 +3038,7 @@ input,select,textarea{font:inherit;color:inherit}
       const patch = { notifications: { telegram: {
         enabled: getBoolToggle("#tg-toggle"),
         chatId: $("#tg-chat").value.trim(),
+        proxyUrl: $("#tg-proxy").value.trim(),
         events,
       }}};
       const tok = $("#tg-token").value;

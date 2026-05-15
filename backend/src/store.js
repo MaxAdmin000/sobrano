@@ -46,6 +46,10 @@ const DEFAULT = () => ({
         enabled: false,
         botToken: "",
         chatId: "",
+        // Опциональный URL обратного прокси (например, Cloudflare Worker) —
+        // если задан, запросы пойдут на него вместо api.telegram.org.
+        // Нужно когда хостинг сервера блокирует прямой выход на api.telegram.org (Роскомнадзор / DPI).
+        proxyUrl: "",
         events: { newOrder: true, paid: true, cancelled: true, refund: true },
       },
     },

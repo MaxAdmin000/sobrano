@@ -35,6 +35,30 @@ function tgConfig() {
   return store.getSettings().notifications.telegram || {};
 }
 
+// Разбирает endpoint для Telegram API. По умолчанию — `api.telegram.org`.
+// Если в настройках задан `proxyUrl` (например, Cloudflare Worker), все запросы идут через него.
+// Прокси должен прозрачно форвардить `/bot<TOKEN>/<METHOD>` на `https://api.telegram.org/...`.
+function tgEndpoint(method) {
+  const cfg = tgConfig();
+  const subPath = `/bot${cfg.botToken}/${method}`;
+  const raw = String(cfg.proxyUrl || "").trim();
+  if (raw) {
+    try {
+      const u = new URL(raw);
+      const base = u.pathname.replace(/\/+$/, ""); // base path без хвостового слэша
+      return {
+        host: u.hostname,
+        port: u.port ? Number(u.port) : (u.protocol === "https:" ? 443 : 80),
+        path: base + subPath,
+        protocol: u.protocol,
+      };
+    } catch (e) {
+      console.warn("[telegram] bad proxyUrl, falling back to api.telegram.org:", e.message);
+    }
+  }
+  return { host: "api.telegram.org", port: 443, path: subPath, protocol: "https:" };
+}
+
 async function tgSend(text) {
   if (!tgEnabled()) return { ok: false, skipped: "disabled" };
   const cfg = tgConfig();
@@ -44,12 +68,14 @@ async function tgSend(text) {
     parse_mode: "HTML",
     disable_web_page_preview: true,
   });
+  const ep = tgEndpoint("sendMessage");
 
   return new Promise((resolve) => {
     const req = https.request({
       method: "POST",
-      host: "api.telegram.org",
-      path: `/bot${cfg.botToken}/sendMessage`,
+      host: ep.host,
+      port: ep.port,
+      path: ep.path,
       headers: { "content-type": "application/json", "content-length": Buffer.byteLength(data) },
       timeout: 8000,
     }, (res) => {
@@ -58,12 +84,24 @@ async function tgSend(text) {
       res.on("end", () => {
         try {
           const parsed = JSON.parse(raw);
+          if (!parsed.ok) {
+            console.warn("[telegram] api responded not-ok via " + ep.host + ":", parsed.description || JSON.stringify(parsed).slice(0, 200));
+          }
           resolve({ ok: !!parsed.ok, raw: parsed });
-        } catch (e) { resolve({ ok: false, raw }); }
+        } catch (e) {
+          console.warn("[telegram] bad json response from " + ep.host + ":", String(raw).slice(0, 200));
+          resolve({ ok: false, raw });
+        }
       });
     });
-    req.on("timeout", () => { req.destroy(new Error("timeout")); });
-    req.on("error", (e) => resolve({ ok: false, error: e.message }));
+    req.on("timeout", () => {
+      console.warn("[telegram] timeout to " + ep.host + ep.path.split("/bot")[0]);
+      req.destroy(new Error("timeout"));
+    });
+    req.on("error", (e) => {
+      console.warn("[telegram] network error to " + ep.host + ":", e.code || e.message);
+      resolve({ ok: false, error: e.message });
+    });
     req.write(data); req.end();
   });
 }
