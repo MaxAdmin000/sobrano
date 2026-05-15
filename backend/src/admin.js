@@ -90,9 +90,10 @@ function getSettings(req, res) {
 // Валидация промокода и пересчёт скидки на стороне сервера. Клиент НЕ доверенный источник:
 // он может прислать любой код, любой discount, любой total — бэкенд переиспользует только
 // поля корзины (бокс/допы/доставка), всё остальное считает сам по своему справочнику.
-// Возвращает { code, discount, reason } — code/discount равны null/0 если промо отклонён.
-function validatePromoServer(rawCode, subtotal) {
-  const out = { code: null, discount: 0, reason: null };
+// Возвращает { code, discount, reason, promo } — code/discount=null/0 если промо отклонён,
+// promo = найденная запись (для последующего начисления бонуса owner'у).
+function validatePromoServer(rawCode, subtotal, buyerCtx) {
+  const out = { code: null, discount: 0, reason: null, promo: null };
   if (!rawCode) return out;
   const code = String(rawCode).trim().toUpperCase();
   if (!code) return out;
@@ -110,10 +111,28 @@ function validatePromoServer(rawCode, subtotal) {
   if (p.minSubtotal && subtotal < Number(p.minSubtotal)) {
     out.reason = "min-subtotal"; return out;
   }
+
+  // Дополнительные правила для реф-промокодов (флаг p.ref === true):
+  // 1) Анти-self: покупатель не может применить свой же реф-код.
+  // 2) Only-first-order: код работает только для нового клиента (нет оплаченных заказов в истории).
+  if (p.ref === true && buyerCtx) {
+    const buyerEmail = store.normalizeEmail(buyerCtx.email || "");
+    const ownerEmail = store.normalizeEmail((p.refOwner && p.refOwner.email) || "");
+    if (buyerEmail && ownerEmail && buyerEmail === ownerEmail) {
+      out.reason = "ref-self"; return out;
+    }
+    // Проверка first-order: есть ли в orders заказы с email/phone покупателя в статусе paid/doing/shipped/done
+    const existing = store.getCustomerByEmail(buyerEmail);
+    if (existing && (existing.paidCount || 0) > 0) {
+      out.reason = "ref-not-first-order"; return out;
+    }
+  }
+
   const pct = Number(p.discountPct) || 0;
   const discount = Math.round(Math.max(0, subtotal) * pct / 100);
   out.code = code;
   out.discount = discount;
+  out.promo = p;
   return out;
 }
 
@@ -129,7 +148,8 @@ async function postOrder(req, res, env) {
     // Это закрывает дыру «клиент может прислать любой total» — мы доверяем только составу заказа.
     const subtotal = Math.max(0, Math.round(Number(payload.subtotal) || 0));
     const deliveryPrice = Math.max(0, Math.round(Number(payload.deliveryPrice) || 0));
-    const promoResult = validatePromoServer(payload.promo, subtotal);
+    const buyer = payload.customer || {};
+    const promoResult = validatePromoServer(payload.promo, subtotal, buyer);
     const total = Math.max(0, subtotal + deliveryPrice - promoResult.discount);
 
     if (subtotal <= 0) throw new Error("Order subtotal required");
@@ -145,11 +165,28 @@ async function postOrder(req, res, env) {
       promoRejectedReason: promoResult.reason,
       subtotal,
       total,
-      customer: payload.customer || null,
+      customer: buyer,
       source: "web",
     };
     const saved = store.addOrder(order);
     if (saved.promo) store.bumpPromoUsage(saved.promo);
+
+    // H39: если применён реф-промо — начисляем бонус owner'у (pending до момента оплаты заказа).
+    if (promoResult.promo && promoResult.promo.ref === true) {
+      const ownerEmail = store.normalizeEmail((promoResult.promo.refOwner || {}).email || "");
+      const ownerCust = ownerEmail ? store.getCustomerByEmail(ownerEmail) : null;
+      const bonusAmount = Number(promoResult.promo.bonusForOwner) || 0;
+      if (ownerCust && bonusAmount > 0) {
+        store.addBonus({
+          ownerCustomerId: ownerCust.id,
+          fromOrderId: saved.id,
+          amount: bonusAmount,
+          status: "pending",
+        });
+        console.log("[bonus] pending", bonusAmount, "→", ownerCust.id, "from", saved.id);
+      }
+    }
+
     notifications.onOrderCreated(saved);
     const promoLog = promoResult.code
       ? "promo=" + promoResult.code + " -" + promoResult.discount + "₽"
@@ -369,6 +406,12 @@ async function patchOrder(req, res, id) {
 
     if (patch.status && patch.status !== prev.status) {
       notifications.onOrderStatusChanged(updated, prev.status);
+      // H39: при первом переходе заказа клиента в оплаченный статус — генерируем
+      // его персональный реф-промокод (если ещё нет) и шлём в письме.
+      const PAID = ["paid", "doing", "shipped", "done"];
+      if (PAID.indexOf(patch.status) >= 0 && PAID.indexOf(prev.status || "new") < 0) {
+        try { ensurePersonalReferralPromo(updated); } catch (e) { console.warn("[ref-gen]", e.message); }
+      }
     }
     if (patch.refund && (!prev.refund || prev.refund.status !== patch.refund.status)) {
       notifications.onRefundChanged(updated);
@@ -378,6 +421,52 @@ async function patchOrder(req, res, id) {
   } catch (e) {
     sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
   }
+}
+
+// Создаёт персональный реф-промокод клиенту при его первой оплате.
+// Если у клиента уже есть `referralPromo` — ничего не делает.
+// Сохраняет код в customer.referralPromo и создаёт запись в catalog.promos с флагом ref:true.
+function ensurePersonalReferralPromo(order) {
+  if (!order || !order.customer) return;
+  const c = order.customer;
+  const email = store.normalizeEmail(c.email || "");
+  if (!email) return; // без email нельзя — отправить некому
+  const cust = store.getCustomerByEmail(email);
+  if (!cust) return;
+  if (cust.referralPromo) return; // уже выдан
+
+  const content = store.getContent();
+  const mech = (content.referral && content.referral.mechanics) || {};
+  const prefix = (mech.promoPrefix || "REF").toUpperCase();
+  const slug = String(cust.name || "client")
+    .toUpperCase()
+    .replace(/[^A-ZА-ЯЁ0-9]+/g, "")
+    .slice(0, 10) || "CLIENT";
+  const rand = crypto.randomBytes(2).toString("hex").toUpperCase();
+  const code = `${prefix}-${slug}-${rand}`;
+
+  store.upsertItem("promos", {
+    code,
+    label: `Реф · ${cust.name || email}`,
+    discountPct: Number(mech.friendDiscountPct) || 10,
+    minSubtotal: Number(mech.minOrderForBonus) || 0,
+    maxUses: null,
+    expiresAt: null,
+    active: true,
+    ref: true,
+    refOwner: { name: cust.name || "", email: cust.email, phone: cust.phone, customerId: cust.id },
+    bonusForOwner: Number(mech.ownerBonusAmount) || 500,
+    usedCount: 0,
+  });
+
+  // Сохраним код в карточке клиента
+  cust.referralPromo = code;
+  store.save();
+
+  // Отправим письмо клиенту, если email-уведомления включены
+  try { notifications.sendReferralPromoEmail(cust, code, mech); } catch (e) { /* best-effort */ }
+
+  console.log("[ref-gen] issued", code, "to customer", cust.id, "(" + email + ")");
 }
 
 function sanitizeRefund(r) {
@@ -783,6 +872,74 @@ async function deleteUpload(req, res, filename) {
   }
 }
 
+// ===== CUSTOMERS (CRM) =====
+
+function listCustomers(req, res) {
+  if (!requireSession(req, res)) return;
+  const url = new URL(req.url, "http://x");
+  const q = (url.searchParams.get("query") || "").toLowerCase().trim();
+  const segment = url.searchParams.get("segment") || ""; // "" | "new" | "active" | "dormant"
+
+  let arr = store.listCustomers();
+  if (q) {
+    arr = arr.filter((c) => {
+      const hay = [c.name, c.email, c.phone, (c.tags || []).join(" ")].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (segment) {
+    const dayMs = 24 * 3600 * 1000;
+    arr = arr.filter((c) => {
+      if (segment === "new") return (c.paidCount || 0) === 1;
+      if (segment === "active") return (c.paidCount || 0) >= 2;
+      if (segment === "dormant") {
+        return (c.paidCount || 0) >= 1 && (Date.now() - (c.lastOrderAt || 0)) > 30 * dayMs;
+      }
+      return true;
+    });
+  }
+  arr.sort((a, b) => (b.lastOrderAt || 0) - (a.lastOrderAt || 0));
+  sendJson(res, 200, { ok: true, customers: arr });
+}
+
+function getCustomer(req, res, id) {
+  if (!requireSession(req, res)) return;
+  const c = store.getCustomerById(id);
+  if (!c) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+  // Подмешиваем заказы клиента и список бонусов
+  const allOrders = store.getOrders();
+  const orders = allOrders
+    .filter((o) => {
+      const cu = o.customer || {};
+      const k = (cu.email && ("email:" + store.normalizeEmail(cu.email)))
+             || (cu.phone && ("phone:" + store.normalizePhone(cu.phone)))
+             || "";
+      return k === c.primaryId;
+    })
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  const bonuses = store.listBonuses().filter((b) => b.ownerCustomerId === c.id)
+    .sort((a, b) => (b.at || 0) - (a.at || 0));
+  sendJson(res, 200, { ok: true, customer: c, orders, bonuses });
+}
+
+async function patchCustomer(req, res, id) {
+  if (!requireSession(req, res)) return;
+  try {
+    const body = await parseJsonBody(req);
+    const c = store.patchCustomer(id, body || {});
+    if (!c) { sendJson(res, 404, { ok: false, error: "not found" }); return; }
+    sendJson(res, 200, { ok: true, customer: c });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
+
+function rebuildCustomers(req, res) {
+  if (!requireSession(req, res)) return;
+  const n = store.rebuildCustomersFromOrders();
+  sendJson(res, 200, { ok: true, total: n });
+}
+
 module.exports = {
   // public
   getSettings,
@@ -827,6 +984,11 @@ module.exports = {
   generateReferralPromo,
   // notifications
   notificationsTest,
+  // customers (CRM)
+  listCustomers,
+  getCustomer,
+  patchCustomer,
+  rebuildCustomers,
   // uploads
   uploadImage,
   listUploads,

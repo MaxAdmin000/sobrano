@@ -340,6 +340,7 @@ input,select,textarea{font:inherit;color:inherit}
 
   <nav class="tabs">
     <button class="tab active" data-tab="orders">Заказы</button>
+    <button class="tab" data-tab="customers">Клиенты</button>
     <button class="tab" data-tab="catalog">Каталог</button>
     <button class="tab" data-tab="content">Контент</button>
     <button class="tab" data-tab="media">Медиа</button>
@@ -596,6 +597,47 @@ input,select,textarea{font:inherit;color:inherit}
       </div>
     </section>
 
+    <!-- CUSTOMERS / CRM -->
+    <section class="tab-panel" id="panel-customers" style="display:none">
+      <div class="summary-grid">
+        <div class="stat"><div class="lbl">Всего клиентов</div><div class="val" id="cust-stat-total">—</div></div>
+        <div class="stat"><div class="lbl">Новые (1 оплата)</div><div class="val" id="cust-stat-new"><em>—</em></div></div>
+        <div class="stat"><div class="lbl">Постоянные (≥2)</div><div class="val" id="cust-stat-active">—</div></div>
+        <div class="stat"><div class="lbl">Спящие (>30 дней)</div><div class="val" id="cust-stat-dormant">—</div></div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:18px 22px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);gap:14px;flex-wrap:wrap">
+          <div>
+            <h2 style="font-size:20px">Клиенты</h2>
+            <p class="sub" style="margin:0">База строится автоматически из заказов. Клик по строке — карточка с историей, заметками и бонусным балансом.</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="cust-rebuild-btn" type="button" title="Пересобрать клиентов из заказов (нужно только если что-то рассинхронилось)">↻ Пересобрать</button>
+            <button class="btn btn-ghost" id="cust-refresh-btn">Обновить</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="field" style="flex:1.6;min-width:220px">
+            <label for="cust-query">Поиск (ФИО, email, телефон, тег)</label>
+            <input type="search" id="cust-query" placeholder="напр. Анна, +7999, vip" autocomplete="off">
+          </div>
+          <div class="field" style="min-width:200px">
+            <label for="cust-segment">Сегмент</label>
+            <select id="cust-segment">
+              <option value="">— все —</option>
+              <option value="new">Новые (1 оплата)</option>
+              <option value="active">Постоянные (≥2)</option>
+              <option value="dormant">Спящие (>30 дней)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="customers-table-wrap"></div>
+      </div>
+    </section>
+
     <!-- CONTENT -->
     <section class="tab-panel" id="panel-content" style="display:none">
       <div class="card" style="padding:0;overflow:hidden">
@@ -771,6 +813,17 @@ input,select,textarea{font:inherit;color:inherit}
       <button class="x" type="button" id="close-detail">×</button>
     </div>
     <div id="d-body"></div>
+  </div>
+</div>
+
+<!-- CUSTOMER DETAIL MODAL -->
+<div class="detail-modal" id="cust-modal">
+  <div class="detail-card wide">
+    <div class="head">
+      <h2 id="cust-modal-title">Клиент</h2>
+      <button class="x" type="button" id="cust-modal-close">×</button>
+    </div>
+    <div id="cust-modal-body"></div>
   </div>
 </div>
 
@@ -2872,6 +2925,221 @@ input,select,textarea{font:inherit;color:inherit}
     } catch (err) { alert("Ошибка: " + (err.message || "")); btn.textContent = t; btn.disabled = false; }
   });
 
+  // ============================================================
+  //                       CUSTOMERS (CRM)
+  // ============================================================
+  let customersCache = [];
+  let custFilters = { query: "", segment: "" };
+
+  async function loadCustomers(){
+    try {
+      const qs = new URLSearchParams();
+      if (custFilters.query) qs.set("query", custFilters.query);
+      if (custFilters.segment) qs.set("segment", custFilters.segment);
+      const r = await api("GET", "/api/admin/customers" + (qs.toString() ? "?" + qs.toString() : ""));
+      customersCache = r.customers || [];
+      renderCustomers();
+      renderCustomerStats();
+    } catch (err) {
+      if (err.status === 401) { tokenSet(null); showLogin("Сессия истекла"); return; }
+      $("#customers-table-wrap").innerHTML = '<div class="empty"><h3>Ошибка</h3><p>'+escapeHtml(err.message||"")+'</p></div>';
+    }
+  }
+
+  function renderCustomerStats(){
+    // stats считаем по СВЕЖЕМУ списку без фильтров — отдельный запрос
+    api("GET", "/api/admin/customers").then(r => {
+      const all = r.customers || [];
+      const dayMs = 24*3600*1000;
+      $("#cust-stat-total").textContent = all.length;
+      $("#cust-stat-new").innerHTML = "<em>" + all.filter(c => (c.paidCount||0) === 1).length + "</em>";
+      $("#cust-stat-active").textContent = all.filter(c => (c.paidCount||0) >= 2).length;
+      $("#cust-stat-dormant").textContent = all.filter(c =>
+        (c.paidCount||0) >= 1 && (Date.now() - (c.lastOrderAt||0)) > 30*dayMs
+      ).length;
+    }).catch(()=>{});
+  }
+
+  function segmentLabel(c){
+    const dayMs = 24*3600*1000;
+    if ((c.paidCount||0) === 0) return { label: "новый (без оплат)", cls: "tag-pill tag-hidden" };
+    if ((Date.now() - (c.lastOrderAt||0)) > 30*dayMs) return { label: "спящий", cls: "tag-pill tag-out" };
+    if ((c.paidCount||0) >= 2) return { label: "постоянный", cls: "tag-pill tag-fresh" };
+    return { label: "новый клиент", cls: "tag-pill tag-sale" };
+  }
+
+  function renderCustomers(){
+    const wrap = $("#customers-table-wrap");
+    if (!customersCache.length) {
+      wrap.innerHTML = '<div class="empty"><h3>Клиентов нет</h3><p>База строится автоматически из заказов.</p></div>';
+      return;
+    }
+    let html = '<table class="orders-table"><thead><tr>'
+      + '<th>Клиент</th><th>Контакты</th><th>Заказы</th><th>Сумма</th><th>Средний чек</th><th>Бонусы</th><th>Сегмент</th>'
+      + '</tr></thead><tbody>';
+    customersCache.forEach(c => {
+      const seg = segmentLabel(c);
+      html += '<tr data-cust-id="' + escapeHtml(c.id) + '" style="cursor:pointer">'
+        + '<td><div class="name">' + escapeHtml(c.name || "—") + '</div>'
+        +   (c.tags && c.tags.length ? '<div style="margin-top:4px">' + c.tags.map(t => '<span class="tag-pill tag-fresh" style="margin-right:4px">' + escapeHtml(t) + '</span>').join('') + '</div>' : '')
+        +   '</td>'
+        + '<td><div style="font-size:12px;color:var(--ink-soft)">' + escapeHtml(c.phone || "—") + '</div>'
+        +   '<div style="font-size:12px;color:var(--mute)">' + escapeHtml(c.email || "") + '</div></td>'
+        + '<td><strong>' + (c.orderCount||0) + '</strong>'
+        +   '<div class="meta" style="font-family:var(--mono);font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">оплачено: ' + (c.paidCount||0) + (c.cancelledCount ? ' · отмен: ' + c.cancelledCount : '') + '</div></td>'
+        + '<td class="total"><strong>' + fmt(c.totalSpent||0) + '</strong></td>'
+        + '<td>' + fmt(c.avgCheck||0) + '</td>'
+        + '<td>'
+        +   ((c.wallet||0) > 0 ? '<strong>' + fmt(c.wallet) + '</strong>' : '<span style="color:var(--mute)">—</span>')
+        +   ((c.bonusPending||0) > 0 ? ' <span class="tag-pill tag-sale">+ pending ' + fmt(c.bonusPending) + '</span>' : '')
+        +   '</td>'
+        + '<td><span class="' + seg.cls + '">' + seg.label + '</span>'
+        +   (c.referralPromo ? '<div style="font-family:var(--mono);font-size:10px;color:var(--mute);margin-top:4px;letter-spacing:.04em">' + escapeHtml(c.referralPromo) + '</div>' : '')
+        +   '</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('tr[data-cust-id]').forEach(tr =>
+      tr.addEventListener('click', () => openCustomerModal(tr.dataset.custId))
+    );
+  }
+
+  async function openCustomerModal(id){
+    try {
+      const r = await api("GET", "/api/admin/customers/" + encodeURIComponent(id));
+      const c = r.customer;
+      const orders = r.orders || [];
+      const bonuses = r.bonuses || [];
+      $("#cust-modal-title").textContent = c.name || c.email || c.phone || "Клиент";
+
+      const seg = segmentLabel(c);
+      let body = '<div class="detail-section"><h4>Контакты и статистика</h4>'
+        + '<div class="kv">'
+        +   '<div class="lbl">Email</div><div class="val">' + escapeHtml(c.email || "—") + '</div>'
+        +   '<div class="lbl">Телефон</div><div class="val">' + escapeHtml(c.phone || "—") + '</div>'
+        +   (c.phones && c.phones.length > 1 ? '<div class="lbl">Другие телефоны</div><div class="val">' + c.phones.filter(p => p !== c.phone).map(escapeHtml).join(", ") + '</div>' : '')
+        +   (c.emails && c.emails.length > 1 ? '<div class="lbl">Другие email</div><div class="val">' + c.emails.filter(e => e !== c.email).map(escapeHtml).join(", ") + '</div>' : '')
+        +   '<div class="lbl">Адреса</div><div class="val">' + (c.addresses && c.addresses.length ? c.addresses.map(escapeHtml).join("<br>") : "—") + '</div>'
+        +   '<div class="lbl">Первый заказ</div><div class="val">' + (c.firstOrderAt ? fmtDt(c.firstOrderAt) : "—") + '</div>'
+        +   '<div class="lbl">Последний заказ</div><div class="val">' + (c.lastOrderAt ? fmtDt(c.lastOrderAt) : "—") + '</div>'
+        +   '<div class="lbl">Сегмент</div><div class="val"><span class="' + seg.cls + '">' + seg.label + '</span></div>'
+        + '</div></div>';
+
+      body += '<div class="detail-section"><h4>Деньги</h4>'
+        + '<div class="kv">'
+        +   '<div class="lbl">Заказов всего</div><div class="val"><strong>' + (c.orderCount||0) + '</strong></div>'
+        +   '<div class="lbl">Из них оплачено</div><div class="val">' + (c.paidCount||0) + '</div>'
+        +   '<div class="lbl">Отменено</div><div class="val">' + (c.cancelledCount||0) + '</div>'
+        +   '<div class="lbl">Сумма заказов</div><div class="val"><strong>' + fmt(c.totalSpent||0) + '</strong></div>'
+        +   '<div class="lbl">Средний чек</div><div class="val">' + fmt(c.avgCheck||0) + '</div>'
+        +   '<div class="lbl">Бонусный баланс</div><div class="val"><strong>' + fmt(c.wallet||0) + '</strong></div>'
+        +   ((c.bonusPending||0) > 0 ? '<div class="lbl">Ожидает зачисления</div><div class="val">' + fmt(c.bonusPending) + '</div>' : '')
+        +   ((c.bonusEarned||0) > 0 ? '<div class="lbl">Всего заработано</div><div class="val">' + fmt(c.bonusEarned) + '</div>' : '')
+        + '</div></div>';
+
+      if (c.referralPromo) {
+        body += '<div class="detail-section"><h4>Реф-промокод</h4>'
+          + '<div style="display:flex;align-items:center;gap:10px;background:var(--ivory-2);padding:10px 14px;border-radius:var(--r-sm);font-family:var(--mono);font-size:13px;letter-spacing:.04em">'
+          +   '<strong>' + escapeHtml(c.referralPromo) + '</strong>'
+          +   '<button type="button" class="mini-btn" id="cust-copy-promo" style="margin-left:auto">Скопировать</button>'
+          + '</div></div>';
+      }
+
+      // История заказов (компактно)
+      if (orders.length) {
+        body += '<div class="detail-section"><h4>Заказы (' + orders.length + ')</h4>'
+          + '<div style="max-height:240px;overflow-y:auto">'
+          + '<table class="orders-table"><tbody>'
+          + orders.map(o =>
+              '<tr style="cursor:pointer" data-go-order="' + escapeHtml(o.id) + '">'
+              + '<td><div class="id">' + escapeHtml(o.id) + '</div><div style="color:var(--mute);font-size:11px">' + fmtDt(o.createdAt) + '</div></td>'
+              + '<td><span class="' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></td>'
+              + '<td class="total">' + fmt(o.total||0) + '</td>'
+              + '</tr>'
+            ).join("")
+          + '</tbody></table></div></div>';
+      }
+
+      // Бонусы (компактно)
+      if (bonuses.length) {
+        body += '<div class="detail-section"><h4>Журнал бонусов</h4>'
+          + '<div style="max-height:160px;overflow-y:auto">'
+          + bonuses.map(b => {
+              const stCls = { pending: "tag-sale", credited: "tag-fresh", spent: "tag-hidden", voided: "tag-hidden" }[b.status] || "tag-hidden";
+              return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">'
+                + '<span><strong>' + fmt(b.amount) + '</strong> <span class="tag-pill ' + stCls + '" style="margin-left:6px">' + b.status + '</span></span>'
+                + '<span style="font-family:var(--mono);font-size:11px;color:var(--mute)">от ' + escapeHtml(b.fromOrderId) + ' · ' + fmtDt(b.at) + '</span>'
+                + '</div>';
+            }).join("")
+          + '</div></div>';
+      }
+
+      // Редактирование: имя, заметки, теги
+      body += '<div class="detail-section"><h4>Заметки и теги (видны только админу)</h4>'
+        + '<div class="row"><div class="field"><label>Имя</label><input type="text" id="cust-name" value="' + escapeHtml(c.name||"") + '"></div>'
+        + '<div class="field"><label>Теги (через запятую)</label><input type="text" id="cust-tags" value="' + escapeHtml((c.tags||[]).join(", ")) + '" placeholder="vip, postoyannyy"></div></div>'
+        + '<div class="field"><label>Заметка</label><textarea id="cust-notes" style="min-height:80px" placeholder="например: предпочитает доставку курьером после 18:00">' + escapeHtml(c.notes||"") + '</textarea></div>'
+        + '<div style="margin-top:8px"><button class="btn" id="cust-save-btn" type="button">Сохранить</button></div>'
+        + '</div>';
+
+      $("#cust-modal-body").innerHTML = body;
+      $("#cust-modal").classList.add("show");
+
+      // Скрепить хендлеры
+      const copyBtn = $("#cust-copy-promo");
+      if (copyBtn) copyBtn.addEventListener("click", () => {
+        navigator.clipboard?.writeText(c.referralPromo).then(() =>
+          window.showToast?.("Промокод " + c.referralPromo + " скопирован", "success", 2400)
+        );
+      });
+      $$("[data-go-order]", $("#cust-modal-body")).forEach(tr => {
+        tr.addEventListener("click", () => {
+          const oid = tr.dataset.goOrder;
+          $("#cust-modal").classList.remove("show");
+          // Открываем модалку заказа
+          if (typeof openDetail === "function") openDetail(oid);
+        });
+      });
+      $("#cust-save-btn").addEventListener("click", async () => {
+        const btn = $("#cust-save-btn"); const t = btn.textContent;
+        btn.disabled = true; btn.textContent = "Сохраняем…";
+        try {
+          const tags = $("#cust-tags").value.split(/,\s*/).map(s => s.trim()).filter(Boolean);
+          await api("PATCH", "/api/admin/customers/" + encodeURIComponent(id), {
+            name: $("#cust-name").value.trim(),
+            notes: $("#cust-notes").value,
+            tags,
+          });
+          btn.textContent = "Сохранено ✓";
+          await loadCustomers();
+          setTimeout(() => { btn.textContent = t; btn.disabled = false; }, 1500);
+        } catch (err) {
+          alert("Ошибка: " + (err.message || ""));
+          btn.textContent = t; btn.disabled = false;
+        }
+      });
+    } catch (err) {
+      alert("Не удалось загрузить клиента: " + (err.message || ""));
+    }
+  }
+
+  $("#cust-modal-close").addEventListener("click", () => $("#cust-modal").classList.remove("show"));
+  $("#cust-modal").addEventListener("click", e => { if (e.target === $("#cust-modal")) $("#cust-modal").classList.remove("show"); });
+
+  // Filters wiring
+  $("#cust-query").addEventListener("input", () => { custFilters.query = $("#cust-query").value; loadCustomers(); });
+  $("#cust-segment").addEventListener("change", () => { custFilters.segment = $("#cust-segment").value; loadCustomers(); });
+  $("#cust-refresh-btn").addEventListener("click", loadCustomers);
+  $("#cust-rebuild-btn").addEventListener("click", async () => {
+    if (!confirm("Пересобрать клиентов из заказов? Заметки/теги обнулятся.")) return;
+    try {
+      const r = await api("POST", "/api/admin/customers/rebuild");
+      window.showToast?.("Пересобрано: " + r.total + " клиентов", "success");
+      await loadCustomers();
+    } catch (err) { alert("Ошибка: " + (err.message||"")); }
+  });
+
   // ----- BOOT -----
   async function boot(){
     try {
@@ -2883,6 +3151,7 @@ input,select,textarea{font:inherit;color:inherit}
       await Promise.all([
         loadOrders(), loadSettings(), loadRobokassa(), loadCatalog(), loadMedia(),
         loadContent(), loadLegal(), loadNotifications(),
+        loadCustomers(),
       ]);
       renderContentEditor();
     } catch (err) {

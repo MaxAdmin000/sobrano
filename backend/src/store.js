@@ -2,6 +2,7 @@
 // На горячих путях — кэш в памяти, на запись — atomic rename.
 const fs = require("node:fs");
 const path = require("node:path");
+const crypto = require("node:crypto");
 const seedCatalog = require("./seed-catalog");
 const seedContent = require("./seed-content");
 
@@ -62,6 +63,11 @@ const DEFAULT = () => ({
   // Контент сайта (тексты страниц, FAQ, реф-программа, юр.доки)
   content: JSON.parse(JSON.stringify(seedContent)),
   orders: [],
+  // CRM: клиенты автогенерируются из заказов на ходу.
+  customers: [],
+  // Журнал начислений реф-бонусов: куда и от какого заказа пришла копейка.
+  // [{ id, ownerCustomerId, fromOrderId, amount, status: pending|credited|spent, at }]
+  bonuses: [],
 });
 
 let cache = null;
@@ -87,6 +93,8 @@ function load() {
         catalog: parsed.catalog && typeof parsed.catalog === "object" ? parsed.catalog : def.catalog,
         content: deepMerge(def.content, parsed.content || {}),
         orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+        customers: Array.isArray(parsed.customers) ? parsed.customers : [],
+        bonuses: Array.isArray(parsed.bonuses) ? parsed.bonuses : [],
       };
       ["boxes", "flowers", "picks", "addons", "promos", "payments"].forEach((k) => {
         if (!Array.isArray(cache.catalog[k])) cache.catalog[k] = def.catalog[k] || [];
@@ -152,6 +160,8 @@ function addOrder(order) {
   s.orders.unshift(seeded);
   if (s.orders.length > 1000) s.orders.length = 1000;
   save();
+  // CRM: апсерт клиента из заказа (создаст карточку или обновит метрики).
+  upsertCustomerFromOrder(seeded);
   return seeded;
 }
 
@@ -197,10 +207,19 @@ function updateOrder(id, patch) {
       bumpPromoUsage(next.promo);
       next.promoUsageDecremented = false;
     }
+
+    // Реф-бонусы: переводим pending → credited когда заказ-источник стал оплаченным,
+    // и обнуляем (void) если заказ-источник отменили.
+    const becamePaid = PAID_STATUSES.indexOf(patch.status) >= 0 && PAID_STATUSES.indexOf(prev.status || "new") < 0;
+    const becameCancelled = patch.status === "cancelled" && prev.status !== "cancelled";
+    if (becamePaid) creditPendingBonusesForOrder(next.id);
+    if (becameCancelled) voidBonusesForOrder(next.id);
   }
 
   s.orders[idx] = next;
   save();
+  // Любое изменение заказа → пересчитываем метрики клиента (totalSpent зависит от статусов).
+  upsertCustomerFromOrder(next);
   return next;
 }
 
@@ -213,6 +232,228 @@ function decrementPromoUsage(code) {
     save();
   }
 }
+
+// ---------- CUSTOMERS / CRM ----------
+// Клиенты автособираются из заказов: после addOrder/updateOrder вызывается upsertCustomerFromOrder.
+// Первичный идентификатор — email; если email нет, fallback на нормализованный телефон.
+// Статусы paid/doing/shipped/done считаются "оплаченным заказом" для статистики.
+// cancelled — НЕ учитывается в totalSpent, но фигурирует в orderCount/cancelledCount.
+
+const PAID_STATUSES = ["paid", "doing", "shipped", "done"];
+
+function normalizeEmail(e) { return String(e || "").trim().toLowerCase(); }
+function normalizePhone(p) {
+  // Только цифры, ведущая 7/8 → +7. Без жёсткой валидации.
+  const digits = String(p || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.length === 11 && (digits[0] === "7" || digits[0] === "8")) return "+7" + digits.slice(1);
+  if (digits.length === 10) return "+7" + digits;
+  return "+" + digits;
+}
+function customerKey(email, phone) {
+  if (email) return "email:" + normalizeEmail(email);
+  if (phone) return "phone:" + normalizePhone(phone);
+  return "";
+}
+
+function listCustomers() { return load().customers.slice(); }
+function getCustomerById(id) { return load().customers.find((c) => c.id === id) || null; }
+function getCustomerByKey(key) { return load().customers.find((c) => c.primaryId === key) || null; }
+function getCustomerByEmail(email) {
+  const k = customerKey(email, "");
+  return k ? getCustomerByKey(k) : null;
+}
+
+// Вытаскиваем поля клиента из заказа (форма checkout кладёт всё в order.customer).
+function extractCustomerFromOrder(order) {
+  const c = order && order.customer ? order.customer : {};
+  return {
+    name: String(c.name || "").trim(),
+    email: normalizeEmail(c.email),
+    phone: normalizePhone(c.phone),
+    addr: String(c.addr || "").trim(),
+    apt: String(c.apt || "").trim(),
+    channel: c.channel || "",
+  };
+}
+
+// Создаёт или обновляет клиента по факту заказа. Возвращает customer record.
+function upsertCustomerFromOrder(order) {
+  if (!order || !order.customer) return null;
+  const data = extractCustomerFromOrder(order);
+  const key = customerKey(data.email, data.phone);
+  if (!key) return null;
+  const s = load();
+  let cust = s.customers.find((c) => c.primaryId === key);
+  if (!cust) {
+    cust = {
+      id: crypto.randomBytes(4).toString("hex"),
+      primaryId: key,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      emails: data.email ? [data.email] : [],
+      phones: data.phone ? [data.phone] : [],
+      addresses: data.addr ? [combineAddr(data.addr, data.apt)] : [],
+      channels: data.channel ? [data.channel] : [],
+      firstOrderAt: order.createdAt || Date.now(),
+      lastOrderAt: order.createdAt || Date.now(),
+      orderCount: 0,
+      paidCount: 0,
+      cancelledCount: 0,
+      totalSpent: 0,
+      avgCheck: 0,
+      wallet: 0,            // доступный реф-бонус для следующего заказа
+      bonusPending: 0,      // ожидает зачисления (заказ ещё не paid)
+      bonusEarned: 0,       // всего заработано бонусов за всё время
+      bonusSpent: 0,        // всего потрачено
+      referralPromo: null,  // персональный реф-код (создаётся при первой оплате)
+      notes: "",
+      tags: [],
+      createdAt: Date.now(),
+    };
+    s.customers.push(cust);
+  } else {
+    // Обновляем «свежие» поля по последнему заказу
+    if (data.name) cust.name = data.name;
+    if (data.email && !cust.email) cust.email = data.email;
+    if (data.phone && !cust.phone) cust.phone = data.phone;
+    addUnique(cust.emails, data.email);
+    addUnique(cust.phones, data.phone);
+    addUnique(cust.addresses, combineAddr(data.addr, data.apt));
+    addUnique(cust.channels, data.channel);
+  }
+  // Полный пересчёт статистики из orders — дешевле чем поддерживать инкрементальные счётчики.
+  recomputeCustomerStats(cust);
+  save();
+  return cust;
+}
+
+function combineAddr(addr, apt) {
+  return [addr, apt].filter(Boolean).join(", ");
+}
+function addUnique(arr, val) {
+  if (!val) return;
+  if (!arr.includes(val)) arr.push(val);
+}
+
+function recomputeCustomerStats(cust) {
+  const s = load();
+  const all = s.orders.filter((o) => {
+    const c = o.customer || {};
+    const k = customerKey(c.email, c.phone);
+    return k === cust.primaryId;
+  });
+  cust.orderCount = all.length;
+  cust.paidCount = all.filter((o) => PAID_STATUSES.indexOf(o.status || "new") >= 0).length;
+  cust.cancelledCount = all.filter((o) => (o.status || "new") === "cancelled").length;
+  cust.totalSpent = all
+    .filter((o) => PAID_STATUSES.indexOf(o.status || "new") >= 0)
+    .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  cust.avgCheck = cust.paidCount > 0 ? Math.round(cust.totalSpent / cust.paidCount) : 0;
+  if (all.length) {
+    const sorted = all.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    cust.firstOrderAt = sorted[0].createdAt || cust.firstOrderAt;
+    cust.lastOrderAt = sorted[sorted.length - 1].createdAt || cust.lastOrderAt;
+  }
+}
+
+// Полный backfill — пройти по всем заказам и собрать клиентов. Вызывается из миграции
+// при первом запуске после релиза F33, либо вручную через POST /api/admin/customers/rebuild.
+function rebuildCustomersFromOrders() {
+  const s = load();
+  s.customers = [];
+  // Идём от самых старых заказов вперёд, чтобы firstOrderAt/lastOrderAt вычислились корректно
+  // на каждом шаге (recomputeCustomerStats всё равно пересчитает по всему массиву).
+  const sorted = s.orders.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  for (const o of sorted) {
+    upsertCustomerFromOrder(o);
+  }
+  return s.customers.length;
+}
+
+function patchCustomer(id, patch) {
+  const s = load();
+  const c = s.customers.find((x) => x.id === id);
+  if (!c) return null;
+  if (typeof patch.name === "string") c.name = patch.name.slice(0, 120);
+  if (typeof patch.notes === "string") c.notes = patch.notes.slice(0, 5000);
+  if (Array.isArray(patch.tags)) c.tags = patch.tags.map(String).slice(0, 20);
+  save();
+  return c;
+}
+
+// ---------- BONUSES (для реф-программы) ----------
+
+function addBonus({ ownerCustomerId, fromOrderId, amount, status }) {
+  const s = load();
+  const b = {
+    id: crypto.randomBytes(4).toString("hex"),
+    ownerCustomerId,
+    fromOrderId,
+    amount: Number(amount) || 0,
+    status: status || "pending",
+    at: Date.now(),
+  };
+  s.bonuses.push(b);
+  const cust = s.customers.find((c) => c.id === ownerCustomerId);
+  if (cust) {
+    if (b.status === "pending") cust.bonusPending = (cust.bonusPending || 0) + b.amount;
+    else if (b.status === "credited") {
+      cust.wallet = (cust.wallet || 0) + b.amount;
+      cust.bonusEarned = (cust.bonusEarned || 0) + b.amount;
+    }
+  }
+  save();
+  return b;
+}
+
+// Перевести pending → credited (вызывается когда заказ-источник стал оплачен).
+function creditPendingBonusesForOrder(fromOrderId) {
+  const s = load();
+  let credited = 0;
+  for (const b of s.bonuses) {
+    if (b.fromOrderId === fromOrderId && b.status === "pending") {
+      b.status = "credited";
+      b.at = Date.now();
+      const cust = s.customers.find((c) => c.id === b.ownerCustomerId);
+      if (cust) {
+        cust.bonusPending = Math.max(0, (cust.bonusPending || 0) - b.amount);
+        cust.wallet = (cust.wallet || 0) + b.amount;
+        cust.bonusEarned = (cust.bonusEarned || 0) + b.amount;
+      }
+      credited++;
+    }
+  }
+  if (credited) save();
+  return credited;
+}
+
+// Если заказ-источник отменён — pending бонусы по нему стираются, credited переводим в "voided".
+function voidBonusesForOrder(fromOrderId) {
+  const s = load();
+  let voided = 0;
+  for (const b of s.bonuses) {
+    if (b.fromOrderId === fromOrderId && (b.status === "pending" || b.status === "credited")) {
+      const cust = s.customers.find((c) => c.id === b.ownerCustomerId);
+      if (cust) {
+        if (b.status === "pending") {
+          cust.bonusPending = Math.max(0, (cust.bonusPending || 0) - b.amount);
+        } else if (b.status === "credited") {
+          cust.wallet = Math.max(0, (cust.wallet || 0) - b.amount);
+          cust.bonusEarned = Math.max(0, (cust.bonusEarned || 0) - b.amount);
+        }
+      }
+      b.status = "voided";
+      b.at = Date.now();
+      voided++;
+    }
+  }
+  if (voided) save();
+  return voided;
+}
+
+function listBonuses() { return load().bonuses.slice(); }
 
 // ---------- CATALOG ----------
 
@@ -502,4 +743,20 @@ module.exports = {
   getAllLegal,
   saveLegal,
   LEGAL_KEYS,
+  // customers / CRM
+  listCustomers,
+  getCustomerById,
+  getCustomerByEmail,
+  upsertCustomerFromOrder,
+  patchCustomer,
+  rebuildCustomersFromOrders,
+  // bonuses
+  addBonus,
+  listBonuses,
+  creditPendingBonusesForOrder,
+  voidBonusesForOrder,
+  // helpers (для admin/notifications)
+  normalizeEmail,
+  normalizePhone,
+  PAID_STATUSES,
 };

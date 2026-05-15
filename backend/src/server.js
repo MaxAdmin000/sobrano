@@ -475,6 +475,21 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/admin/notifications/test") {
     return wrapCors(req, res, () => adminApi.notificationsTest(req, res));
   }
+
+  // ---- Admin: customers (CRM) ----
+  if (req.method === "GET" && pathname === "/api/admin/customers") {
+    return wrapCors(req, res, () => adminApi.listCustomers(req, res));
+  }
+  if (req.method === "POST" && pathname === "/api/admin/customers/rebuild") {
+    return wrapCors(req, res, () => adminApi.rebuildCustomers(req, res));
+  }
+  const custMatch = pathname.match(/^\/api\/admin\/customers\/([a-zA-Z0-9_-]+)$/);
+  if (req.method === "GET" && custMatch) {
+    return wrapCors(req, res, () => adminApi.getCustomer(req, res, custMatch[1]));
+  }
+  if (req.method === "PATCH" && custMatch) {
+    return wrapCors(req, res, () => adminApi.patchCustomer(req, res, custMatch[1]));
+  }
   if (req.method === "GET" && pathname === "/api/admin/robokassa") {
     return wrapCors(req, res, () => adminApi.getRobokassa(req, res));
   }
