@@ -2342,8 +2342,14 @@ input,select,textarea{font:inherit;color:inherit}
     when: "Когда",
     meta: "Доп. подпись",
     featured: "Выделено",
-    peak: "Пиковое",
+    peak: "Пиковый слот",
     t: "Время / интервал",
+    lbl: "Подпись слота",
+    surcharge: "Доплата к доставке, ₽",
+    startHour: "Начало (час)",
+    endHour: "Конец (час)",
+    checkoutHidden: "Скрыть в чекауте (информационный)",
+    id: "ID",
     r: "Значение",
     l: "Подпись",
     q: "Вопрос",
@@ -2575,7 +2581,14 @@ input,select,textarea{font:inherit;color:inherit}
 
     const head = document.createElement("div");
     head.className = "item-head";
-    head.innerHTML = '<span>№ ' + (idx + 1) + '</span><button type="button" class="del" data-del>удалить</button>';
+    // Если у элемента есть «именующее» поле (t/name/title/label/q/h/ix) — показываем его рядом с № N,
+    // чтобы в свёрнутом виде было видно, какую запись ты редактируешь.
+    let preview = "";
+    if (item && typeof item === "object") {
+      const nameField = item.t || item.name || item.title || item.label || item.h || item.q || item.ix || "";
+      if (nameField) preview = ' · <span style="color:var(--mute);font-weight:400">' + escapeHtml(String(nameField).slice(0, 60)) + '</span>';
+    }
+    head.innerHTML = '<span>№ ' + (idx + 1) + preview + '</span><button type="button" class="del" data-del>удалить</button>';
     wrap.appendChild(head);
 
     const fields = document.createElement("div");
