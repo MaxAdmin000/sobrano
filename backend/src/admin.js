@@ -5,6 +5,7 @@ const crypto = require("node:crypto");
 const store = require("./store");
 const auth = require("./auth");
 const notifications = require("./notifications");
+const logger = require("./logger");
 
 const UPLOADS_DIR = path.join(__dirname, "..", "data", "uploads");
 
@@ -120,10 +121,47 @@ function validatePromoServer(rawCode, subtotal, buyerCtx) {
   return out;
 }
 
+// K54 rate-limit для публичного /api/orders.
+// Лимиты мягче чем у /api/contact — нормальный клиент может оформить пару заказов
+// (себе и в подарок), но не больше 30 в час с одного IP (анти-бот / анти-флуд).
+const _orderRate = new Map(); // ip → { lastAt, hour: {start, count} }
+const ORDER_MIN_INTERVAL_MS = 10 * 1000;
+const ORDER_HOUR_LIMIT = 30;
+
+function rateLimitOrder(ip) {
+  const now = Date.now();
+  const rec = _orderRate.get(ip) || { lastAt: 0, hour: { start: now, count: 0 } };
+  if (now - rec.lastAt < ORDER_MIN_INTERVAL_MS) return { ok: false, reason: "Слишком быстро — подождите 10 секунд между заказами" };
+  if (now - rec.hour.start > 3600 * 1000) { rec.hour = { start: now, count: 0 }; }
+  if (rec.hour.count >= ORDER_HOUR_LIMIT) return { ok: false, reason: "Слишком много заказов с одного IP за час" };
+  rec.lastAt = now;
+  rec.hour.count++;
+  _orderRate.set(ip, rec);
+  return { ok: true };
+}
+
 async function postOrder(req, res, env) {
   try {
     const payload = await parseJsonBody(req);
     if (!payload || typeof payload !== "object") throw new Error("Invalid payload");
+
+    // K55: honeypot. Реальный клиент через cart-flow никогда не пришлёт это поле.
+    // Боты, заполняющие все поля формы целиком, попадутся — тихо отвечаем 200 без сохранения.
+    if (payload.hp && String(payload.hp).trim() !== "") {
+      logger.warn("order.honeypot", { ip: clientIp(req) });
+      sendJson(res, 200, { ok: true, id: "bot-rejected" });
+      return;
+    }
+
+    // K54: rate-limit. Срабатывает раньше дорогой валидации/записи в store.
+    const ip = clientIp(req);
+    const limit = rateLimitOrder(ip);
+    if (!limit.ok) {
+      logger.warn("order.rate_limited", { ip, reason: limit.reason });
+      sendJson(res, 429, { ok: false, error: limit.reason });
+      return;
+    }
+
     // Принимаем `id` или `orderId` — Cart.finalize() на фронте генерит orderId, бэкенд хранит как id.
     const orderId = payload.id || payload.orderId;
     if (!orderId) throw new Error("Order id required");
@@ -156,10 +194,15 @@ async function postOrder(req, res, env) {
     if (saved.promo) store.bumpPromoUsage(saved.promo);
 
     notifications.onOrderCreated(saved);
-    const promoLog = promoResult.code
-      ? "promo=" + promoResult.code + " -" + promoResult.discount + "₽"
-      : (payload.promo ? "promo-rejected(" + payload.promo + ":" + promoResult.reason + ")" : "no-promo");
-    console.log("[order] saved", saved.id, "subtotal=" + subtotal, "total=" + total, promoLog, "from", (saved.customer && saved.customer.phone) || "no-phone");
+    logger.info("order.created", {
+      id: saved.id,
+      subtotal, total,
+      promo: promoResult.code || null,
+      promoRejected: promoResult.reason || null,
+      delivery: saved.delivery,
+      phone: (saved.customer && saved.customer.phone) || null,
+      ip,
+    });
     sendJson(res, 200, {
       ok: true,
       id: saved.id,
@@ -168,7 +211,7 @@ async function postOrder(req, res, env) {
       promoRejected: promoResult.reason,
     });
   } catch (e) {
-    console.warn("[order] rejected:", e.message);
+    logger.warn("order.rejected", { err: e.message });
     sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
   }
 }
@@ -320,20 +363,28 @@ function getLegalPublic(req, res, key) {
 async function login(req, res, env) {
   const ip = clientIp(req);
   const ua = String(req.headers["user-agent"] || "");
+  const blockSecondsLeft = auth.isLoginBlocked(ip);
+  if (blockSecondsLeft) {
+    logger.warn("login.blocked", { ip, secondsLeft: blockSecondsLeft });
+    sendJson(res, 429, { ok: false, error: `Слишком много неудачных попыток. Попробуйте через ${blockSecondsLeft} сек.` });
+    return;
+  }
   try {
     const body = await parseJsonBody(req);
     const token = auth.login(env, body.login, body.password);
     if (!token) {
-      // I48: фиксируем неудачу для brute-force-детектора (in-memory).
       auth.recordLoginFailure(ip, ua);
+      logger.warn("login.failure", { ip, login: body.login || null, ua: ua.slice(0, 120) });
       sendJson(res, 401, { ok: false, error: "Неверные логин или пароль" });
       return;
     }
-    auth.clearLoginFailures(ip); // успех с этого IP — сбрасываем счётчик
+    auth.clearLoginFailures(ip);
+    logger.info("login.success", { ip, login: body.login });
     sendJson(res, 200, { ok: true, token }, {
       "set-cookie": `sob_admin=${token}; Path=/; Max-Age=43200; HttpOnly; SameSite=Lax`,
     });
   } catch (e) {
+    logger.warn("login.bad_request", { ip, err: e.message });
     sendJson(res, 400, { ok: false, error: "Bad request" });
   }
 }
@@ -814,7 +865,7 @@ async function postContactForm(req, res) {
     // Honeypot: реальные пользователи никогда это поле не заполнят (display:none).
     // Боты заполняют все поля формы — если `hp` непустое, тихо возвращаем 200 без действий.
     if (payload.hp && String(payload.hp).trim() !== "") {
-      console.log("[contact] honeypot triggered from", clientIp(req));
+      logger.warn("contact.honeypot", { ip: clientIp(req) });
       sendJson(res, 200, { ok: true });
       return;
     }
@@ -839,9 +890,9 @@ async function postContactForm(req, res) {
     }
 
     notifications.notifyAdminContactForm({ name, phone, email, topic, orderId, message })
-      .catch((e) => console.warn("[contact] tg failed:", e && e.message));
+      .catch((e) => logger.warn("contact.tg_failed", { err: e && e.message }));
 
-    console.log("[contact] new submission from", ip, "·", name, phone, "topic=" + (topic || "—"));
+    logger.info("contact.received", { ip, name, phone, topic: topic || null, hasMessage: !!message });
     sendJson(res, 200, { ok: true });
   } catch (e) {
     sendJson(res, 400, { ok: false, error: e.message || "Bad request" });

@@ -22,6 +22,7 @@ const { postWebhook } = require("./webhook");
 const adminApi = require("./admin");
 const store = require("./store");
 const notifications = require("./notifications");
+const logger = require("./logger");
 
 loadDotEnv(path.join(__dirname, "..", ".env"));
 
@@ -613,6 +614,7 @@ function wrapCors(req, res, handler) {
 }
 
 server.listen(port, () => {
+  logger.info("server.started", { port, pid: process.pid, node: process.version });
   console.log(`СОБРАНО backend on http://localhost:${port}`);
   console.log(`  admin UI: http://localhost:${port}/admin`);
   console.log(`  health:   http://localhost:${port}/health`);

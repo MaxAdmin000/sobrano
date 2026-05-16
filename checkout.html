@@ -317,6 +317,14 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
           <span class="checkbox checked" id="cb"></span>
           <span>Я согласен с <a href="privacy-policy.html">политикой конфиденциальности</a>, <a href="terms.html">пользовательским соглашением</a> и <a href="offer.html">публичной офертой</a>. Даю согласие на обработку персональных данных в соответствии с 152-ФЗ.</span>
         </div>
+
+        <!-- K55 honeypot: невидимое поле, реальный пользователь его не заполняет.
+             Боты, которые автозаполняют все поля формы — попадутся и backend
+             вернёт ok:true без сохранения заказа. -->
+        <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+          <label for="hp-checkout">Не заполняйте</label>
+          <input type="text" id="hp-checkout" name="website" tabindex="-1" autocomplete="off">
+        </div>
       </section>
     </div>
 
@@ -747,7 +755,12 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
     }
     // POST в бэкенд — чтобы заказ был виден в админке. Если бэкенд не отвечает — продолжаем (заказ остался в localStorage).
     // Маппим orderId → id, потому что бэкенд ждёт поле `id`.
-    const payload = Object.assign({}, order, { id: order.id || order.orderId });
+    // K55: передаём honeypot — backend проверит, что поле пустое.
+    const hpEl = document.getElementById('hp-checkout');
+    const payload = Object.assign({}, order, {
+      id: order.id || order.orderId,
+      hp: hpEl ? hpEl.value : '',
+    });
     try {
       const r = await fetch('/api/orders', {
         method: 'POST',
@@ -758,6 +771,13 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
       if (!r.ok) {
         const data = await r.json().catch(() => ({}));
         console.warn('POST /api/orders failed:', r.status, data && data.error);
+        // K54: rate-limit (429) — показываем клиенту понятное сообщение и не редиректим.
+        if (r.status === 429) {
+          if (window.showToast) window.showToast(data.error || 'Слишком много запросов — подождите минуту', 'warning', 6000);
+          btn.disabled = false;
+          btn.innerHTML = origLabel;
+          return;
+        }
       }
     } catch (e) {
       console.warn('POST /api/orders network error:', e);

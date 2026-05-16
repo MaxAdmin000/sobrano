@@ -51,16 +51,36 @@ function recordLoginFailure(ip, userAgent) {
     // Динамический require, чтобы избежать циклической зависимости.
     try {
       const notifications = require("./notifications");
+      const logger = require("./logger");
+      logger.warn("login.bruteforce_detected", { ip, attempts: rec.count, windowMin: 10 });
       notifications.notifyAdminLoginBruteforce({
         ip, attempts: rec.count, windowMin: 10,
         userAgent: rec.ua, lastAt: rec.lastAt,
-      }).catch((e) => console.warn("[bruteforce-alert] tg failed:", e && e.message));
-    } catch (e) { console.warn("[bruteforce-alert] load failed:", e.message); }
+      }).catch((e) => { try { require("./logger").warn("login.bruteforce_alert_failed", { err: e && e.message }); } catch (_) {} });
+    } catch (e) { /* logger/notifications недоступны — fail-open */ }
   }
 }
 
 function clearLoginFailures(ip) {
   if (ip) _loginFails.delete(ip);
+}
+
+// K54: после порога брутфорса блокируем IP на 5 минут — даже валидный пароль
+// не пройдёт, пока IP в карантине. Это останавливает credential-stuffing,
+// если пароль угаданный.
+const LOGIN_BLOCK_MS = 5 * 60 * 1000;
+function isLoginBlocked(ip) {
+  const rec = _loginFails.get(ip);
+  if (!rec) return false;
+  const now = Date.now();
+  if (now - rec.firstAt > BRUTE_WINDOW_MS) return false; // окно истекло
+  if (rec.count < BRUTE_THRESHOLD) return false;
+  // блокируем на 5 минут от последней попытки
+  if (now - rec.lastAt > LOGIN_BLOCK_MS) {
+    _loginFails.delete(ip);
+    return false;
+  }
+  return Math.ceil((LOGIN_BLOCK_MS - (now - rec.lastAt)) / 1000); // seconds remaining
 }
 
 function login(env, loginValue, password) {
@@ -113,4 +133,5 @@ module.exports = {
   sha256,
   recordLoginFailure,
   clearLoginFailures,
+  isLoginBlocked,
 };
