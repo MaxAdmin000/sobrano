@@ -1,6 +1,7 @@
-// Morphing-кнопка «Получить консультацию» — fixed bottom-left на всех публичных страницах
-// (кроме чекаута и thank-you). При клике плавно морфит в панель с 4 каналами связи:
-// Telegram / WhatsApp / Телефон / Email. Контакты подтягиваются из SOBRANO_CONFIG.contacts.
+// Speed-dial consult — фиксированная круглая кнопка в левом нижнем углу.
+// Клик: четыре круглых иконки каналов (Telegram / WhatsApp / Phone / Email)
+// разлетаются стопкой вверх над кнопкой, без сопровождающего текста.
+// Линки берутся из SOBRANO_CONFIG.contacts. Скрыта на checkout / thank-you.
 (function () {
   const SKIP_PATHS = /\/(checkout|thank-you)\.html?$/i;
   if (SKIP_PATHS.test(location.pathname)) return;
@@ -11,17 +12,17 @@
   }
 
   ready(() => {
-    // Прячем старый float-consult (если на странице ещё лежит legacy-ссылка на contacts.html)
+    // Прячем старый <a class="float-consult"> (на index.html ещё валяется как legacy)
     document.querySelectorAll(".float-consult").forEach((el) => el.remove());
 
     const cfg = window.SOBRANO_CONFIG || {};
     const c = cfg.contacts || {};
 
     const channels = [];
-    if (c.telegram) channels.push({ key: "telegram", label: "Telegram",  hint: "@sobrano",          href: c.telegram, target: "_blank", rel: "noopener" });
-    if (c.whatsapp) channels.push({ key: "whatsapp", label: "WhatsApp",  hint: "Чат за минуту",      href: c.whatsapp, target: "_blank", rel: "noopener" });
-    if (c.phone)    channels.push({ key: "phone",    label: "Позвонить", hint: c.phone,              href: "tel:" + String(c.phone).replace(/[^+\d]/g, "") });
-    if (c.email)    channels.push({ key: "email",    label: "Написать",  hint: c.email,              href: "mailto:" + c.email });
+    if (c.telegram) channels.push({ key: "telegram", label: "Telegram",  href: c.telegram, target: "_blank", rel: "noopener" });
+    if (c.whatsapp) channels.push({ key: "whatsapp", label: "WhatsApp",  href: c.whatsapp, target: "_blank", rel: "noopener" });
+    if (c.phone)    channels.push({ key: "phone",    label: "Позвонить", href: "tel:" + String(c.phone).replace(/[^+\d]/g, "") });
+    if (c.email)    channels.push({ key: "email",    label: "Email",     href: "mailto:" + c.email });
 
     if (!channels.length) return;
 
@@ -29,92 +30,64 @@
     const css = `
       .sob-consult {
         position:fixed; left:24px; bottom:24px; z-index:60;
-        background:var(--ivory, #F2ECE3); color:var(--ink, #1A1410);
-        border:1px solid var(--line-strong, rgba(26,20,16,.28));
-        border-radius:999px; padding:14px 22px;
-        font-family:'Inter',-apple-system,sans-serif;
-        box-shadow:0 14px 36px rgba(26,20,16,.18), 0 4px 12px rgba(26,20,16,.10);
-        cursor:pointer;
-        display:flex; flex-direction:column; align-items:flex-start;
-        width:auto; min-width:240px; max-width:240px;
-        overflow:hidden;
-        transition:
-          border-radius .42s cubic-bezier(.2,.8,.2,1),
-          padding .42s cubic-bezier(.2,.8,.2,1),
-          max-width .42s cubic-bezier(.2,.8,.2,1),
-          background .35s ease,
-          box-shadow .42s ease;
+        display:flex; flex-direction:column-reverse; align-items:center; gap:10px;
       }
-      .sob-consult.open {
-        border-radius:22px;
-        padding:18px;
-        max-width:320px;
-        background:#FFFFFF;
-        box-shadow:0 24px 60px rgba(26,20,16,.24), 0 8px 18px rgba(26,20,16,.14);
-        cursor:default;
-      }
-      .sob-consult-head {
-        display:flex; align-items:center; gap:14px; width:100%;
-        font-size:14px; font-weight:500; line-height:1;
-      }
-      .sob-consult-pulse {
-        width:10px; height:10px; border-radius:50%; background:#8C9A7B;
-        flex:none; position:relative;
-      }
-      .sob-consult-pulse::after {
-        content:""; position:absolute; inset:-4px; border-radius:50%;
-        border:1px solid rgba(140,154,123,.5);
-        animation: sobPulse 1.8s ease-out infinite;
-      }
-      @keyframes sobPulse { 0%{transform:scale(.6);opacity:1} 100%{transform:scale(2);opacity:0} }
-      .sob-consult-title { flex:1; }
-      .sob-consult-close {
-        display:none; width:24px; height:24px; border-radius:50%;
-        background:transparent; align-items:center; justify-content:center;
-        color:#7A6B5E; font-size:16px; line-height:1; cursor:pointer; flex:none;
-        transition:background .15s, color .15s;
-      }
-      .sob-consult-close:hover { background:rgba(26,20,16,.08); color:#1A1410 }
-      .sob-consult.open .sob-consult-close { display:flex }
-      .sob-consult.open .sob-consult-pulse { display:none }
-
-      .sob-consult-list {
-        display:grid; gap:6px;
-        max-height:0; opacity:0;
-        margin-top:0;
-        overflow:hidden;
-        transition: max-height .42s cubic-bezier(.2,.8,.2,1), opacity .25s ease, margin-top .42s cubic-bezier(.2,.8,.2,1);
-      }
-      .sob-consult.open .sob-consult-list {
-        max-height:420px; opacity:1; margin-top:14px;
-        transition-delay: .12s, .18s, .12s;
-      }
-      .sob-consult-item {
-        display:flex; align-items:center; gap:14px;
-        padding:12px 14px; border-radius:14px;
-        background:#F2ECE3; color:#1A1410;
-        text-decoration:none;
-        transition:background .15s, transform .15s;
-      }
-      .sob-consult-item:hover { background:#E8DDD0; transform:translateX(2px) }
-      .sob-consult-icon {
-        width:36px; height:36px; border-radius:50%; flex:none;
+      .sob-consult-fab {
+        width:56px; height:56px; border-radius:50%;
+        background:var(--ink, #1A1410); color:var(--ivory, #F2ECE3);
         display:flex; align-items:center; justify-content:center;
-        font-family:'JetBrains Mono','SF Mono',monospace;
-        font-size:11px; letter-spacing:.04em; font-weight:600;
-        color:#F2ECE3; background:#1A1410;
+        border:0; cursor:pointer;
+        box-shadow:0 14px 36px rgba(26,20,16,.22), 0 4px 12px rgba(26,20,16,.12);
+        transition:background .25s ease, transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease;
       }
-      .sob-consult-icon.telegram { background:#229ED9 }
-      .sob-consult-icon.whatsapp { background:#25D366 }
-      .sob-consult-icon.phone    { background:#5C1F25; color:#F2ECE3 }
-      .sob-consult-icon.email    { background:#C97B5C }
-      .sob-consult-meta { display:flex; flex-direction:column; line-height:1.25; min-width:0; flex:1 }
-      .sob-consult-meta .l { font-size:14px; font-weight:500 }
-      .sob-consult-meta .h { font-size:12px; color:#7A6B5E; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+      .sob-consult-fab:hover { background:#5C1F25; transform:translateY(-2px) }
+      .sob-consult.open .sob-consult-fab { background:#5C1F25; transform:rotate(135deg) }
+      .sob-consult-fab svg { width:22px; height:22px; transition:transform .35s ease }
+      .sob-consult-fab::after {
+        content:""; position:absolute; width:10px; height:10px; border-radius:50%;
+        background:#8C9A7B; top:6px; right:6px;
+        box-shadow:0 0 0 0 rgba(140,154,123,.55);
+        animation: sobConsultPulse 1.8s ease-out infinite;
+      }
+      .sob-consult.open .sob-consult-fab::after { display:none }
+      @keyframes sobConsultPulse {
+        0%   { box-shadow:0 0 0 0 rgba(140,154,123,.55) }
+        70%  { box-shadow:0 0 0 12px rgba(140,154,123,0) }
+        100% { box-shadow:0 0 0 0 rgba(140,154,123,0) }
+      }
+
+      .sob-consult-item {
+        width:44px; height:44px; border-radius:50%; flex:none;
+        display:flex; align-items:center; justify-content:center;
+        text-decoration:none;
+        font-family:'JetBrains Mono','SF Mono',monospace;
+        font-size:11px; font-weight:600; letter-spacing:.04em;
+        color:#F2ECE3;
+        box-shadow:0 10px 24px rgba(26,20,16,.16), 0 2px 6px rgba(26,20,16,.10);
+        opacity:0; pointer-events:none;
+        transform:translateY(20px) scale(.7);
+        transition:opacity .28s ease, transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .2s;
+      }
+      .sob-consult-item:hover { transform:translateY(-2px) scale(1.06) }
+      .sob-consult.open .sob-consult-item { opacity:1; transform:translateY(0) scale(1); pointer-events:auto }
+
+      /* Stagger: ближайший к FAB выходит первым */
+      .sob-consult.open .sob-consult-item:nth-of-type(1) { transition-delay: 0s }
+      .sob-consult.open .sob-consult-item:nth-of-type(2) { transition-delay: .05s }
+      .sob-consult.open .sob-consult-item:nth-of-type(3) { transition-delay: .10s }
+      .sob-consult.open .sob-consult-item:nth-of-type(4) { transition-delay: .15s }
+
+      .sob-consult-item.telegram { background:#229ED9 }
+      .sob-consult-item.whatsapp { background:#25D366 }
+      .sob-consult-item.phone    { background:#5C1F25 }
+      .sob-consult-item.email    { background:#C97B5C }
+
+      .sob-consult-fab { position:relative }
 
       @media (max-width:600px) {
-        .sob-consult { left:14px; bottom:14px; padding:12px 18px; min-width:auto; max-width:200px }
-        .sob-consult.open { max-width:calc(100vw - 28px) }
+        .sob-consult { left:14px; bottom:14px }
+        .sob-consult-fab { width:52px; height:52px }
+        .sob-consult-item { width:42px; height:42px }
       }
     `;
     const styleEl = document.createElement("style");
@@ -122,49 +95,53 @@
     document.head.appendChild(styleEl);
 
     // ---- DOM ----
+    // column-reverse: первый ребёнок в HTML — самый нижний визуально (= FAB).
     const root = document.createElement("div");
     root.className = "sob-consult";
     root.setAttribute("role", "complementary");
-    root.setAttribute("aria-label", "Консультация");
-    root.innerHTML =
-      '<div class="sob-consult-head">' +
-        '<span class="sob-consult-pulse" aria-hidden="true"></span>' +
-        '<span class="sob-consult-title">Получить консультацию</span>' +
-        '<button class="sob-consult-close" type="button" aria-label="Закрыть">×</button>' +
-      '</div>' +
-      '<div class="sob-consult-list" role="list">' +
-        channels.map((ch) => {
-          const tgt = ch.target ? ' target="' + ch.target + '"' : "";
-          const rel = ch.rel ? ' rel="' + ch.rel + '"' : "";
-          return '<a class="sob-consult-item" role="listitem" href="' + ch.href + '"' + tgt + rel + '>' +
-            '<span class="sob-consult-icon ' + ch.key + '">' + iconFor(ch.key) + '</span>' +
-            '<span class="sob-consult-meta">' +
-              '<span class="l">' + ch.label + '</span>' +
-              '<span class="h">' + ch.hint + '</span>' +
-            '</span>' +
-          '</a>';
-        }).join("") +
-      '</div>';
+    root.setAttribute("aria-label", "Связаться");
+
+    const fab = document.createElement("button");
+    fab.type = "button";
+    fab.className = "sob-consult-fab";
+    fab.setAttribute("aria-label", "Связаться");
+    fab.setAttribute("aria-expanded", "false");
+    // Иконка-плюс (через "+" → морфит в "×" поворотом на 135°)
+    fab.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+        '<line x1="12" y1="5" x2="12" y2="19"></line>' +
+        '<line x1="5" y1="12" x2="19" y2="12"></line>' +
+      '</svg>';
+    root.appendChild(fab);
+
+    // Каналы — добавляем после FAB, чтобы они оказались выше него визуально (column-reverse).
+    channels.forEach((ch) => {
+      const a = document.createElement("a");
+      a.className = "sob-consult-item " + ch.key;
+      a.href = ch.href;
+      if (ch.target) a.target = ch.target;
+      if (ch.rel) a.rel = ch.rel;
+      a.setAttribute("aria-label", ch.label);
+      a.textContent = iconText(ch.key);
+      root.appendChild(a);
+    });
+
     document.body.appendChild(root);
 
     // ---- behavior ----
-    const head = root.querySelector(".sob-consult-head");
-    const closeBtn = root.querySelector(".sob-consult-close");
-
-    function open() { root.classList.add("open"); document.addEventListener("click", outside, true); }
-    function close() { root.classList.remove("open"); document.removeEventListener("click", outside, true); }
+    function open()  { root.classList.add("open");    fab.setAttribute("aria-expanded", "true");  document.addEventListener("click", outside, true); }
+    function close() { root.classList.remove("open"); fab.setAttribute("aria-expanded", "false"); document.removeEventListener("click", outside, true); }
     function outside(e) { if (!root.contains(e.target)) close(); }
 
-    head.addEventListener("click", (e) => {
-      if (e.target.closest(".sob-consult-close")) return;
+    fab.addEventListener("click", (e) => {
+      e.stopPropagation();
       if (root.classList.contains("open")) close();
       else open();
     });
-    closeBtn.addEventListener("click", close);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
   });
 
-  function iconFor(key) {
+  function iconText(key) {
     if (key === "telegram") return "TG";
     if (key === "whatsapp") return "WA";
     if (key === "phone")    return "TEL";
