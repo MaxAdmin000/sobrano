@@ -129,6 +129,8 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .team-head p{color:var(--ink-soft);max-width:42ch;font-size:15px}
 
 .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+/* I47: индивидуальный member.hidden = true → класс is-hidden → не показывается. */
+.member.is-hidden{display:none}
 .member{background:var(--ivory-2);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;transition:transform .25s}
 .member:hover{transform:translateY(-3px)}
 .member .img{position:relative;aspect-ratio:1/1;background:#222;display:flex;align-items:center;justify-content:center}
@@ -384,53 +386,45 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
   </div>
 </section>
 
-<!-- TEAM -->
-<section class="team">
+<!-- TEAM (I47: вся секция скрывается через content.about.team.hidden) -->
+<section class="team" data-cms-hide-if="content.about.team.hidden">
   <div class="container">
     <div class="team-head">
       <div>
-        <span class="eyebrow">№ 03 — Команда</span>
-        <h2>Те, кто <em>собирает</em>.</h2>
+        <span class="eyebrow" data-cms-text="content.about.team.eyebrow">№ 03 — Команда</span>
+        <h2 data-cms-html="content.about.team.titleHtml">Те, кто <em>собирает</em>.</h2>
       </div>
-      <p>Маленькая команда из 6 человек. Каждый отвечает за свой кусок — от закупки и сборки до общения с клиентами.</p>
+      <p data-cms-text="content.about.team.lead">Маленькая команда из 6 человек. Каждый отвечает за свой кусок — от закупки и сборки до общения с клиентами.</p>
     </div>
 
-    <div class="team-grid">
-      <article class="member">
-        <div class="img placeholder">К</div>
+    <!-- Шаблон-карточка: assets/content.js клонирует на каждый member.
+         Скрытые члены (member.hidden=true) получают класс is-hidden → CSS не показывает. -->
+    <div class="team-grid" data-cms-list="content.about.team.members">
+      <article class="member" data-cms-loop-class-is-hidden="@hidden">
+        <div class="img placeholder" data-cms-text="@initials" data-cms-attr-data-photo="@photo">К</div>
         <div class="body">
-          <h4>Катя Иванова</h4>
-          <span class="role">Главный флорист</span>
-          <p>9 лет с цветами. Собирает все подборки, отвечает за стиль. Любит пионы и «Дэвид Остин».</p>
-        </div>
-      </article>
-      <article class="member">
-        <div class="img placeholder">А</div>
-        <div class="body">
-          <h4>Андрей Г.</h4>
-          <span class="role">Основатель</span>
-          <p>Идеолог фиксированной цены. Следит, чтобы концепция не размывалась — даже когда «выгодно» добавить наценок.</p>
-        </div>
-      </article>
-      <article class="member">
-        <div class="img placeholder">М</div>
-        <div class="body">
-          <h4>Маша П.</h4>
-          <span class="role">Менеджер сервиса</span>
-          <p>Отвечает в Telegram и WhatsApp. Если у вас вопрос — скорее всего, ответит именно она.</p>
-        </div>
-      </article>
-      <article class="member">
-        <div class="img placeholder">+3</div>
-        <div class="body">
-          <h4>Ещё трое</h4>
-          <span class="role">Флористы и курьеры</span>
-          <p>Сменная команда сборщиков и наши курьеры. С ними вы пересекаетесь, когда букет приезжает к двери.</p>
+          <h4 data-cms-text="@name">Катя Иванова</h4>
+          <span class="role" data-cms-text="@role">Главный флорист</span>
+          <p data-cms-text="@bio">9 лет с цветами. Собирает все подборки, отвечает за стиль. Любит пионы и «Дэвид Остин».</p>
         </div>
       </article>
     </div>
   </div>
 </section>
+
+<script>
+// Постобработка: для каждого member с непустым data-photo делаем <img> вместо initials.
+// Сделано через JS (а не data-cms-html), чтобы initials оставались фоллбэком.
+document.addEventListener("sobrano:content-ready", () => {
+  document.querySelectorAll(".team-grid .member .img[data-photo]").forEach((el) => {
+    const photo = el.getAttribute("data-photo");
+    if (photo) {
+      el.innerHTML = '<img src="' + photo.replace(/[<>"]/g, "") + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';
+      el.classList.remove("placeholder");
+    }
+  });
+});
+</script>
 
 <!-- WAREHOUSE -->
 <section class="warehouse">

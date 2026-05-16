@@ -65,6 +65,12 @@
     // Раньше querySelectorAll пропускал корневой элемент клона, из-за чего, например,
     // `<span class="pill" data-cms-text="@">` получал только текст шаблона.
     function applyTo(el) {
+      // hide-if: если path truthy — элемент скрываем целиком (display:none).
+      // Полезно для toggle-секций типа content.about.team.hidden.
+      if (el.hasAttribute && el.hasAttribute("data-cms-hide-if")) {
+        const val = resolvePath(el.getAttribute("data-cms-hide-if"), ctx);
+        if (val) { el.style.display = "none"; return; }
+      }
       // text
       if (el.hasAttribute && el.hasAttribute("data-cms-text")) {
         const val = resolvePath(el.getAttribute("data-cms-text"), ctx);
@@ -95,12 +101,12 @@
     if (scope && scope.nodeType === 1) applyTo(scope);
     // И всех потомков
     if (scope && scope.querySelectorAll) {
-      scope.querySelectorAll("[data-cms-text],[data-cms-html],*").forEach((el) => {
+      scope.querySelectorAll("[data-cms-text],[data-cms-html],[data-cms-hide-if],*").forEach((el) => {
         // Чтобы зря не дёргать все элементы, пропускаем те, у кого нет cms-аттрибутов
         let hasCms = false;
         if (el.attributes) {
           for (const at of el.attributes) {
-            if (at.name === "data-cms-text" || at.name === "data-cms-html" || at.name.startsWith("data-cms-attr-") || at.name.startsWith("data-cms-loop-class-")) {
+            if (at.name === "data-cms-text" || at.name === "data-cms-html" || at.name === "data-cms-hide-if" || at.name.startsWith("data-cms-attr-") || at.name.startsWith("data-cms-loop-class-")) {
               hasCms = true; break;
             }
           }
