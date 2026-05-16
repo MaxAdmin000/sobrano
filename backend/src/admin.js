@@ -318,13 +318,18 @@ function getLegalPublic(req, res, key) {
 // ===== AUTH =====
 
 async function login(req, res, env) {
+  const ip = clientIp(req);
+  const ua = String(req.headers["user-agent"] || "");
   try {
     const body = await parseJsonBody(req);
     const token = auth.login(env, body.login, body.password);
     if (!token) {
+      // I48: фиксируем неудачу для brute-force-детектора (in-memory).
+      auth.recordLoginFailure(ip, ua);
       sendJson(res, 401, { ok: false, error: "Неверные логин или пароль" });
       return;
     }
+    auth.clearLoginFailures(ip); // успех с этого IP — сбрасываем счётчик
     sendJson(res, 200, { ok: true, token }, {
       "set-cookie": `sob_admin=${token}; Path=/; Max-Age=43200; HttpOnly; SameSite=Lax`,
     });
@@ -472,6 +477,11 @@ async function patchOrder(req, res, id) {
     }
     if (patch.refund && (!prev.refund || prev.refund.status !== patch.refund.status)) {
       notifications.onRefundChanged(updated);
+      // I48: запрос на возврат — отдельный канал, чтобы реагировать быстрее.
+      // Триггерится при переходе refund.status → "requested" (любое предыдущее значение).
+      if (patch.refund.status === "requested") {
+        notifications.notifyAdminRefundRequested(updated);
+      }
     }
 
     sendJson(res, 200, { ok: true, order: updated });
@@ -770,6 +780,73 @@ async function saveLegal(req, res, key) {
 }
 
 // ===== NOTIFICATIONS test =====
+
+// ===== PUBLIC: contact form (I48) =====
+// In-memory rate-limit: одна заявка не чаще 1 раза в 20 сек с одного IP,
+// и не больше 10 заявок в час с того же IP. Простая защита от ручного спама
+// и забытой кнопки. Боты с разных IP лучше ловятся honeypot-полем `hp`.
+const _contactRate = new Map(); // ip → { lastAt: ms, hour: { start, count } }
+const CONTACT_MIN_INTERVAL_MS = 20 * 1000;
+const CONTACT_HOUR_LIMIT = 10;
+
+function rateLimitContact(ip) {
+  const now = Date.now();
+  const rec = _contactRate.get(ip) || { lastAt: 0, hour: { start: now, count: 0 } };
+  if (now - rec.lastAt < CONTACT_MIN_INTERVAL_MS) return { ok: false, reason: "Too fast — подождите 20 секунд между сообщениями" };
+  if (now - rec.hour.start > 3600 * 1000) { rec.hour = { start: now, count: 0 }; }
+  if (rec.hour.count >= CONTACT_HOUR_LIMIT) return { ok: false, reason: "Слишком много заявок с одного IP за час" };
+  rec.lastAt = now;
+  rec.hour.count++;
+  _contactRate.set(ip, rec);
+  return { ok: true };
+}
+
+function clientIp(req) {
+  const xff = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  return xff || (req.socket && req.socket.remoteAddress) || "unknown";
+}
+
+async function postContactForm(req, res) {
+  try {
+    const payload = await parseJsonBody(req);
+    if (!payload || typeof payload !== "object") throw new Error("Invalid payload");
+
+    // Honeypot: реальные пользователи никогда это поле не заполнят (display:none).
+    // Боты заполняют все поля формы — если `hp` непустое, тихо возвращаем 200 без действий.
+    if (payload.hp && String(payload.hp).trim() !== "") {
+      console.log("[contact] honeypot triggered from", clientIp(req));
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    const name = String(payload.name || "").trim().slice(0, 200);
+    const phone = String(payload.phone || "").trim().slice(0, 50);
+    const email = String(payload.email || "").trim().slice(0, 200);
+    const topic = String(payload.topic || "").trim().slice(0, 100);
+    const orderId = String(payload.orderId || "").trim().slice(0, 60);
+    const message = String(payload.message || "").trim().slice(0, 3000);
+
+    if (!name || !phone) {
+      sendJson(res, 400, { ok: false, error: "Имя и телефон обязательны" });
+      return;
+    }
+
+    const ip = clientIp(req);
+    const limit = rateLimitContact(ip);
+    if (!limit.ok) {
+      sendJson(res, 429, { ok: false, error: limit.reason });
+      return;
+    }
+
+    notifications.notifyAdminContactForm({ name, phone, email, topic, orderId, message })
+      .catch((e) => console.warn("[contact] tg failed:", e && e.message));
+
+    console.log("[contact] new submission from", ip, "·", name, phone, "topic=" + (topic || "—"));
+    sendJson(res, 200, { ok: true });
+  } catch (e) {
+    sendJson(res, 400, { ok: false, error: e.message || "Bad request" });
+  }
+}
 
 async function notificationsTest(req, res) {
   if (!requireSession(req, res)) return;
@@ -1145,6 +1222,7 @@ module.exports = {
   getLegal,
   saveLegal,
   // notifications
+  postContactForm,
   notificationsTest,
   // customers (CRM)
   listCustomers,

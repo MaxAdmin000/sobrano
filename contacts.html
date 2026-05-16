@@ -421,6 +421,13 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
           </div>
         </div>
 
+        <!-- I48 honeypot: невидимое поле. Реальный пользователь его не увидит и не заполнит.
+             Боты, которые заполняют все поля формы, попадутся — backend тихо отбросит заявку. -->
+        <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+          <label for="cf-hp">Не заполняйте</label>
+          <input type="text" id="cf-hp" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
         <button type="submit" class="form-cta">Отправить сообщение <span class="arrow">→</span></button>
 
         <p class="form-note">Нажимая «Отправить», вы соглашаетесь с <a href="privacy-policy.html">политикой конфиденциальности</a> и <a href="consent.html">обработкой персональных данных</a>.</p>
@@ -476,17 +483,49 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
     el.addEventListener('change', update);
   });
 
-  document.getElementById('contactForm').addEventListener('submit', (e) => {
+  document.getElementById('contactForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('cf-name').value.trim();
-    const phone = document.getElementById('cf-phone').value.trim();
+    const $ = (id) => document.getElementById(id);
+    const name    = $('cf-name').value.trim();
+    const phone   = $('cf-phone').value.trim();
+    const email   = $('cf-email').value.trim();
+    const topic   = $('cf-topic').value;
+    const orderId = $('cf-order').value.trim();
+    const message = $('cf-msg').value.trim();
+    const hp      = $('cf-hp') ? $('cf-hp').value : '';
+
     if (!name || !phone) {
       window.showToast?.('Заполните имя и телефон', 'warning');
       return;
     }
-    window.showToast?.('Сообщение отправлено. Ответим в течение 15 минут.', 'success', 5000);
-    e.target.reset();
-    document.querySelectorAll('.field').forEach(f => f.classList.remove('has'));
+
+    const btn = e.target.querySelector('.form-cta');
+    const origLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Отправляем…';
+
+    try {
+      const r = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name, phone, email, topic, orderId, message, hp }),
+        credentials: 'same-origin',
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) {
+        const reason = (data && data.error) || 'Не получилось отправить — попробуйте ещё раз через минуту.';
+        window.showToast?.(reason, 'warning', 5000);
+        return;
+      }
+      window.showToast?.('Сообщение отправлено. Ответим в течение 15 минут.', 'success', 5000);
+      e.target.reset();
+      document.querySelectorAll('.field').forEach(f => f.classList.remove('has'));
+    } catch (err) {
+      window.showToast?.('Сеть недоступна. Напишите нам в Telegram или на email — контакты слева.', 'error', 6000);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origLabel;
+    }
   });
 </script>
 

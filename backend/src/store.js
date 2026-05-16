@@ -50,7 +50,22 @@ const DEFAULT = () => ({
         // если задан, запросы пойдут на него вместо api.telegram.org.
         // Нужно когда хостинг сервера блокирует прямой выход на api.telegram.org (Роскомнадзор / DPI).
         proxyUrl: "",
-        events: { newOrder: true, paid: true, cancelled: true, refund: true },
+        // Какие события админ хочет получать в Telegram. Все по умолчанию вкл,
+        // выключить можно в админке → Настройки → Уведомления → Telegram.
+        events: {
+          // ---- бизнес ----
+          newOrder: true,         // 🆕 новый заказ создан
+          paid: true,             // 💳 заказ оплачен
+          cancelled: true,        // ✖ заказ отменён
+          refund: true,           // ↩️ возврат проведён (любая смена refund.status)
+          refundRequested: true,  // ⚠️ клиент запросил возврат — реагировать оперативно
+          contactForm: true,      // 📩 заявка с формы «Контакты»
+          // ---- SLA / heartbeat ----
+          staleOrder: true,       // 🐢 заказ висит в `new` дольше 30 мин — забыли?
+          dailyDigest: true,      // 🌙 дневная сводка в 23:30 UTC
+          // ---- безопасность ----
+          loginFailure: true,     // 🚨 ≥5 неудачных логинов с одного IP за 10 мин
+        },
       },
     },
   },

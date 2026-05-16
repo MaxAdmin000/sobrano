@@ -3152,7 +3152,18 @@ input,select,textarea{font:inherit;color:inherit}
     ).join('');
   }
   function renderTgEvents(events) {
-    const EVENTS = [["newOrder","Новый заказ"],["paid","Оплачен"],["cancelled","Отменён"],["refund","Возврат"]];
+    // I48: расширили список событий. По умолчанию все включены (см. store.js DEFAULT).
+    const EVENTS = [
+      ["newOrder",        "🆕 Новый заказ"],
+      ["paid",            "💳 Оплачен"],
+      ["cancelled",       "✖ Отменён"],
+      ["refund",          "↩️ Возврат проведён"],
+      ["refundRequested", "⚠️ Запрос возврата"],
+      ["contactForm",     "📩 Заявка с формы «Контакты»"],
+      ["staleOrder",      "🐢 Заказ забыт (>30 мин в new)"],
+      ["loginFailure",    "🚨 Подозрительные логины в админку"],
+      ["dailyDigest",     "🌙 Дневная сводка (23:30 UTC)"],
+    ];
     $("#tg-events").innerHTML = EVENTS.map(([k,l]) =>
       '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;text-transform:none;letter-spacing:0;font-size:13px"><input type="checkbox" data-tg-event="'+k+'"'+(events&&events[k]?' checked':'')+'> '+l+'</label>'
     ).join('');

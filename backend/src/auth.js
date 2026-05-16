@@ -25,6 +25,44 @@ function checkCredentials(env, login, password) {
   return safeEq(sha256(password), expectedHash);
 }
 
+// I48 brute-force detector. In-memory, без персистентности — сбрасывается при
+// рестарте бэкенда (что и так разрывает все сессии). Окно — 10 минут;
+// ≥5 неудач за окно → один Telegram-алерт и сброс таймера cooldown, чтобы не флудить.
+const _loginFails = new Map(); // ip → { count, firstAt, lastAt, ua, alertedAt }
+const BRUTE_WINDOW_MS = 10 * 60 * 1000;
+const BRUTE_THRESHOLD = 5;
+const BRUTE_ALERT_COOLDOWN_MS = 30 * 60 * 1000;
+
+function recordLoginFailure(ip, userAgent) {
+  const now = Date.now();
+  const rec = _loginFails.get(ip) || { count: 0, firstAt: now, lastAt: now, alertedAt: 0, ua: userAgent || "" };
+  if (now - rec.firstAt > BRUTE_WINDOW_MS) {
+    rec.count = 0;
+    rec.firstAt = now;
+    rec.alertedAt = 0;
+  }
+  rec.count++;
+  rec.lastAt = now;
+  if (userAgent) rec.ua = userAgent;
+  _loginFails.set(ip, rec);
+
+  if (rec.count >= BRUTE_THRESHOLD && (now - rec.alertedAt) > BRUTE_ALERT_COOLDOWN_MS) {
+    rec.alertedAt = now;
+    // Динамический require, чтобы избежать циклической зависимости.
+    try {
+      const notifications = require("./notifications");
+      notifications.notifyAdminLoginBruteforce({
+        ip, attempts: rec.count, windowMin: 10,
+        userAgent: rec.ua, lastAt: rec.lastAt,
+      }).catch((e) => console.warn("[bruteforce-alert] tg failed:", e && e.message));
+    } catch (e) { console.warn("[bruteforce-alert] load failed:", e.message); }
+  }
+}
+
+function clearLoginFailures(ip) {
+  if (ip) _loginFails.delete(ip);
+}
+
 function login(env, loginValue, password) {
   if (!checkCredentials(env, loginValue, password)) return null;
   const token = crypto.randomBytes(24).toString("hex");
@@ -73,4 +111,6 @@ module.exports = {
   tokenFromReq,
   requireAuth,
   sha256,
+  recordLoginFailure,
+  clearLoginFailures,
 };

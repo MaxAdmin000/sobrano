@@ -21,6 +21,7 @@ const {
 const { postWebhook } = require("./webhook");
 const adminApi = require("./admin");
 const store = require("./store");
+const notifications = require("./notifications");
 
 loadDotEnv(path.join(__dirname, "..", ".env"));
 
@@ -407,6 +408,9 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/track") {
     return wrapCors(req, res, () => adminApi.postTrack(req, res));
   }
+  if (req.method === "POST" && pathname === "/api/contact") {
+    return wrapCors(req, res, () => adminApi.postContactForm(req, res));
+  }
 
   // ---- Admin auth + endpoints ----
   if (req.method === "POST" && pathname === "/api/admin/login") {
@@ -609,4 +613,92 @@ server.listen(port, () => {
   console.log(`СОБРАНО backend on http://localhost:${port}`);
   console.log(`  admin UI: http://localhost:${port}/admin`);
   console.log(`  health:   http://localhost:${port}/health`);
+  // I48 cron-задачи: SLA-просрочки (every 5 min) + дневная сводка (each min, fires once a day).
+  startBackgroundJobs();
 });
+
+// ---------- BACKGROUND JOBS (I48) ----------
+
+const STALE_ORDER_THRESHOLD_MS = 30 * 60 * 1000;
+const STALE_CHECK_INTERVAL_MS  = 5  * 60 * 1000;
+const DIGEST_CHECK_INTERVAL_MS = 60 * 1000;
+// UTC-час и минута дневной сводки. 23:30 UTC = 02:30 МСК (после полуночи местного дня).
+const DIGEST_HOUR_UTC = 23;
+const DIGEST_MINUTE_UTC = 30;
+let _lastDigestDate = ""; // строка YYYY-MM-DD — не шлём сводку дважды за день
+
+function startBackgroundJobs() {
+  // 1) SLA-stale: каждые 5 мин ищем заказы в `new` старше 30 мин и без отметки staleAlertSent.
+  setInterval(() => {
+    try { sweepStaleOrders(); } catch (e) { console.warn("[stale] sweep failed:", e.message); }
+  }, STALE_CHECK_INTERVAL_MS).unref();
+  // Один прогон сразу после старта (вдруг бэкенд перезагрузился, а заказ висит).
+  setTimeout(() => { try { sweepStaleOrders(); } catch (e) {} }, 30 * 1000).unref();
+
+  // 2) Daily digest: проверяем раз в минуту, попали ли в окно 23:30 UTC.
+  setInterval(() => {
+    try { maybeSendDigest(); } catch (e) { console.warn("[digest] check failed:", e.message); }
+  }, DIGEST_CHECK_INTERVAL_MS).unref();
+}
+
+function sweepStaleOrders() {
+  const now = Date.now();
+  const orders = store.getOrders();
+  let count = 0;
+  for (const o of orders) {
+    if ((o.status || "new") !== "new") continue;
+    if (o.staleAlertSent) continue;
+    if (!o.createdAt || (now - o.createdAt) < STALE_ORDER_THRESHOLD_MS) continue;
+    // Старше 24 ч — не шлём (вероятно, заказ давно «застрял» и админ его уже видел).
+    if ((now - o.createdAt) > 24 * 3600 * 1000) {
+      o.staleAlertSent = true; // помечаем, чтобы больше не проверять
+      continue;
+    }
+    const minutes = Math.round((now - o.createdAt) / 60000);
+    notifications.notifyAdminStaleOrder(o, minutes)
+      .catch((e) => console.warn("[stale] tg failed:", e && e.message));
+    o.staleAlertSent = true;
+    count++;
+  }
+  if (count > 0) {
+    store.save(); // staleAlertSent — теперь персистентен
+    console.log(`[stale] alerted on ${count} order(s)`);
+  }
+}
+
+function maybeSendDigest() {
+  const now = new Date();
+  if (now.getUTCHours() !== DIGEST_HOUR_UTC) return;
+  if (now.getUTCMinutes() < DIGEST_MINUTE_UTC || now.getUTCMinutes() > DIGEST_MINUTE_UTC + 5) return;
+  const dateKey = now.toISOString().slice(0, 10);
+  if (_lastDigestDate === dateKey) return;
+  _lastDigestDate = dateKey;
+  sendDailyDigest(dateKey);
+}
+
+function sendDailyDigest(dateKey) {
+  // Берём заказы за последние 24 ч.
+  const cutoff = Date.now() - 24 * 3600 * 1000;
+  const all = store.getOrders().filter((o) => (o.createdAt || 0) >= cutoff);
+  const PAID = store.PAID_STATUSES || ["paid", "doing", "shipped", "done"];
+  const paid = all.filter((o) => PAID.indexOf(o.status || "new") >= 0);
+  const cancelled = all.filter((o) => (o.status || "new") === "cancelled");
+  const revenue = paid.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const avg = paid.length ? Math.round(revenue / paid.length) : 0;
+  // Топ-бокс: считаем размеры
+  const sizes = {};
+  paid.forEach((o) => { if (o.box && o.box.size) sizes[o.box.size] = (sizes[o.box.size] || 0) + 1; });
+  const topBox = Object.entries(sizes).sort((a, b) => b[1] - a[1])[0];
+  // Новые клиенты за сутки
+  const newCustomers = (store.listCustomers ? store.listCustomers() : []).filter((c) => (c.firstOrderAt || 0) >= cutoff).length;
+  notifications.notifyAdminDailyDigest({
+    date: dateKey,
+    orders: all.length,
+    paid: paid.length,
+    cancelled: cancelled.length,
+    revenue,
+    avgCheck: avg,
+    newCustomers,
+    topBox: topBox ? `${topBox[0]} (${topBox[1]})` : "",
+  }).catch((e) => console.warn("[digest] tg failed:", e && e.message));
+}

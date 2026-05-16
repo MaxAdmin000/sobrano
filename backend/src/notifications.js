@@ -349,6 +349,78 @@ async function onRefundChanged(order) {
     .catch((e) => console.warn("notify admin refund:", e.message));
 }
 
+// ⚠️ Клиент запросил возврат — отдельный канал, чтобы реагировать оперативно.
+async function notifyAdminRefundRequested(order) {
+  const cfg = tgConfig();
+  if (!cfg || !cfg.events || !cfg.events.refundRequested) return { skipped: "event-off" };
+  const r = order.refund || {};
+  const lines = [];
+  lines.push(`⚠️ <b>Запрос возврата</b> · ${escapeHtml(order.id)}`);
+  lines.push(`Клиент: ${escapeHtml(shortName(order.customer))} · ${escapeHtml((order.customer && order.customer.phone) || "")}`);
+  if (r.amount) lines.push(`Сумма: <b>${escapeHtml(fmtMoney(r.amount))}</b> из ${escapeHtml(fmtMoney(order.total))}`);
+  if (r.reason) lines.push(`Причина: ${escapeHtml(String(r.reason).slice(0, 300))}`);
+  lines.push(`Открыть в админке: <a href="https://sobrano.store/admin#orders/${escapeHtml(order.id)}">#${escapeHtml(order.id)}</a>`);
+  return tgSend(lines.join("\n"));
+}
+
+// 📩 Сообщение с формы «Контакты». Никаких заказов — просто переадресуем админу.
+async function notifyAdminContactForm(payload) {
+  const cfg = tgConfig();
+  if (!cfg || !cfg.events || !cfg.events.contactForm) return { skipped: "event-off" };
+  const p = payload || {};
+  const lines = [];
+  lines.push(`📩 <b>Заявка с формы «Контакты»</b>`);
+  lines.push(`Имя: ${escapeHtml(p.name || "—")}`);
+  if (p.phone) lines.push(`Телефон: <code>${escapeHtml(p.phone)}</code>`);
+  if (p.email) lines.push(`Email: <code>${escapeHtml(p.email)}</code>`);
+  if (p.topic) lines.push(`Тема: ${escapeHtml(p.topic)}`);
+  if (p.orderId) lines.push(`№ заказа: <code>${escapeHtml(p.orderId)}</code>`);
+  if (p.message) lines.push(`\n${escapeHtml(String(p.message).slice(0, 1500))}`);
+  return tgSend(lines.join("\n"));
+}
+
+// 🐢 Заказ висит в `new` дольше N минут — никто не взял в работу.
+async function notifyAdminStaleOrder(order, minutes) {
+  const cfg = tgConfig();
+  if (!cfg || !cfg.events || !cfg.events.staleOrder) return { skipped: "event-off" };
+  const lines = [];
+  lines.push(`🐢 <b>Заказ забыт</b> · ${escapeHtml(order.id)}`);
+  lines.push(`В статусе <b>new</b> уже ${minutes} мин — никто не взял в работу.`);
+  lines.push(`Клиент: ${escapeHtml(shortName(order.customer))} · ${escapeHtml((order.customer && order.customer.phone) || "")}`);
+  lines.push(`Сумма: <b>${escapeHtml(fmtMoney(order.total))}</b>`);
+  if (order.customer && order.customer.date) lines.push(`Дата доставки: ${escapeHtml(order.customer.date)} ${escapeHtml(order.customer.time || "")}`);
+  lines.push(`Открыть: <a href="https://sobrano.store/admin#orders/${escapeHtml(order.id)}">#${escapeHtml(order.id)}</a>`);
+  return tgSend(lines.join("\n"));
+}
+
+// 🚨 Подозрение на брутфорс админ-логина.
+async function notifyAdminLoginBruteforce(info) {
+  const cfg = tgConfig();
+  if (!cfg || !cfg.events || !cfg.events.loginFailure) return { skipped: "event-off" };
+  const lines = [];
+  lines.push(`🚨 <b>Подозрительные логины</b>`);
+  lines.push(`IP: <code>${escapeHtml(info.ip || "?")}</code>`);
+  lines.push(`Попыток за ${info.windowMin || 10} мин: <b>${info.attempts || 0}</b>`);
+  if (info.userAgent) lines.push(`User-Agent: <code>${escapeHtml(String(info.userAgent).slice(0, 120))}</code>`);
+  lines.push(`Последняя: ${new Date(info.lastAt || Date.now()).toISOString().replace("T", " ").slice(0, 19)} UTC`);
+  return tgSend(lines.join("\n"));
+}
+
+// 🌙 Дневная сводка — раз в сутки в 23:30 UTC, без алерт-важности.
+async function notifyAdminDailyDigest(stats) {
+  const cfg = tgConfig();
+  if (!cfg || !cfg.events || !cfg.events.dailyDigest) return { skipped: "event-off" };
+  const s = stats || {};
+  const lines = [];
+  lines.push(`🌙 <b>Дневная сводка</b> · ${escapeHtml(s.date || "")}`);
+  lines.push(`Заказов: <b>${s.orders || 0}</b> (оплачено ${s.paid || 0}, отмен ${s.cancelled || 0})`);
+  lines.push(`Выручка: <b>${escapeHtml(fmtMoney(s.revenue || 0))}</b>`);
+  if (s.newCustomers != null) lines.push(`Новых клиентов: <b>${s.newCustomers}</b>`);
+  if (s.avgCheck) lines.push(`Средний чек: ${escapeHtml(fmtMoney(s.avgCheck))}`);
+  if (s.topBox) lines.push(`Топ бокс: ${escapeHtml(s.topBox)}`);
+  return tgSend(lines.join("\n"));
+}
+
 async function testTelegram() {
   const r = await tgSend("🌸 СОБРАНО · тест уведомлений. Если видите это сообщение — Telegram подключён корректно.");
   return r;
@@ -376,6 +448,11 @@ module.exports = {
   onOrderCreated,
   onOrderStatusChanged,
   onRefundChanged,
+  notifyAdminRefundRequested,
+  notifyAdminContactForm,
+  notifyAdminStaleOrder,
+  notifyAdminLoginBruteforce,
+  notifyAdminDailyDigest,
   testTelegram,
   testEmail,
 };
