@@ -41,8 +41,13 @@
         transition:background .25s ease, transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease;
       }
       .sob-consult-fab:hover { background:#5C1F25; transform:translateY(-2px) }
-      .sob-consult.open .sob-consult-fab { background:#5C1F25; transform:rotate(135deg) }
-      .sob-consult-fab svg { width:22px; height:22px; transition:transform .35s ease }
+      .sob-consult.open .sob-consult-fab { background:#5C1F25 }
+      /* Crossfade между основной иконкой (headset+chat) и крестиком при открытии. */
+      .sob-consult-fab .ic { position:absolute; width:24px; height:24px; transition:opacity .22s ease, transform .32s cubic-bezier(.2,.8,.2,1) }
+      .sob-consult-fab .ic-default { opacity:1; transform:scale(1) rotate(0) }
+      .sob-consult-fab .ic-close   { opacity:0; transform:scale(.6) rotate(-90deg) }
+      .sob-consult.open .sob-consult-fab .ic-default { opacity:0; transform:scale(.6) rotate(90deg) }
+      .sob-consult.open .sob-consult-fab .ic-close   { opacity:1; transform:scale(1) rotate(0) }
       .sob-consult-fab::after {
         content:""; position:absolute; width:10px; height:10px; border-radius:50%;
         background:#8C9A7B; top:6px; right:6px;
@@ -106,11 +111,31 @@
     fab.className = "sob-consult-fab";
     fab.setAttribute("aria-label", "Связаться");
     fab.setAttribute("aria-expanded", "false");
-    // Иконка-плюс (через "+" → морфит в "×" поворотом на 135°)
+    // Основная иконка — headset с речевым облачком (call-center support).
+    // При .open плавно crossfade'ит в крестик.
     fab.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
-        '<line x1="12" y1="5" x2="12" y2="19"></line>' +
-        '<line x1="5" y1="12" x2="19" y2="12"></line>' +
+      // headset+chat
+      '<svg class="ic ic-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        // Speech bubble (rounded rect с хвостом нижний-левый)
+        '<path d="M21 7H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h1.5v3l4-3H21a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1z"/>' +
+        // Headset arc (поверх и выходит вверх из bubble)
+        '<path d="M6 11V9a6 6 0 0 1 12 0v2"/>' +
+        // Ear caps
+        '<rect x="5" y="9" width="2.2" height="4.5" rx="1"/>' +
+        '<rect x="16.8" y="9" width="2.2" height="4.5" rx="1"/>' +
+        // Mic stem от правого уха вниз и к подбородку
+        '<path d="M17.5 13.5v1.5a3 3 0 0 1-3 3h-1.5"/>' +
+        // Mic dot
+        '<circle cx="11" cy="18" r="1"/>' +
+        // 3 точки внутри облака
+        '<circle cx="9"  cy="14" r=".5" fill="currentColor" stroke="none"/>' +
+        '<circle cx="12" cy="14" r=".5" fill="currentColor" stroke="none"/>' +
+        '<circle cx="15" cy="14" r=".5" fill="currentColor" stroke="none"/>' +
+      '</svg>' +
+      // crossfade в крестик при открытии
+      '<svg class="ic ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+        '<line x1="6" y1="6" x2="18" y2="18"/>' +
+        '<line x1="18" y1="6" x2="6" y2="18"/>' +
       '</svg>';
     root.appendChild(fab);
 
