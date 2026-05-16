@@ -101,12 +101,14 @@ function load() {
         customers: Array.isArray(parsed.customers) ? parsed.customers : [],
         events: Array.isArray(parsed.events) ? parsed.events : [],
       };
-      ["boxes", "flowers", "picks", "addons", "promos", "payments"].forEach((k) => {
+      ["boxes", "flowers", "picks", "addons", "promos", "payments", "channels"].forEach((k) => {
         if (!Array.isArray(cache.catalog[k])) cache.catalog[k] = def.catalog[k] || [];
       });
       if (!cache.catalog.delivery) cache.catalog.delivery = def.catalog.delivery;
       // Гарантируем, что встроенные способы оплаты Robokassa существуют (на случай, если их случайно удалили из JSON).
       ensureBuiltinPayments(cache.catalog.payments, def.catalog.payments);
+      // Аналогично для каналов связи: built-in (telegram/whatsapp/phone/email) удалить нельзя.
+      ensureBuiltinChannels(cache.catalog.channels, def.catalog.channels, cache.settings && cache.settings.contacts);
       if (!Array.isArray(cache.content.faq)) cache.content.faq = def.content.faq || [];
       if (!cache.content.legal || typeof cache.content.legal !== "object") cache.content.legal = def.content.legal;
       // Подмиграция полей delivery slots: добавляем поля A7 (id/startHour/endHour/surcharge/checkoutHidden)
@@ -444,7 +446,7 @@ function getCatalog() {
   return load().catalog;
 }
 
-const SECTIONS = ["boxes", "flowers", "picks", "addons", "promos", "payments"];
+const SECTIONS = ["boxes", "flowers", "picks", "addons", "promos", "payments", "channels"];
 
 // Гарантирует, что built-in способы оплаты (Robokassa) присутствуют. Если админ их удалил из JSON
 // руками — восстанавливаем по seed-данным, чтобы интеграция Robokassa оставалась доступной.
@@ -453,6 +455,26 @@ function ensureBuiltinPayments(arr, seed) {
   seed.filter((s) => s.builtin).forEach((s) => {
     if (!arr.some((p) => p.id === s.id)) arr.push(Object.assign({}, s));
   });
+}
+
+// Гарантирует built-in каналы связи + одноразовая миграция из старого settings.contacts.
+// Логика:
+//   - Если в массиве нет built-in канала по id — добавляем из seed.
+//   - Если в settings.contacts есть кастомное значение для этого канала (отличное от seed-дефолта)
+//     И в catalog.channels оно ещё дефолтное — переписываем href, чтобы данные не потерялись.
+function ensureBuiltinChannels(arr, seed, settingsContacts) {
+  if (!Array.isArray(arr) || !Array.isArray(seed)) return;
+  for (const s of seed.filter((x) => x.builtin)) {
+    let item = arr.find((x) => x.id === s.id);
+    if (!item) { item = Object.assign({}, s); arr.push(item); }
+    // Миграция из settings.contacts: telegram/whatsapp/phone/email
+    if (settingsContacts && typeof settingsContacts === "object") {
+      const fromSettings = settingsContacts[s.id];
+      if (fromSettings && item.href === s.href) {
+        item.href = String(fromSettings);
+      }
+    }
+  }
 }
 
 function _section(name) {

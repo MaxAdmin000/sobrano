@@ -113,6 +113,21 @@ module.exports = {
       icon: "СБП", instruction: "", active: true, order: 2, builtin: true, hidden: false },
   ],
 
+  // Каналы связи. Четыре built-in (telegram / whatsapp / phone / email) — их нельзя удалить,
+  // можно отключить флагом `active`. Custom-каналы (Viber, VK, MAX, Threads, любой URL)
+  // админ создаёт сам. Поле `icon` — URL изображения (с media-picker'ом), `glyph` — короткий
+  // текстовый фоллбэк (TG/WA/TEL/@) если иконка не загружена. Поле `color` — цвет круга в FAB-попапе.
+  // `type` — шаблон для формирования итоговой ссылки:
+  //   telegram/whatsapp/link → href as-is (полная ссылка)
+  //   phone                  → tel:<href с очисткой не-цифр>
+  //   email                  → mailto:<href>
+  channels: [
+    { id: "telegram", type: "telegram", title: "Telegram", href: "https://t.me/sobrano",      icon: "", glyph: "TG",  color: "#229ED9", meta: "Самый быстрый канал · 24/7",          active: true, order: 1, builtin: true, hidden: false },
+    { id: "whatsapp", type: "whatsapp", title: "WhatsApp", href: "https://wa.me/78000000000", icon: "", glyph: "WA",  color: "#25D366", meta: "Удобно для голосовых · 8:00–22:00",   active: true, order: 2, builtin: true, hidden: false },
+    { id: "phone",    type: "phone",    title: "Телефон",  href: "+7 800 000-00-00",          icon: "", glyph: "TEL", color: "#5C1F25", meta: "Срочные вопросы · 9:00–21:00",         active: true, order: 3, builtin: true, hidden: false },
+    { id: "email",    type: "email",    title: "Email",    href: "hello@sobrano.store",       icon: "", glyph: "@",   color: "#C97B5C", meta: "Документы и претензии · ответ за 4 ч", active: true, order: 4, builtin: true, hidden: false },
+  ],
+
   delivery: {
     own:    { id: "own",    label: "Своя доставка", price: 500, eta: "в выбранный интервал" },
     yandex: { id: "yandex", label: "Яндекс Go",     price: 0,   eta: "от 60 минут · по тарифу" },

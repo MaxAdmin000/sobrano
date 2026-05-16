@@ -191,6 +191,35 @@ async function postTrack(req, res) {
   }
 }
 
+// Публичный список каналов связи для morphing-консультанта и страницы Контакты.
+// Превращаем поле `href` в готовый URL по типу канала (tel:/mailto:/как есть).
+// Не отдаём internal-метки (builtin/order/hidden) наружу.
+function getChannels(req, res) {
+  const all = store.listSection("channels");
+  const channels = all
+    .filter((c) => c.active !== false && !c.hidden)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .map((c) => {
+      const raw = String(c.href || "").trim();
+      let url = raw;
+      if (c.type === "phone")  url = raw ? ("tel:" + raw.replace(/[^+\d]/g, "")) : "";
+      if (c.type === "email")  url = raw ? ("mailto:" + raw) : "";
+      // telegram / whatsapp / link → href уже полный URL
+      return {
+        id: c.id,
+        type: c.type || "link",
+        title: c.title || c.id,
+        value: raw,    // отображаемое значение («+7 800 ...», «hello@…»)
+        href: url,     // готовая ссылка для <a href>
+        icon: c.icon || "",
+        glyph: c.glyph || "·",
+        color: c.color || "#1A1410",
+        meta: c.meta || "",
+      };
+    });
+  sendJson(res, 200, { ok: true, channels });
+}
+
 // Публичный список способов оплаты для чекаута: фильтр по active/hidden + Robokassa-методы скрываются если креды не заполнены.
 function getPayments(req, res) {
   const all = store.listSection("payments");
@@ -532,6 +561,23 @@ async function putCatalogItem(req, res, section, id) {
       }
     }
 
+    // Аналогичная защита для каналов связи: built-in id/type нельзя поменять.
+    if (section === "channels") {
+      const existing = store.listSection("channels").find((c) => c.id === body.id);
+      const BUILTIN_TYPES = ["telegram", "whatsapp", "phone", "email"];
+      if (existing && existing.builtin) {
+        body.builtin = true;
+        body.id = existing.id;
+        body.type = existing.type;
+      } else {
+        body.builtin = false;
+        // Не даём кастомным каналам брать built-in-тип — иначе можно подменить «настоящий» Telegram.
+        if (BUILTIN_TYPES.indexOf(body.type) >= 0) {
+          throw new Error("Тип `" + body.type + "` зарезервирован под встроенные каналы. Используйте `link` для своего канала.");
+        }
+      }
+    }
+
     const item = store.upsertItem(section, body);
     sendJson(res, 200, { ok: true, item });
   } catch (e) {
@@ -547,6 +593,14 @@ async function deleteCatalogItem(req, res, section, id) {
       const item = store.listSection("payments").find((p) => p.id === id);
       if (item && item.builtin) {
         sendJson(res, 400, { ok: false, error: "Встроенный способ оплаты нельзя удалить — снимите галку «Активен», чтобы скрыть с чекаута." });
+        return;
+      }
+    }
+    // Аналогично для каналов связи.
+    if (section === "channels") {
+      const item = store.listSection("channels").find((c) => c.id === id);
+      if (item && item.builtin) {
+        sendJson(res, 400, { ok: false, error: "Встроенный канал связи нельзя удалить — снимите галку «Активен», чтобы скрыть с сайта." });
         return;
       }
     }
@@ -1002,6 +1056,7 @@ module.exports = {
   postTrack,
   getCatalog,
   getPayments,
+  getChannels,
   getContentPublic,
   getLegalPublic,
   // auth

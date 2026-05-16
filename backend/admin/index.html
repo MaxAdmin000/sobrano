@@ -831,6 +831,7 @@ input,select,textarea{font:inherit;color:inherit}
             <button class="subtab" data-cat="picks">Подборки <span class="badge" id="cnt-picks">—</span></button>
             <button class="subtab" data-cat="addons">Допы <span class="badge" id="cnt-addons">—</span></button>
             <button class="subtab" data-cat="promos">Промокоды <span class="badge" id="cnt-promos">—</span></button>
+            <button class="subtab" data-cat="channels">Каналы <span class="badge" id="cnt-channels">—</span></button>
           </div>
 
           <div class="catalog-actions">
@@ -1612,12 +1613,13 @@ input,select,textarea{font:inherit;color:inherit}
   async function loadCatalog(){
     try {
       const r = await api("GET", "/api/catalog");
-      catData = r.catalog || { boxes:[], flowers:[], picks:[], addons:[], promos:[], payments:[], delivery:{} };
+      catData = r.catalog || { boxes:[], flowers:[], picks:[], addons:[], promos:[], payments:[], channels:[], delivery:{} };
+      if (!Array.isArray(catData.channels)) catData.channels = [];
       // Sort by order field
-      ["boxes","flowers","picks","addons","payments"].forEach(k => {
+      ["boxes","flowers","picks","addons","payments","channels"].forEach(k => {
         if (Array.isArray(catData[k])) catData[k].sort((a,b)=>(a.order||0)-(b.order||0));
       });
-      ["boxes","flowers","picks","addons","promos","payments"].forEach(k => {
+      ["boxes","flowers","picks","addons","promos","payments","channels"].forEach(k => {
         const el = $("#cnt-" + k); if (el) el.textContent = (catData[k] || []).length;
       });
       updateCatHint();
@@ -1713,6 +1715,7 @@ input,select,textarea{font:inherit;color:inherit}
     else if (catActive === "addons") html += '<th></th><th>Название</th><th>ID</th><th class="total" style="text-align:right">Цена</th><th></th>';
     else if (catActive === "promos") html += '<th>Код</th><th>Скидка</th><th>Лимит</th><th>Использовано</th><th>Статус</th><th></th>';
     else if (catActive === "payments") html += '<th></th><th>Название</th><th>Тип</th><th>Статус</th><th></th><th></th>';
+    else if (catActive === "channels") html += '<th></th><th>Название</th><th>Тип</th><th>Контакт</th><th>Статус</th><th></th>';
     html += '</tr></thead><tbody>';
 
     items.forEach(it => {
@@ -1767,6 +1770,20 @@ input,select,textarea{font:inherit;color:inherit}
               + '<td>'+statusPill+'</td>'
               + '<td>'+(it.instruction?'<span class="tag-pill tag-fresh">есть инструкция</span>':'<span style="color:var(--mute);font-size:11px;font-family:var(--mono);letter-spacing:.08em">—</span>')+'</td>'
               + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
+      } else if (catActive === "channels") {
+        const typeLabel = ({ telegram:"Telegram", whatsapp:"WhatsApp", phone:"Телефон", email:"Email", link:"Ссылка" })[it.type] || it.type || "—";
+        const thumb = it.icon
+          ? '<div class="thumb" style="background:'+escapeHtml(it.color||"#1A1410")+'"><img src="'+escapeHtml(it.icon)+'" alt=""></div>'
+          : '<div class="thumb" style="background:'+escapeHtml(it.color||"#1A1410")+';color:#F2ECE3;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;display:flex;align-items:center;justify-content:center">'+escapeHtml(it.glyph||"·")+'</div>';
+        const statusPill = (it.active === false)
+          ? '<span class="tag-pill tag-hidden">отключён</span>'
+          : '<span class="tag-pill tag-fresh">активен</span>';
+        html += '<td>' + thumb + '</td>'
+              + '<td><div class="name">'+escapeHtml(it.title||"")+'</div></td>'
+              + '<td>'+escapeHtml(typeLabel)+(it.builtin?' <span class="tag-pill tag-hidden" style="margin-left:4px">встроен</span>':'')+'</td>'
+              + '<td><code style="font-family:var(--mono);font-size:12px;color:var(--ink-soft)">'+escapeHtml(it.href||"")+'</code></td>'
+              + '<td>'+statusPill+'</td>'
+              + '<td><div class="actions"><button class="mini-btn" data-edit>Редактировать</button></div></td>';
       }
       html += '</tr>';
     });
@@ -1786,14 +1803,14 @@ input,select,textarea{font:inherit;color:inherit}
     $("#cat-modal-title").textContent = isNew
       ? "Новая запись · " + sectionLabel(catActive)
       : "Редактирование · " + escapeHtml(catEditing.title || catEditing.name || catEditing.code || catEditing.id || "");
-    const isBuiltinPayment = catActive === "payments" && catEditing && catEditing.builtin;
-    $("#cat-delete-btn").style.display = isNew || isBuiltinPayment ? "none" : "";
+    const isBuiltin = catEditing && catEditing.builtin && (catActive === "payments" || catActive === "channels");
+    $("#cat-delete-btn").style.display = isNew || isBuiltin ? "none" : "";
     renderCatForm(catActive, catEditing);
     $("#cat-modal").classList.add("show");
   }
 
   function sectionLabel(s){
-    return ({boxes:"Бокс", flowers:"Цветок", picks:"Подборка", addons:"Доп", promos:"Промокод", payments:"Способ оплаты"})[s] || s;
+    return ({boxes:"Бокс", flowers:"Цветок", picks:"Подборка", addons:"Доп", promos:"Промокод", payments:"Способ оплаты", channels:"Канал связи"})[s] || s;
   }
 
   function renderCatForm(section, item){
@@ -1963,6 +1980,51 @@ input,select,textarea{font:inherit;color:inherit}
       html += '<div class="row">';
       html += field("order", "Порядок", item.order || 0, "number");
       html += checkbox("active", "Активен (показывать на чекауте)", item.active !== false);
+      html += '</div>';
+    } else if (section === "channels") {
+      const isBuiltin = !!item.builtin;
+      const TYPE_LABEL = { telegram:"Telegram", whatsapp:"WhatsApp", phone:"Телефон", email:"Email" };
+      if (isBuiltin) {
+        html += '<div style="background:rgba(140,154,123,.1);border:1px solid rgba(140,154,123,.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--ink)">Это <strong>встроенный</strong> канал ('+escapeHtml(TYPE_LABEL[item.type]||item.type||"")+'). Удалить нельзя — можно отключить через флаг «Активен».</div>';
+      }
+      html += '<div class="row">';
+      // ID — readonly для built-in, для нового можно задать
+      html += field("id", "ID *", item.id, "text", item.id?"readonly":"placeholder=\"viber, vk, max…\"");
+      // Тип — залочен для built-in, для нового только `link`
+      if (isBuiltin) {
+        html += '<div class="field"><label for="cf-type">Тип</label><select id="cf-type" disabled>'
+              + '<option value="telegram"'+(item.type==="telegram"?' selected':'')+'>Telegram</option>'
+              + '<option value="whatsapp"'+(item.type==="whatsapp"?' selected':'')+'>WhatsApp</option>'
+              + '<option value="phone"'+(item.type==="phone"?' selected':'')+'>Телефон</option>'
+              + '<option value="email"'+(item.type==="email"?' selected':'')+'>Email</option>'
+              + '</select></div>';
+      } else {
+        html += '<div class="field"><label for="cf-type">Тип</label><select id="cf-type">'
+              + '<option value="link"'+(!item.type || item.type==="link"?' selected':'')+'>Ссылка (https://… или любой URL-схемы)</option>'
+              + '</select></div>';
+      }
+      html += '</div>';
+      html += '<div class="row">';
+      html += field("title", "Название (для UI) *", item.title);
+      // href: для phone/email — голое значение, для остальных — полный URL
+      const hrefHint = item.type === "phone"
+        ? "Например: +7 800 000-00-00 (превратится в tel:)"
+        : item.type === "email"
+        ? "Например: hello@sobrano.store (превратится в mailto:)"
+        : "Полная ссылка: https://t.me/…, https://wa.me/…, viber://…";
+      html += field("href", "Ссылка / контакт *", item.href || "", "text", 'placeholder="'+escapeHtml(hrefHint)+'"');
+      html += '</div>';
+      // Иконка через media-picker
+      html += imagePicker("icon", item.icon || "");
+      html += '<div style="font-size:11px;color:var(--mute);margin:-8px 0 14px;font-family:var(--sans);text-transform:none;letter-spacing:0">Иконка показывается на FAB-попапе и на странице «Контакты». Если пусто — будет короткий текст ниже.</div>';
+      html += '<div class="row">';
+      html += field("glyph", "Текстовый фоллбэк (1–3 символа)", item.glyph || "·");
+      html += field("color", "Цвет круга (HEX)", item.color || "#1A1410", "text", 'placeholder="#229ED9"');
+      html += '</div>';
+      html += field("meta", "Подпись на странице «Контакты»", item.meta || "", "text", 'placeholder="Например: Самый быстрый канал · 24/7"');
+      html += '<div class="row">';
+      html += field("order", "Порядок", item.order || 0, "number");
+      html += checkbox("active", "Активен (показывать на сайте)", item.active !== false);
       html += '</div>';
     }
 
@@ -2150,6 +2212,19 @@ input,select,textarea{font:inherit;color:inherit}
         icon: v("icon").trim(),
         description: v("description").trim(),
         instruction: v("instruction"),
+        order: vNum("order"),
+        active: vBool("active"),
+      });
+    } else if (section === "channels") {
+      Object.assign(item, {
+        id: v("id").trim(),
+        type: v("type").trim() || "link",
+        title: v("title").trim(),
+        href: v("href").trim(),
+        icon: v("icon").trim(),
+        glyph: v("glyph").trim() || "·",
+        color: v("color").trim() || "#1A1410",
+        meta: v("meta").trim(),
         order: vNum("order"),
         active: vBool("active"),
       });

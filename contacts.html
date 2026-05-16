@@ -278,7 +278,9 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
       <p>Все каналы ведут в одну систему — продублировать сообщение в нескольких местах не нужно. Если что-то срочное и платная история — лучше звонок.</p>
     </div>
 
-    <div class="ch-grid">
+    <!-- Каналы рендерятся из /api/channels через скрипт ниже.
+         Если API недоступен — остаются эти 4 hardcoded карточки как фоллбэк. -->
+    <div class="ch-grid" id="contacts-ch-grid">
       <a href="https://t.me/sobrano" target="_blank" rel="noopener" class="ch-card dark">
         <span class="ic">T</span>
         <h3>Telegram</h3>
@@ -488,5 +490,47 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
 <script src="assets/floating-cart.js" defer></script>
 <script src="assets/consult-button.js" defer></script>
 <script src="assets/popups.js" defer></script>
+
+<script>
+// I49: каналы связи рендерятся из /api/channels. Админ управляет ими через
+// «Каталог → Каналы»: можно изменить контакты, поменять иконку, отключить
+// канал или добавить свой (Viber, VK, MAX и т.п.). Если API недоступен —
+// HTML-фоллбэк выше остаётся как есть.
+(function () {
+  const grid = document.getElementById("contacts-ch-grid");
+  if (!grid) return;
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[ch]));
+  }
+  function metaForType(t) {
+    if (t === "telegram") return "Мессенджер · 24/7";
+    if (t === "whatsapp") return "Удобно для голосовых · 8:00–22:00";
+    if (t === "phone")    return "Срочные вопросы · 9:00–21:00";
+    if (t === "email")    return "Документы и претензии · ответ за 4 часа";
+    return "";
+  }
+  fetch("/api/channels", { credentials: "same-origin" })
+    .then((r) => r.ok ? r.json() : null)
+    .then((data) => {
+      if (!data || !data.ok || !Array.isArray(data.channels) || !data.channels.length) return;
+      grid.innerHTML = data.channels.map((c, idx) => {
+        const isExternal = /^https?:\/\//i.test(c.href || "");
+        const ext = isExternal ? ' target="_blank" rel="noopener"' : '';
+        const dark = idx === 0 ? ' dark' : '';
+        const iconHtml = c.icon
+          ? '<span class="ic" style="background:' + escapeHtml(c.color || "#1A1410") + ';padding:0;overflow:hidden"><img src="' + escapeHtml(c.icon) + '" alt="" style="width:60%;height:60%;object-fit:contain"></span>'
+          : '<span class="ic" style="background:' + escapeHtml(c.color || "#1A1410") + ';color:#F2ECE3;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;letter-spacing:.04em">' + escapeHtml(c.glyph || "·") + '</span>';
+        const meta = c.meta || metaForType(c.type);
+        return '<a class="ch-card' + dark + '" href="' + escapeHtml(c.href || "#") + '"' + ext + '>'
+          + iconHtml
+          + '<h3>' + escapeHtml(c.title || "") + '</h3>'
+          + '<span class="num">' + escapeHtml(c.value || c.href || "") + '</span>'
+          + (meta ? '<span class="meta">' + escapeHtml(meta) + '</span>' : '')
+          + '</a>';
+      }).join("");
+    })
+    .catch(() => { /* фоллбэк уже отрендерен — оставляем */ });
+})();
+</script>
 </body>
 </html>

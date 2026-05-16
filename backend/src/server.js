@@ -386,6 +386,9 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && pathname === "/api/payments") {
     return wrapCors(req, res, () => adminApi.getPayments(req, res));
   }
+  if (req.method === "GET" && pathname === "/api/channels") {
+    return wrapCors(req, res, () => adminApi.getChannels(req, res));
+  }
   if (req.method === "GET" && pathname === "/api/content") {
     return wrapCors(req, res, () => adminApi.getContentPublic(req, res));
   }
