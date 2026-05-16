@@ -1,0 +1,158 @@
+name: Uptime check (sobrano.store)
+
+# K57: каждые 5 минут пробуем https://sobrano.store/health.
+# Если упало 2 попытки подряд — открываем GitHub Issue (label "outage")
+# и шлём алерт в Telegram. На восстановлении — закрываем issue и шлём «recovered».
+# Дедупликация через Issue: пока один outage открыт, повторных TG-алертов нет —
+# только комментарии к существующему issue с текущим статусом.
+#
+# Secrets (опционально, без них работает только логирование):
+#   TG_BOT_TOKEN — токен Telegram-бота (тот же, что в админке → Уведомления, или отдельный DevOps-бот)
+#   TG_CHAT_ID   — chat_id куда слать алерты
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: HTTP probe (retry once)
+        id: probe
+        shell: bash
+        env:
+          URL: https://sobrano.store/health
+        run: |
+          set -uo pipefail
+          fail=""
+          http=""
+          time=""
+          body=""
+
+          # 2 попытки с интервалом 15 секунд, чтобы не алертить на разовый сетевой глюк.
+          for attempt in 1 2; do
+            tmp="$(mktemp)"
+            meta=$(curl -sS -o "$tmp" -m 15 -w '%{http_code}|%{time_total}' "$URL" 2>/dev/null || echo "000|0")
+            http=$(echo "$meta" | cut -d'|' -f1)
+            time=$(echo "$meta" | cut -d'|' -f2)
+            body=$(cat "$tmp" | head -c 500)
+            fail=""
+            if [ "$http" != "200" ]; then
+              fail="HTTP $http (curl exit/timeout)"
+            elif ! echo "$body" | grep -q '"ok":true'; then
+              fail="health.ok ≠ true"
+            fi
+            if [ -z "$fail" ]; then break; fi
+            echo "::warning::Attempt $attempt failed: $fail (body: ${body:0:120})"
+            if [ "$attempt" -lt 2 ]; then sleep 15; fi
+          done
+
+          # SSL expiry check (warn если истекает < 14 дней)
+          ssl_days="?"
+          ssl=$(echo | openssl s_client -servername sobrano.store -connect sobrano.store:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2 || echo "")
+          if [ -n "$ssl" ]; then
+            exp_ts=$(date -d "$ssl" +%s 2>/dev/null || echo "")
+            if [ -n "$exp_ts" ]; then
+              now_ts=$(date +%s)
+              ssl_days=$(( (exp_ts - now_ts) / 86400 ))
+              if [ "$ssl_days" -lt 14 ] && [ -z "$fail" ]; then
+                fail="SSL истекает через ${ssl_days} дн"
+              fi
+            fi
+          fi
+
+          {
+            echo "fail=$fail"
+            echo "http=$http"
+            echo "time=$time"
+            echo "ssl_days=$ssl_days"
+            echo "body<<BODY_EOF"
+            echo "$body"
+            echo "BODY_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ -n "$fail" ]; then
+            echo "::error::sobrano.store FAIL: $fail (http=$http, time=${time}s, ssl=${ssl_days}d)"
+          else
+            echo "OK · HTTP=$http · time=${time}s · SSL=${ssl_days}d"
+          fi
+
+      - name: Ensure 'outage' label exists
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create outage --color "B91C1C" --description "Production outage" 2>/dev/null || true
+
+      - name: Manage outage issue + Telegram alert
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FAIL: ${{ steps.probe.outputs.fail }}
+          HTTP: ${{ steps.probe.outputs.http }}
+          TIME: ${{ steps.probe.outputs.time }}
+          SSL_DAYS: ${{ steps.probe.outputs.ssl_days }}
+          BODY: ${{ steps.probe.outputs.body }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          set -uo pipefail
+
+          send_tg() {
+            local txt="$1"
+            if [ -z "${TG_BOT_TOKEN:-}" ] || [ -z "${TG_CHAT_ID:-}" ]; then
+              echo "TG secrets not set, skipping Telegram alert."
+              return 0
+            fi
+            local payload
+            payload=$(jq -nc --arg chat "$TG_CHAT_ID" --arg t "$txt" \
+              '{chat_id:$chat, text:$t, parse_mode:"HTML", disable_web_page_preview:true}')
+            curl -sS -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d "$payload" \
+              -o /dev/null \
+              -w "telegram: HTTP %{http_code}\n" || echo "Telegram request failed"
+          }
+
+          # Ищем уже открытый outage-issue (дедупликация)
+          existing=$(gh issue list --label outage --state open --limit 1 --json number --jq '.[0].number // empty' 2>/dev/null || echo "")
+
+          now=$(date -u +"%Y-%m-%d %H:%M UTC")
+
+          if [ -n "$FAIL" ]; then
+            # ===== ПАДЕНИЕ =====
+            if [ -z "$existing" ]; then
+              issue_body=$(printf '**Reason:** %s\n\n**HTTP:** %s\n**Response time:** %ss\n**SSL days left:** %s\n**Detected at:** %s\n\n**Response body:**\n```\n%s\n```' "$FAIL" "$HTTP" "$TIME" "$SSL_DAYS" "$now" "$BODY")
+              issue_num=$(gh issue create --title "🚨 Outage · sobrano.store" --label outage --body "$issue_body" 2>/dev/null | grep -oE '[0-9]+$' | tail -1 || echo "?")
+              tg_text=$(printf '🚨 <b>sobrano.store упал</b>\n%s\nHTTP: <code>%s</code> · Response: <code>%ss</code> · SSL: <code>%sd</code>\nDetected: %s\nGitHub issue #%s' "$FAIL" "$HTTP" "$TIME" "$SSL_DAYS" "$now" "$issue_num")
+              send_tg "$tg_text"
+              echo "Opened outage issue #$issue_num and sent TG alert."
+            else
+              # Падение продолжается — комментим, но в TG не дублируем
+              gh issue comment "$existing" --body "🚨 Still down at $now · $FAIL · HTTP $HTTP · ${TIME}s" >/dev/null 2>&1 || true
+              echo "Outage continues, commented on issue #$existing (no duplicate TG)."
+            fi
+            exit 1
+          else
+            # ===== ВОССТАНОВЛЕНИЕ =====
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body "✅ Recovered at $now · HTTP $HTTP · ${TIME}s · SSL ${SSL_DAYS}d" >/dev/null 2>&1 || true
+              gh issue close "$existing" --reason completed >/dev/null 2>&1 || true
+              tg_text=$(printf '✅ <b>sobrano.store восстановлен</b>\nHTTP: <code>%s</code> · Response: <code>%ss</code> · SSL: <code>%sd</code>\nRecovered: %s\nIssue #%s закрыт' "$HTTP" "$TIME" "$SSL_DAYS" "$now" "$existing")
+              send_tg "$tg_text"
+              echo "Recovery detected, closed issue #$existing and sent TG."
+            else
+              echo "All green, no open outage to manage."
+            fi
+          fi
