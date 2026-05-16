@@ -76,6 +76,8 @@
       if (meta.image) el.setAttribute("src", meta.image);
       el.setAttribute("alt", `Бокс ${sizeUpper}`);
     });
+    // B11: галерея — главное image + meta.images[] как доп. кадры.
+    renderBoxGallery(meta, sizeUpper);
     // Lead: title — desc. Дополнение про стебли — стандартное.
     const leadText = [
       meta.title ? meta.title + " — " : "",
@@ -87,6 +89,35 @@
 
     // Tag row: список всех боксов с активной отметкой текущего
     renderTagRow(sizeLower);
+  }
+
+  // B11: рендер thumbnail-стрипы галереи. Источник: meta.image (главный кадр)
+  // + meta.images[] (дополнительные). Если только 1 кадр — стрипа скрывается.
+  function renderBoxGallery(meta, alt) {
+    const wrap = document.querySelector("[data-box-gallery]");
+    if (!wrap) return;
+    const main = meta && meta.image ? [meta.image] : [];
+    const extra = (meta && Array.isArray(meta.images)) ? meta.images.filter((u) => u) : [];
+    const all = main.concat(extra);
+    if (all.length < 2) { wrap.hidden = true; wrap.innerHTML = ""; return; }
+    wrap.hidden = false;
+    wrap.innerHTML = all.map((url, i) =>
+      '<button type="button" data-gi="' + i + '"' + (i === 0 ? ' class="active"' : '') + '>'
+      + '<img src="' + escapeAttr(url) + '" alt="' + escapeAttr(alt) + ' · кадр ' + (i + 1) + '" loading="lazy">'
+      + '</button>'
+    ).join("");
+    const mainImg = document.querySelector("[data-box-img]");
+    wrap.querySelectorAll("button[data-gi]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.dataset.gi);
+        if (mainImg) mainImg.setAttribute("src", all[i]);
+        wrap.querySelectorAll("button[data-gi]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+  }
+  function escapeAttr(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[ch]));
   }
 
   function setText(sel, text) {

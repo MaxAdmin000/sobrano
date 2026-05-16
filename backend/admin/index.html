@@ -244,6 +244,16 @@ input,select,textarea{font:inherit;color:inherit}
 
 /* IMAGE PICKER (в модалке редактирования) */
 .image-picker{display:flex;align-items:center;gap:14px;padding:14px;background:var(--ivory);border-radius:var(--r-sm);margin-bottom:14px}
+.gallery-wrap{padding:14px;background:var(--ivory);border-radius:var(--r-sm)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px;min-height:6px}
+.gallery-thumb{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-thumb-ctrl{position:absolute;left:0;right:0;bottom:0;display:flex;gap:2px;padding:4px;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.gallery-thumb-ctrl .mini-btn{flex:1;font-size:11px;padding:3px 4px;background:rgba(255,255,255,.92);color:var(--ink)}
+.gallery-thumb-ctrl .mini-btn:hover{background:#fff}
+.gallery-thumb-ctrl .gallery-del{color:var(--wine);font-weight:600}
+.gallery-actions{display:flex;gap:8px}
+.gallery-actions .mini-btn{font-size:12px;padding:6px 10px}
 .image-picker .preview{width:80px;height:80px;border-radius:8px;background:#fff;border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:var(--mute);flex:none}
 .image-picker .preview img{width:100%;height:100%;object-fit:cover}
 .image-picker .controls{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -1831,6 +1841,35 @@ input,select,textarea{font:inherit;color:inherit}
     function checkbox(id, label, checked) {
       return `<div class="field checkbox"><label><input type="checkbox" id="cf-${id}" ${checked?'checked':''}> ${escapeHtml(label)}</label></div>`;
     }
+    // B11: галерея дополнительных изображений (массив URLs). Главное `image`
+    // остаётся отдельным полем — этот picker управляет только доп.картинками.
+    // Передаётся как [item.images || []]; backend хранит как `images: string[]`.
+    function imageGallery(id, value) {
+      const arr = Array.isArray(value) ? value.filter((x) => x) : [];
+      const thumbs = arr.map((url, i) =>
+        '<div class="gallery-thumb" data-gallery-idx="' + i + '" data-gallery-url="' + escapeHtml(url) + '">'
+        + '<img src="' + escapeHtml(url) + '" alt="">'
+        + '<div class="gallery-thumb-ctrl">'
+        +   '<button type="button" class="mini-btn" data-gallery-up title="Вверх по порядку">↑</button>'
+        +   '<button type="button" class="mini-btn" data-gallery-down title="Вниз по порядку">↓</button>'
+        +   '<button type="button" class="mini-btn gallery-del" data-gallery-del title="Удалить">×</button>'
+        + '</div>'
+        + '</div>'
+      ).join('');
+      return `<div class="field">
+        <label>Доп. изображения (галерея)</label>
+        <div class="gallery-wrap" id="cf-${id}-wrap" data-gallery-field="${id}">
+          <div class="gallery-grid">${thumbs}</div>
+          <div class="gallery-actions">
+            <button type="button" class="mini-btn" data-gallery-upload>＋ Загрузить</button>
+            <button type="button" class="mini-btn" data-gallery-pick>＋ Из медиатеки</button>
+            <input type="file" data-gallery-file accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,image/avif" style="display:none">
+          </div>
+          <input type="hidden" id="cf-${id}" value='${escapeHtml(JSON.stringify(arr))}'>
+        </div>
+        <div style="font-size:11px;color:var(--mute);margin-top:6px;font-family:var(--sans);text-transform:none;letter-spacing:0">Главное изображение редактируется выше. Здесь — дополнительные кадры (другой ракурс, состав «вживую», размер ладони и т.д.).</div>
+      </div>`;
+    }
     function imagePicker(id, value) {
       const v = value || "";
       const isPlaceholder = !v;
@@ -1864,6 +1903,7 @@ input,select,textarea{font:inherit;color:inherit}
       html += field("title", "Заголовок (что внутри карточки)", item.title);
       html += field("desc", "Описание", item.desc, "textarea");
       html += imagePicker("image", item.image);
+      html += imageGallery("images", item.images);
       html += '<div class="row">';
       html += field("order", "Порядок", item.order || 0, "number");
       html += checkbox("hidden", "Скрыт от посетителей", !!item.hidden);
@@ -1878,6 +1918,7 @@ input,select,textarea{font:inherit;color:inherit}
       html += '</div>';
       html += field("meta", "Подпись (например, «Душистый · 60 см»)", item.meta);
       html += imagePicker("image", item.image);
+      html += imageGallery("images", item.images);
       html += '<div class="row">';
       html += field("tag", "Тег (fresh/season/exo/dry/out)", item.tag);
       html += field("order", "Порядок", item.order || 0, "number");
@@ -1902,6 +1943,7 @@ input,select,textarea{font:inherit;color:inherit}
       html += '</div>';
       html += field("desc", "Описание", item.desc, "textarea");
       html += imagePicker("image", item.image);
+      html += imageGallery("images", item.images);
 
       // Composition builder
       html += '<div style="margin-top:14px"><label style="display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:6px">Состав букета</label><div class="composition-builder" id="comp-builder"></div></div>';
@@ -1927,6 +1969,7 @@ input,select,textarea{font:inherit;color:inherit}
       html += '</div>';
       html += field("desc", "Описание", item.desc, "textarea");
       html += imagePicker("image", item.image);
+      html += imageGallery("images", item.images);
       html += '<div class="row">';
       html += field("order", "Порядок", item.order || 0, "number");
       html += checkbox("hidden", "Скрыт от посетителей", !!item.hidden);
@@ -2083,6 +2126,63 @@ input,select,textarea{font:inherit;color:inherit}
       });
     });
 
+    // B11: wire gallery-pickers. Каждый wrap имеет hidden input cf-images,
+    // в котором JSON.stringify(urls[]); все изменения отражаются в нём,
+    // readCatForm читает оттуда обратно в массив.
+    f.querySelectorAll('.gallery-wrap').forEach(wrap => {
+      const hidden = wrap.querySelector('input[type="hidden"]');
+      const grid = wrap.querySelector('.gallery-grid');
+
+      function getList() { try { return JSON.parse(hidden.value || "[]"); } catch (e) { return []; } }
+      function setList(list) {
+        hidden.value = JSON.stringify(list);
+        grid.innerHTML = list.map((url, i) =>
+          '<div class="gallery-thumb" data-gallery-idx="' + i + '">'
+          + '<img src="' + escapeHtml(url) + '" alt="">'
+          + '<div class="gallery-thumb-ctrl">'
+          +   '<button type="button" class="mini-btn" data-gallery-up>↑</button>'
+          +   '<button type="button" class="mini-btn" data-gallery-down>↓</button>'
+          +   '<button type="button" class="mini-btn gallery-del" data-gallery-del>×</button>'
+          + '</div>'
+          + '</div>'
+        ).join('');
+      }
+
+      wrap.querySelector('[data-gallery-upload]').addEventListener('click', () => {
+        wrap.querySelector('[data-gallery-file]').click();
+      });
+      wrap.querySelector('[data-gallery-file]').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const url = await uploadFile(file);
+          const list = getList(); list.push(url); setList(list);
+        } catch (err) {
+          alert("Ошибка загрузки: " + (err.message || err));
+        }
+        e.target.value = "";
+      });
+      wrap.querySelector('[data-gallery-pick]').addEventListener('click', () => {
+        openMediaPicker((url) => {
+          if (!url) return;
+          const list = getList(); list.push(url); setList(list);
+        });
+      });
+      grid.addEventListener('click', (e) => {
+        const thumb = e.target.closest('[data-gallery-idx]');
+        if (!thumb) return;
+        const idx = Number(thumb.dataset.galleryIdx);
+        const list = getList();
+        if (e.target.closest('[data-gallery-del]')) {
+          list.splice(idx, 1); setList(list);
+        } else if (e.target.closest('[data-gallery-up]')) {
+          if (idx > 0) { [list[idx-1], list[idx]] = [list[idx], list[idx-1]]; setList(list); }
+        } else if (e.target.closest('[data-gallery-down]')) {
+          if (idx < list.length - 1) { [list[idx+1], list[idx]] = [list[idx], list[idx+1]]; setList(list); }
+        }
+      });
+    });
+
     // Composition builder for picks
     if (section === "picks") {
       renderComposition(item);
@@ -2153,13 +2253,18 @@ input,select,textarea{font:inherit;color:inherit}
     function vBool(id) { const el = $("#cf-"+id); return el ? el.checked : false; }
     function vNum(id) { const x = v(id); return x === "" ? 0 : Number(x); }
     function vNumOrNull(id) { const x = v(id); return x === "" ? null : Number(x); }
+    // B11: галерея хранится в hidden input как JSON.stringify(urls[]).
+    function vImages(id) {
+      try { const arr = JSON.parse(v(id) || "[]"); return Array.isArray(arr) ? arr.filter((u) => u) : []; }
+      catch (e) { return []; }
+    }
 
     if (section === "boxes") {
       Object.assign(item, {
         id: v("id").trim(), size: v("size").trim(), sub: v("sub").trim(),
         capacity: vNum("capacity"), price: vNum("price"),
         url: v("url").trim(), title: v("title").trim(), desc: v("desc").trim(),
-        image: v("image").trim(),
+        image: v("image").trim(), images: vImages("images"),
         order: vNum("order"),
         hidden: vBool("hidden"),
       });
@@ -2167,7 +2272,8 @@ input,select,textarea{font:inherit;color:inherit}
       Object.assign(item, {
         id: v("id").trim(), name: v("name").trim(), cat: v("cat").trim(),
         priceFrom: vNum("priceFrom"), meta: v("meta").trim(),
-        image: v("image").trim(), tag: v("tag").trim(),
+        image: v("image").trim(), images: vImages("images"),
+        tag: v("tag").trim(),
         order: vNum("order"),
         stock: vBool("stock"), sale: vBool("sale"), hidden: vBool("hidden"),
       });
@@ -2185,6 +2291,7 @@ input,select,textarea{font:inherit;color:inherit}
         boxId: v("boxId"),
         price: vNum("price"), oldPrice: vNumOrNull("oldPrice"),
         desc: v("desc").trim(), image: v("image").trim(),
+        images: vImages("images"),
         flowers, addons,
         order: vNum("order"), hidden: vBool("hidden"),
       });
@@ -2193,6 +2300,7 @@ input,select,textarea{font:inherit;color:inherit}
         id: v("id").trim(), title: v("title").trim(),
         price: vNum("price"), placeholder: v("placeholder").trim() || null,
         desc: v("desc").trim(), image: v("image").trim() || null,
+        images: vImages("images"),
         order: vNum("order"), hidden: vBool("hidden"),
       });
     } else if (section === "promos") {
