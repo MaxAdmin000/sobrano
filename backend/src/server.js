@@ -389,6 +389,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && pathname === "/api/channels") {
     return wrapCors(req, res, () => adminApi.getChannels(req, res));
   }
+  // Sitemap отдаётся только через /api/sitemap.xml (nginx проксирует только /api/*).
+  // В robots.txt указан этот URL — поисковики его прочитают.
+  if (req.method === "GET" && pathname === "/api/sitemap.xml") {
+    return wrapCors(req, res, () => adminApi.getSitemap(req, res));
+  }
   if (req.method === "GET" && pathname === "/api/content") {
     return wrapCors(req, res, () => adminApi.getContentPublic(req, res));
   }

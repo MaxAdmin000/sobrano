@@ -191,6 +191,58 @@ async function postTrack(req, res) {
   }
 }
 
+// Динамический sitemap.xml (H42). Возвращает актуальный список публичных страниц
+// с lastmod = время последнего изменения контента сайта (`content.updatedAt` или now).
+// Включает 4 варианта `box.html?size=…` как отдельные SEO-страницы.
+function getSitemap(req, res) {
+  const HOST = "https://sobrano.store";
+  const c = store.getContent() || {};
+  const lastmod = new Date(Number(c._meta && c._meta.updatedAt) || Date.now())
+    .toISOString().slice(0, 10);
+
+  // Список страниц с приоритетами и change-frequency.
+  // Каталог (высокий приоритет, часто меняется) → информационные → юридические.
+  const pages = [
+    { path: "/",                     freq: "weekly",  prio: "1.0" },
+    { path: "/flowers.html",         freq: "daily",   prio: "0.9" },
+    { path: "/picks.html",           freq: "weekly",  prio: "0.9" },
+    { path: "/box.html?size=s",      freq: "weekly",  prio: "0.85" },
+    { path: "/box.html?size=m",      freq: "weekly",  prio: "0.85" },
+    { path: "/box.html?size=l",      freq: "weekly",  prio: "0.85" },
+    { path: "/box.html?size=xl",     freq: "weekly",  prio: "0.85" },
+    { path: "/about.html",           freq: "monthly", prio: "0.7" },
+    { path: "/delivery.html",        freq: "monthly", prio: "0.75" },
+    { path: "/returns.html",         freq: "monthly", prio: "0.7" },
+    { path: "/contacts.html",        freq: "monthly", prio: "0.8" },
+    { path: "/documents.html",       freq: "monthly", prio: "0.5" },
+    { path: "/requisites.html",      freq: "yearly",  prio: "0.4" },
+    { path: "/privacy-policy.html",  freq: "yearly",  prio: "0.4" },
+    { path: "/terms.html",           freq: "yearly",  prio: "0.4" },
+    { path: "/offer.html",           freq: "yearly",  prio: "0.4" },
+    { path: "/consent.html",         freq: "yearly",  prio: "0.4" },
+  ];
+
+  const xmlEsc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const urls = pages.map((p) =>
+    "  <url>\n" +
+    "    <loc>" + xmlEsc(HOST + p.path) + "</loc>\n" +
+    "    <lastmod>" + lastmod + "</lastmod>\n" +
+    "    <changefreq>" + p.freq + "</changefreq>\n" +
+    "    <priority>" + p.prio + "</priority>\n" +
+    "  </url>"
+  ).join("\n");
+  const body = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls + "\n" +
+    "</urlset>\n";
+
+  res.writeHead(200, {
+    "content-type": "application/xml; charset=utf-8",
+    "cache-control": "public, max-age=3600", // 1 час кеш — sitemap не критично свежий
+  });
+  res.end(body);
+}
+
 // Публичный список каналов связи для morphing-консультанта и страницы Контакты.
 // Превращаем поле `href` в готовый URL по типу канала (tel:/mailto:/как есть).
 // Не отдаём internal-метки (builtin/order/hidden) наружу.
@@ -1057,6 +1109,7 @@ module.exports = {
   getCatalog,
   getPayments,
   getChannels,
+  getSitemap,
   getContentPublic,
   getLegalPublic,
   // auth

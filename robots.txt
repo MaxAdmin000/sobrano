@@ -10,10 +10,20 @@ Disallow: /cart.html
 Disallow: /checkout.html
 Disallow: /thank-you.html
 Disallow: /404.html
-Disallow: /index-dark.html
+Disallow: /admin
+Disallow: /api/
+Disallow: /uploads/
 
-# Поисковые движки могут индексировать всё остальное
-Sitemap: https://sobrano.store/sitemap.xml
+# Закрыть box-{s,m,l,xl}.html — это redirect-стабы на box.html?size=…
+# (см. L61). Поисковики индексируют единый box.html.
+Disallow: /box-s.html
+Disallow: /box-m.html
+Disallow: /box-l.html
+Disallow: /box-xl.html
+
+# Sitemap генерится динамически на бэкенде (H42). Содержит актуальный список
+# страниц с lastmod = время последнего изменения контента в админке.
+Sitemap: https://sobrano.store/api/sitemap.xml
 
 # Хост — основной домен (директива Yandex)
 Host: sobrano.store

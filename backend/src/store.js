@@ -583,6 +583,9 @@ function patchContent(section, patch) {
   } else {
     s.content = deepMerge(s.content, patch || {});
   }
+  // Метка времени последнего изменения контента — для sitemap.xml lastmod.
+  if (!s.content._meta) s.content._meta = {};
+  s.content._meta.updatedAt = Date.now();
   save();
   return s.content;
 }
@@ -592,6 +595,8 @@ function setContentSection(section, value) {
   const s = load();
   if (!s.content || typeof s.content !== "object") s.content = {};
   s.content[section] = value;
+  if (!s.content._meta) s.content._meta = {};
+  s.content._meta.updatedAt = Date.now();
   save();
   return s.content[section];
 }
