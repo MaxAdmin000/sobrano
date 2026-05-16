@@ -313,8 +313,10 @@ footer{background:var(--ink);color:var(--ivory);padding:40px 0;font-family:var(-
           <div style="padding:18px 22px;color:var(--mute);font-style:italic;font-family:var(--serif)">Загружаем…</div>
         </div>
 
+        <!-- 152-ФЗ: согласие должно быть активным действием. Чекбокс по умолчанию ВЫКЛЮЧЕН,
+             клиент сам ставит галочку. Валидатор в pay-btn не даст оформить без неё. -->
         <div class="consent" style="margin-top:24px">
-          <span class="checkbox checked" id="cb"></span>
+          <span class="checkbox" id="cb"></span>
           <span>Я согласен с <a href="privacy-policy.html">политикой конфиденциальности</a>, <a href="terms.html">пользовательским соглашением</a> и <a href="offer.html">публичной офертой</a>. Даю согласие на обработку персональных данных в соответствии с 152-ФЗ.</span>
         </div>
 

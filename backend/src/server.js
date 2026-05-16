@@ -50,19 +50,33 @@ function loadDotEnv(filePath) {
   }
 }
 
+// Дефолт ALLOWED_ORIGINS — только prod-домены. Если очень надо открыть всё
+// (локальная разработка) — выставить env ALLOWED_ORIGINS="*".
+const DEFAULT_ALLOWED_ORIGINS = "https://sobrano.store,https://www.sobrano.store";
+
 function corsHeaders(req) {
-  const allowed = String(env.ALLOWED_ORIGINS || "*")
+  const allowed = String(env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS)
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
   const origin = req.headers.origin || "";
-  const allowOrigin = allowed.includes("*") || !origin ? "*" : allowed.includes(origin) ? origin : allowed[0];
+  // Если Origin не прислан (same-origin запросы / curl без Origin) — не светим
+  // конкретный domain, используем явный whitelist[0] в качестве «нашего».
+  // Если Origin есть и он в whitelist — эхо его обратно (стандарт для credentials-flow).
+  // Если Origin есть, но НЕ в whitelist — отдаём первый allowed (браузер заблокирует).
+  let allowOrigin;
+  if (allowed.includes("*")) allowOrigin = "*";
+  else if (!origin) allowOrigin = allowed[0];
+  else if (allowed.includes(origin)) allowOrigin = origin;
+  else allowOrigin = allowed[0];
 
   return {
     "access-control-allow-origin": allowOrigin,
-    "access-control-allow-methods": "GET,POST,OPTIONS",
-    "access-control-allow-headers": "content-type",
-    "access-control-max-age": "86400"
+    "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    "access-control-allow-headers": "content-type,x-admin-token,x-filename",
+    "access-control-allow-credentials": "true",
+    "access-control-max-age": "86400",
+    "vary": "origin"
   };
 }
 

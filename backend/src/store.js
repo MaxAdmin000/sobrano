@@ -156,12 +156,22 @@ function load() {
         });
       }
     } else {
+      // Файла нет — это первый запуск. Кладём дефолты и сохраняем.
       cache = DEFAULT();
       save();
     }
   } catch (e) {
-    console.error("store load error:", e);
-    cache = DEFAULT();
+    // FAIL-FAST: если файл существует, но не парсится — НЕ замещаем тихо дефолтами
+    // (раньше это значило «потеря всех заказов в кэше при первом баге»). Лучше
+    // упасть громко — systemd рестартанёт и оператор увидит ошибку в journalctl.
+    // Перед exit пробуем сохранить corrupt-файл для post-mortem.
+    const corruptPath = FILE + ".corrupt." + Date.now();
+    try { fs.copyFileSync(FILE, corruptPath); } catch (copyErr) {}
+    console.error("CRITICAL: store.json corrupted —", e.message);
+    console.error("  preserved as:", corruptPath);
+    console.error("  recovery: restore from /var/backups/sobrano/store-YYYY-MM-DD-HHMMSS.tar.gz");
+    console.error("  details:", e.stack);
+    process.exit(1);
   }
   return cache;
 }
@@ -196,6 +206,14 @@ function getOrderById(id) {
 
 function addOrder(order) {
   const s = load();
+  // Idempotency: если заказ с таким id уже существует — возвращаем его,
+  // не создавая дубль. Защита от двойного клика «Оплатить», network retry,
+  // дёрганого мобильного интернета. Маркер на возврате (.duplicate=true)
+  // позволяет вызывающему отличить «создан» от «уже был».
+  if (order && order.id) {
+    const dup = s.orders.find((o) => o.id === order.id);
+    if (dup) return Object.assign({}, dup, { duplicate: true });
+  }
   const now = Date.now();
   const seeded = Object.assign({
     createdAt: now,

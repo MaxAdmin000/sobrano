@@ -191,6 +191,13 @@ async function postOrder(req, res, env) {
       source: "web",
     };
     const saved = store.addOrder(order);
+    // Если заказ с таким id уже был (idempotent retry) — не дублируем побочные эффекты:
+    // ни бамп промокода, ни уведомления, ни лог «created». Просто отдаём 200 с тем же id.
+    if (saved.duplicate) {
+      logger.warn("order.duplicate_ignored", { id: saved.id, ip });
+      sendJson(res, 200, { ok: true, id: saved.id, total: saved.total, discount: saved.discount, duplicate: true });
+      return;
+    }
     if (saved.promo) store.bumpPromoUsage(saved.promo);
 
     notifications.onOrderCreated(saved);
@@ -979,9 +986,13 @@ async function notificationsTestAlerts(req, res) {
 
 // ===== UPLOADS =====
 
+// XSS-safety: SVG специально не разрешаем — он может содержать <script>
+// и выполниться в контексте sobrano.store при просмотре. Если когда-нибудь
+// понадобится загрузка SVG — прогонять через DOMPurify-санитайз или отдавать
+// через nginx с Content-Disposition: attachment.
 const ALLOWED_IMG_TYPES = {
   "image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png",
-  "image/webp": "webp", "image/gif": "gif", "image/svg+xml": "svg",
+  "image/webp": "webp", "image/gif": "gif",
   "image/avif": "avif",
 };
 
