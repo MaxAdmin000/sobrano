@@ -485,6 +485,9 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/admin/notifications/test") {
     return wrapCors(req, res, () => adminApi.notificationsTest(req, res));
   }
+  if (req.method === "POST" && pathname === "/api/admin/notifications/test-alerts") {
+    return wrapCors(req, res, () => adminApi.notificationsTestAlerts(req, res));
+  }
 
   // ---- Admin: customers (CRM) ----
   if (req.method === "GET" && pathname === "/api/admin/customers") {

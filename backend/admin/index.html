@@ -687,6 +687,7 @@ input,select,textarea{font:inherit;color:inherit}
         <div style="display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap">
           <button class="btn" id="save-tg" type="button">Сохранить</button>
           <button class="btn btn-ghost" id="test-tg-btn" type="button">Тестовое сообщение</button>
+          <button class="btn btn-ghost" id="test-all-alerts-btn" type="button" title="Отправит по одному примеру каждого из 9 типов алертов с пометкой 🧪">Тест всех алертов</button>
           <span id="tg-test-msg" style="font-size:12px;color:var(--mute)"></span>
         </div>
       </div>
@@ -3278,6 +3279,25 @@ input,select,textarea{font:inherit;color:inherit}
       if (r.ok) { msg.textContent = "✓ Сообщение отправлено"; msg.style.color = "var(--sage)"; }
       else { msg.textContent = "Telegram ответил ошибкой — проверьте токен и chat_id"; msg.style.color = "var(--wine)"; }
     } catch (err) { msg.textContent = "Ошибка: " + (err.message || ""); msg.style.color = "var(--wine)"; }
+  });
+  $("#test-all-alerts-btn").addEventListener("click", async () => {
+    const btn = $("#test-all-alerts-btn"); const t = btn.textContent;
+    const msg = $("#tg-test-msg");
+    if (!confirm("Отправить тестовое сообщение по каждому из 9 типов алертов (с пометкой 🧪)?\nВ Telegram прилетит ~10 сообщений подряд.")) return;
+    btn.disabled = true; btn.textContent = "Отправляем 9 алертов…";
+    msg.textContent = ""; msg.style.color = "var(--mute)";
+    try {
+      const r = await api("POST", "/api/admin/notifications/test-alerts");
+      const okCount = (r.results || []).filter((x) => x.ok).length;
+      const skipped = (r.results || []).filter((x) => !x.ok).map((x) => x.event + ":" + x.info).join(", ");
+      msg.innerHTML = "✓ Отправлено: <b>" + okCount + "</b> из " + (r.results || []).length + (skipped ? " · пропущено (выключены): " + skipped : "");
+      msg.style.color = "var(--sage)";
+    } catch (err) {
+      msg.textContent = "Ошибка: " + (err.message || "");
+      msg.style.color = "var(--wine)";
+    } finally {
+      btn.disabled = false; btn.textContent = t;
+    }
   });
 
   $("#save-requisites").addEventListener("click", async () => {

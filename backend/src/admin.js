@@ -868,6 +868,64 @@ async function notificationsTest(req, res) {
   }
 }
 
+// Шлёт по 1 тестовому сообщению на каждое событие (9 типов). Между отправками
+// задержка ~700 мс, чтобы Telegram не схлопнул их в одно уведомление и порядок
+// в чате совпадал с порядком в коде. Сэмпл-данные фейковые с пометкой 🧪.
+async function notificationsTestAlerts(req, res) {
+  if (!requireSession(req, res)) return;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const fake = {
+    id: "TEST-" + Date.now().toString(36).toUpperCase(),
+    total: 7290,
+    delivery: "own",
+    createdAt: Date.now() - 35 * 60 * 1000,
+    customer: {
+      name: "🧪 Тестовый клиент",
+      phone: "+7 999 123-45-67",
+      email: "test@sobrano.store",
+      date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+      time: "12:00 — 14:00",
+    },
+    box: { size: "M", capacity: 15 },
+    refund: { status: "requested", amount: 1500, reason: "🧪 Тест — клиент просит вернуть деньги за половину букета" },
+    status: "new",
+  };
+
+  const results = [];
+  const fire = async (label, fn) => {
+    try {
+      const r = await fn();
+      results.push({ event: label, ok: !r.skipped, info: r.skipped || "sent" });
+    } catch (e) {
+      results.push({ event: label, ok: false, info: e.message });
+    }
+    await sleep(700);
+  };
+
+  await fire("hello",            () => notifications.testTelegram());
+  await fire("newOrder",         () => notifications.onOrderCreated(fake)); // 2 вызова внутри (email клиенту тоже), но клиента без email/SMTP пропускают
+  await fire("paid",             () => notifications.onOrderStatusChanged(Object.assign({}, fake, { status: "paid" }), "new"));
+  await fire("cancelled",        () => notifications.onOrderStatusChanged(Object.assign({}, fake, { status: "cancelled" }), "paid"));
+  await fire("refund",           () => notifications.onRefundChanged(fake));
+  await fire("refundRequested",  () => notifications.notifyAdminRefundRequested(fake));
+  await fire("contactForm",      () => notifications.notifyAdminContactForm({
+    name: "🧪 Тест из админки", phone: "+7 999 123-45-67", email: "test@sobrano.store",
+    topic: "Общий вопрос", orderId: "", message: "Это тестовое сообщение через кнопку «Отправить тестовый набор алертов» в админке.",
+  }));
+  await fire("staleOrder",       () => notifications.notifyAdminStaleOrder(fake, 35));
+  await fire("loginFailure",     () => notifications.notifyAdminLoginBruteforce({
+    ip: "203.0.113.42", attempts: 7, windowMin: 10,
+    userAgent: "Mozilla/5.0 (тест из админки)", lastAt: Date.now(),
+  }));
+  await fire("dailyDigest",      () => notifications.notifyAdminDailyDigest({
+    date: new Date().toISOString().slice(0, 10),
+    orders: 12, paid: 9, cancelled: 1, revenue: 67450, avgCheck: 7494,
+    newCustomers: 4, topBox: "M (5)",
+  }));
+
+  sendJson(res, 200, { ok: true, results });
+}
+
 // ===== UPLOADS =====
 
 const ALLOWED_IMG_TYPES = {
@@ -1224,6 +1282,7 @@ module.exports = {
   // notifications
   postContactForm,
   notificationsTest,
+  notificationsTestAlerts,
   // customers (CRM)
   listCustomers,
   getCustomer,
