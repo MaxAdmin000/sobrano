@@ -190,6 +190,11 @@ button{cursor:pointer;border:0;background:none}
 .form-cta:hover .arrow{transform:rotate(-45deg)}
 .form-note{font-size:11px;color:rgba(242,236,227,.45);margin-top:14px;line-height:1.5;font-family:var(--mono);letter-spacing:.04em}
 .form-note a{color:var(--terracotta);text-decoration:underline;text-decoration-color:rgba(201,123,92,.5);text-underline-offset:3px}
+.form-consent{display:flex;align-items:flex-start;gap:10px;margin-top:18px;font-size:12px;color:rgba(242,236,227,.7);line-height:1.45;cursor:pointer;user-select:none}
+.form-consent .cbx{flex:none;width:18px;height:18px;border:1.5px solid rgba(242,236,227,.4);border-radius:4px;background:transparent;position:relative;margin-top:2px;transition:border-color .15s,background .15s}
+.form-consent.checked .cbx{background:var(--terracotta);border-color:var(--terracotta)}
+.form-consent.checked .cbx::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;line-height:1;font-weight:600}
+.form-consent a{color:var(--terracotta);text-decoration:underline;text-decoration-color:rgba(201,123,92,.5);text-underline-offset:2px}
 
 footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
 .footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid rgba(242,236,227,.14)}
@@ -428,9 +433,13 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
           <input type="text" id="cf-hp" name="website" tabindex="-1" autocomplete="off">
         </div>
 
-        <button type="submit" class="form-cta">Отправить сообщение <span class="arrow">→</span></button>
+        <!-- 152-ФЗ: явное согласие, opt-in (без чекбокса submit невозможен). -->
+        <label class="form-consent" id="cf-consent-label">
+          <span class="cbx" aria-hidden="true"></span>
+          <span>Я согласен с <a href="privacy-policy.html">политикой конфиденциальности</a> и даю согласие на <a href="consent.html">обработку персональных данных</a> в соответствии с 152-ФЗ.</span>
+        </label>
 
-        <p class="form-note">Нажимая «Отправить», вы соглашаетесь с <a href="privacy-policy.html">политикой конфиденциальности</a> и <a href="consent.html">обработкой персональных данных</a>.</p>
+        <button type="submit" class="form-cta">Отправить сообщение <span class="arrow">→</span></button>
       </form>
     </div>
   </div>
@@ -483,6 +492,15 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
     el.addEventListener('change', update);
   });
 
+  // 152-ФЗ согласие — клик по всему лейблу toggle'ит чекбокс.
+  const consentLbl = document.getElementById('cf-consent-label');
+  consentLbl.addEventListener('click', (e) => {
+    // Клик по самой ссылке внутри лейбла — не должен toggle'ить чекбокс.
+    if (e.target.tagName === 'A') return;
+    e.preventDefault();
+    consentLbl.classList.toggle('checked');
+  });
+
   document.getElementById('contactForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const $ = (id) => document.getElementById(id);
@@ -493,9 +511,14 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
     const orderId = $('cf-order').value.trim();
     const message = $('cf-msg').value.trim();
     const hp      = $('cf-hp') ? $('cf-hp').value : '';
+    const consent = consentLbl.classList.contains('checked');
 
     if (!name || !phone) {
       window.showToast?.('Заполните имя и телефон', 'warning');
+      return;
+    }
+    if (!consent) {
+      window.showToast?.('Поставьте галочку согласия с обработкой персональных данных', 'warning', 5000);
       return;
     }
 
@@ -508,7 +531,7 @@ footer{background:var(--ink);color:var(--ivory);padding:60px 0 32px}
       const r = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, topic, orderId, message, hp }),
+        body: JSON.stringify({ name, phone, email, topic, orderId, message, hp, consent }),
         credentials: 'same-origin',
       });
       const data = await r.json().catch(() => ({}));

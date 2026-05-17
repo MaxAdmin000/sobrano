@@ -207,7 +207,9 @@ async function postOrder(req, res, env) {
       promo: promoResult.code || null,
       promoRejected: promoResult.reason || null,
       delivery: saved.delivery,
-      phone: (saved.customer && saved.customer.phone) || null,
+      // 152-ФЗ: телефон маскируется в логах, поиск по «хвостам» возможен,
+      // полные данные — только в `data/store.json` (под www-data:640).
+      phone: maskPhone((saved.customer && saved.customer.phone) || ""),
       ip,
     });
     sendJson(res, 200, {
@@ -381,12 +383,12 @@ async function login(req, res, env) {
     const token = auth.login(env, body.login, body.password);
     if (!token) {
       auth.recordLoginFailure(ip, ua);
-      logger.warn("login.failure", { ip, login: body.login || null, ua: ua.slice(0, 120) });
+      logger.warn("login.failure", { ip, login: maskLogin(body.login), ua: ua.slice(0, 120) });
       sendJson(res, 401, { ok: false, error: "Неверные логин или пароль" });
       return;
     }
     auth.clearLoginFailures(ip);
-    logger.info("login.success", { ip, login: body.login });
+    logger.info("login.success", { ip, login: maskLogin(body.login) });
     sendJson(res, 200, { ok: true, token }, {
       "set-cookie": `sob_admin=${token}; Path=/; Max-Age=43200; HttpOnly; SameSite=Lax`,
     });
@@ -864,6 +866,38 @@ function clientIp(req) {
   return xff || (req.socket && req.socket.remoteAddress) || "unknown";
 }
 
+// 152-ФЗ-маскинг для логов: оставляем хвост/первые символы, основное скрываем.
+// Цель — иметь возможность найти жалобу по «последние 4 цифры», но не хранить
+// открытым полный телефон/email в journalctl на неопределённый срок.
+function maskPhone(s) {
+  const str = String(s || "").replace(/\s+/g, "");
+  if (str.length < 4) return str ? "***" : "";
+  return str.slice(0, 2) + "***" + str.slice(-2);
+}
+function maskEmail(s) {
+  const str = String(s || "");
+  const at = str.indexOf("@");
+  if (at < 1) return str ? "***" : "";
+  const local = str.slice(0, at);
+  const domain = str.slice(at + 1);
+  const masked = local.length <= 2 ? local[0] + "*" : local[0] + "***" + local.slice(-1);
+  return masked + "@" + domain;
+}
+function maskLogin(s) {
+  const str = String(s || "");
+  if (!str) return "";
+  if (str.length <= 2) return str[0] + "*";
+  return str[0] + "***" + str.slice(-1);
+}
+
+// RFC 5322-simplified. Не идеальная валидация, но отсекает явный мусор.
+function isValidEmail(s) {
+  const str = String(s || "").trim();
+  if (!str) return true; // пустое — допустимо (email необязателен в форме контактов)
+  if (str.length > 200) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(str);
+}
+
 async function postContactForm(req, res) {
   try {
     const payload = await parseJsonBody(req);
@@ -883,9 +917,18 @@ async function postContactForm(req, res) {
     const topic = String(payload.topic || "").trim().slice(0, 100);
     const orderId = String(payload.orderId || "").trim().slice(0, 60);
     const message = String(payload.message || "").trim().slice(0, 3000);
+    const consent = !!payload.consent;
 
     if (!name || !phone) {
       sendJson(res, 400, { ok: false, error: "Имя и телефон обязательны" });
+      return;
+    }
+    if (!isValidEmail(email)) {
+      sendJson(res, 400, { ok: false, error: "Email указан неверно" });
+      return;
+    }
+    if (!consent) {
+      sendJson(res, 400, { ok: false, error: "Нужно согласие на обработку персональных данных (152-ФЗ)" });
       return;
     }
 
@@ -899,7 +942,17 @@ async function postContactForm(req, res) {
     notifications.notifyAdminContactForm({ name, phone, email, topic, orderId, message })
       .catch((e) => logger.warn("contact.tg_failed", { err: e && e.message }));
 
-    logger.info("contact.received", { ip, name, phone, topic: topic || null, hasMessage: !!message });
+    // 152-ФЗ: лог получения заявки (для аудита согласия). PII маскируется —
+    // храним возможность поиска по «хвостам», но не полные данные.
+    logger.info("contact.received", {
+      ip,
+      name: name.length > 1 ? name[0] + "***" : "***",
+      phone: maskPhone(phone),
+      email: email ? maskEmail(email) : null,
+      topic: topic || null,
+      consent: true,
+      hasMessage: !!message,
+    });
     sendJson(res, 200, { ok: true });
   } catch (e) {
     sendJson(res, 400, { ok: false, error: e.message || "Bad request" });

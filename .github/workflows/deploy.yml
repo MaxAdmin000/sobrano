@@ -77,8 +77,17 @@ jobs:
             --exclude='.env' \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new" \
             ./backend/ root@"$SSH_HOST":/opt/sobrano-backend/
-          ssh -i ~/.ssh/id_ed25519 root@"$SSH_HOST" \
-            'chown -R www-data:www-data /opt/sobrano-backend && systemctl restart sobrano-backend && sleep 1 && systemctl is-active sobrano-backend'
+          # 152-ФЗ: data/ содержит PII клиентов, токен Telegram, SMTP-пароль.
+          # Делаем директорию 750 (только владелец и группа), все файлы 640.
+          # systemctl-юнит должен запускаться под www-data (User=www-data в unit).
+          ssh -i ~/.ssh/id_ed25519 root@"$SSH_HOST" '
+            chown -R www-data:www-data /opt/sobrano-backend &&
+            if [ -d /opt/sobrano-backend/data ]; then
+              chmod 750 /opt/sobrano-backend/data &&
+              find /opt/sobrano-backend/data -maxdepth 1 -type f -exec chmod 640 {} \; ;
+            fi &&
+            systemctl restart sobrano-backend && sleep 1 && systemctl is-active sobrano-backend
+          '
 
       - name: Smoke test on prod
         env:
