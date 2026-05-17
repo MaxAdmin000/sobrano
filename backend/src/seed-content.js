@@ -2,7 +2,7 @@
 // После этого правится только через админку. Источник истины для фронта — /api/content.
 // Замечание: rich-text поля (titleHtml, lead, и т.д.) поддерживают HTML.
 
-const { PRIVACY_V1 } = require("./seed-legal");
+const { PRIVACY_V1, TERMS_V1, OFFER_V1, CONSENT_V1 } = require("./seed-legal");
 
 // SEO-мета для open-graph картинки по умолчанию. Админ может переопределить
 // каждый канал на странице через content.<page>.seo.ogImage.
@@ -454,13 +454,15 @@ module.exports = {
   // Markdown с версионированием. Стартовые значения — короткие плейсхолдеры,
   // полные тексты загружаются в админке (или подгружаются из существующих HTML).
   legal: {
-    terms:   { md: "# Пользовательское соглашение\n\nДокумент в разработке. Полный текст соглашения доступен в карточке заказа и в админ-панели.", version: 0, updatedAt: null, history: [] },
-    // Полный текст политики живёт в seed-legal.js (PRIVACY_V1). Сюда подключается
-    // как version=1, чтобы рендерер на /privacy-policy.html сразу отдавал документ
-    // (рендерится только если version > 0).
+    // Полные тексты юр.документов живут в seed-legal.js (PRIVACY_V1/TERMS_V1/
+    // OFFER_V1/CONSENT_V1). Source-of-truth — соответствующие .md в /docs/.
+    // version=1 → renderer на /<doc>.html сразу отдаёт текст. Админ может
+    // редактировать в Markdown-редакторе, version будет инкрементироваться.
+    // store.js при загрузке заменит placeholder (version=0) на свежий seed.
     privacy: { md: PRIVACY_V1, version: 1, updatedAt: Date.parse("2026-05-17T00:00:00Z"), history: [] },
-    offer:   { md: "# Договор-оферта\n\nДокумент в разработке. Полная оферта публикуется отдельно.", version: 0, updatedAt: null, history: [] },
-    consent: { md: "# Согласие на обработку персональных данных\n\nДокумент в разработке.", version: 0, updatedAt: null, history: [] },
-    returns: { md: "# Правила возврата\n\nДокумент в разработке. Подробнее — на странице «Возврат и гарантия».", version: 0, updatedAt: null, history: [] },
+    terms:   { md: TERMS_V1,   version: 1, updatedAt: Date.parse("2026-05-17T00:00:00Z"), history: [] },
+    offer:   { md: OFFER_V1,   version: 1, updatedAt: Date.parse("2026-05-17T00:00:00Z"), history: [] },
+    consent: { md: CONSENT_V1, version: 1, updatedAt: Date.parse("2026-05-17T00:00:00Z"), history: [] },
+    returns: { md: "# Правила возврата\n\nПодробнее — в Договоре-оферте (раздел 7) и на странице «Возврат и гарантия».", version: 0, updatedAt: null, history: [] },
   },
 };
