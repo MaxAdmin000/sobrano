@@ -2,6 +2,8 @@
 // После этого правится только через админку. Источник истины для фронта — /api/content.
 // Замечание: rich-text поля (titleHtml, lead, и т.д.) поддерживают HTML.
 
+const { PRIVACY_V1 } = require("./seed-legal");
+
 // SEO-мета для open-graph картинки по умолчанию. Админ может переопределить
 // каждый канал на странице через content.<page>.seo.ogImage.
 const DEFAULT_OG = "https://sobrano.store/uploads/og-cover.jpg";
@@ -453,7 +455,10 @@ module.exports = {
   // полные тексты загружаются в админке (или подгружаются из существующих HTML).
   legal: {
     terms:   { md: "# Пользовательское соглашение\n\nДокумент в разработке. Полный текст соглашения доступен в карточке заказа и в админ-панели.", version: 0, updatedAt: null, history: [] },
-    privacy: { md: "# Политика конфиденциальности\n\nДокумент в разработке. Описывает, как мы храним и обрабатываем ваши данные.", version: 0, updatedAt: null, history: [] },
+    // Полный текст политики живёт в seed-legal.js (PRIVACY_V1). Сюда подключается
+    // как version=1, чтобы рендерер на /privacy-policy.html сразу отдавал документ
+    // (рендерится только если version > 0).
+    privacy: { md: PRIVACY_V1, version: 1, updatedAt: Date.parse("2026-05-17T00:00:00Z"), history: [] },
     offer:   { md: "# Договор-оферта\n\nДокумент в разработке. Полная оферта публикуется отдельно.", version: 0, updatedAt: null, history: [] },
     consent: { md: "# Согласие на обработку персональных данных\n\nДокумент в разработке.", version: 0, updatedAt: null, history: [] },
     returns: { md: "# Правила возврата\n\nДокумент в разработке. Подробнее — на странице «Возврат и гарантия».", version: 0, updatedAt: null, history: [] },

@@ -126,6 +126,21 @@ function load() {
       ensureBuiltinChannels(cache.catalog.channels, def.catalog.channels, cache.settings && cache.settings.contacts);
       if (!Array.isArray(cache.content.faq)) cache.content.faq = def.content.faq || [];
       if (!cache.content.legal || typeof cache.content.legal !== "object") cache.content.legal = def.content.legal;
+      // Миграция legal-документов: если в prod-store ещё стоит placeholder
+      // (version === 0), а в свежем seed уже опубликована реальная версия (version >= 1) —
+      // подменяем содержимое. Это даёт автоматическое наполнение Privacy/Terms/Offer
+      // через релиз без ручного клика админа. Уже изменённые админом документы
+      // (version > 0) не трогаем, чтобы не затереть правки.
+      const defLegal = def.content.legal || {};
+      const curLegal = cache.content.legal;
+      for (const key of Object.keys(defLegal)) {
+        const cur = curLegal[key];
+        const fresh = defLegal[key];
+        if (!cur || typeof cur !== "object") { curLegal[key] = fresh; continue; }
+        if ((cur.version || 0) === 0 && (fresh.version || 0) > 0) {
+          curLegal[key] = { md: fresh.md, version: fresh.version, updatedAt: fresh.updatedAt || Date.now(), history: Array.isArray(cur.history) ? cur.history : [] };
+        }
+      }
       // Подмиграция полей delivery slots: добавляем поля A7 (id/startHour/endHour/surcharge/checkoutHidden)
       // в существующие записи, не затирая значения, которые админ мог уже отредактировать.
       const slotsList = cache.content && cache.content.delivery && cache.content.delivery.slotsBlock && cache.content.delivery.slotsBlock.list;
