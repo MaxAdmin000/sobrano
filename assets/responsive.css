@@ -1,0 +1,371 @@
+/* sobrano.store — responsive overlay-патчи.
+ * Загружается через <link rel="stylesheet"> на каждой странице.
+ * Не переписывает базовые стили, только добавляет media-правила для узких
+ * брейкпоинтов (≤480 / 480-768 / 768-1100), которые отсутствуют в инлайн-CSS
+ * отдельных страниц. Стиль и палитра проекта сохранены.
+ *
+ * Структура:
+ *   1. Общий патч ≤480px — гриды в 1 колонку, overlay-тексты компактнее
+ *   2. Hero h1 — нижняя граница clamp() слишком крупная для 320-380px
+ *   3. Footer wordmark — горизонтальный overflow на сверхузких
+ *   4. Точечные фиксы критических багов (delivery zones, box hero/galery,
+ *      checkout help-link, cart actions, box switch-box, etc.)
+ *   5. Touch-only — :hover на тач-устройствах залипает
+ */
+
+
+/* =========================================================================
+   1. ≤480px — все «фиксированные» 2-колоночные гриды в одну колонку
+   ========================================================================= */
+@media (max-width: 480px) {
+  .box-grid,
+  .cat-grid,
+  .fl-grid,
+  .team-grid,
+  .hero-stats,
+  .tl-track,
+  .pick-grid,
+  .cart-banner-l .delivery,
+  .info-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* hero-stats теряет вертикальные border'ы при 1fr — добавляем горизонтальный */
+  .hero-stats .cell {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line, rgba(26, 20, 16, .14)) !important;
+  }
+  .hero-stats .cell:last-child {
+    border-bottom: 0 !important;
+  }
+
+  /* timeline на about — borders надо переориентировать */
+  .tl-track .tl-mark {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line, rgba(26, 20, 16, .14));
+  }
+  .tl-track .tl-mark:last-child {
+    border-bottom: 0;
+  }
+}
+
+
+/* =========================================================================
+   2. Hero h1 — clamp() floor слишком крупный для 320-380px viewport
+   ========================================================================= */
+@media (max-width: 480px) {
+  .hero h1,
+  .hero-box h1,
+  .cart-head h1,
+  .page-head h1 {
+    font-size: clamp(40px, 11vw, 64px) !important;
+    line-height: .94;
+    letter-spacing: -.02em;
+  }
+
+  /* Большой box.html XL — sup ломал layout при flex-end */
+  .hero-box h1 {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .hero-box h1 sup {
+    margin-top: 0 !important;
+  }
+}
+
+/* На 480-768px (планшет-портрет) — h1 box-конструктора тоже сжать */
+@media (min-width: 481px) and (max-width: 768px) {
+  .hero-box h1 {
+    font-size: clamp(64px, 14vw, 120px) !important;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+
+/* =========================================================================
+   3. Footer wordmark — горизонтальный overflow на сверхузких
+   ========================================================================= */
+@media (max-width: 480px) {
+  .footer-wordmark {
+    font-size: clamp(56px, 22vw, 120px) !important;
+    line-height: 1;
+  }
+}
+
+
+/* =========================================================================
+   4. Overlay-тексты на картинках — ужать на mobile, чтобы не вылезали и
+      не накладывались на градиент/друг друга
+   ========================================================================= */
+@media (max-width: 480px) {
+  .box-tag,
+  .box-meta,
+  .hero-tag,
+  .hero-meta,
+  .fcell .label,
+  .pick .tag,
+  .pick-tag,
+  .hero-vis .badge,
+  .wh-vis .label,
+  .address-vis .badge,
+  .hero-box .visual .badge,
+  .hero-box .visual .meta {
+    font-size: 10px !important;
+    letter-spacing: .1em !important;
+    padding: 5px 9px !important;
+  }
+
+  /* hero-tag (длинный «Бокс L · 25 цветков · Собран сегодня») — поджать справа */
+  .hero-tag {
+    right: 16px;
+    left: 16px;
+    max-width: calc(100% - 32px);
+    background: rgba(0, 0, 0, .55) !important;
+    border-radius: 999px !important;
+    color: var(--ivory, #F2ECE3) !important;
+  }
+}
+
+
+/* =========================================================================
+   5. delivery.html — критический баг с .zr таблицей зон доставки
+   ========================================================================= */
+@media (max-width: 1100px) {
+  .zr {
+    grid-template-columns: 1fr !important;
+    justify-items: start;
+    gap: 8px !important;
+    padding: 18px 0 !important;
+  }
+  .zr .icon,
+  .zr .price,
+  .zr .time {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+  .zr .ix {
+    color: var(--terracotta, #C97B5C);
+    font-weight: 500;
+  }
+}
+
+/* delivery slots — 5 cols на 960-1100 ломается, делаем 2 cols */
+@media (min-width: 681px) and (max-width: 1100px) {
+  .slot-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* delivery stats — sirota на 681-1100 */
+@media (max-width: 1100px) {
+  .stats .stat {
+    min-width: 200px !important;
+  }
+}
+
+
+/* =========================================================================
+   6. box.html — switch-box не схлопывается, нужен column
+   ========================================================================= */
+@media (max-width: 1100px) {
+  .switch-box {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 14px;
+  }
+  .switch-box .actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* box.html галерея — overlay-badges перекрывают друг друга */
+@media (max-width: 480px) {
+  .hero-box .visual .box-gallery {
+    bottom: 46px !important;
+    gap: 6px;
+  }
+  .hero-box .visual .box-gallery button {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+
+/* =========================================================================
+   7. checkout.html — help-link с телефоном вылезает за viewport
+   ========================================================================= */
+@media (max-width: 680px) {
+  /* Прячем длинную надпись, оставляем только индикатор-точку перед текстом */
+  .help-link {
+    font-size: 0 !important;
+  }
+  .help-link::before {
+    margin-right: 0 !important;
+    width: 10px !important;
+    height: 10px !important;
+  }
+  /* Но если на странице есть телефон-ссылка как кнопка — оставим */
+  a.help-link[href^="tel:"] {
+    font-size: 11px !important;
+  }
+}
+
+
+/* =========================================================================
+   8. cart.html — actions-row без wrap + промо-форма на узком
+   ========================================================================= */
+.actions-row {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+@media (max-width: 480px) {
+  .promo {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .promo button {
+    width: 100%;
+    justify-content: center !important;
+  }
+}
+
+
+/* =========================================================================
+   9. flowers / picks / box — карточки на сверхузких
+   ========================================================================= */
+@media (max-width: 480px) {
+  .flower .name,
+  .fl-card .fl-name {
+    font-size: 18px !important;
+    word-break: break-word;
+  }
+
+  .fl-foot {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* size-numbers в box-cards (большие XL/L/M/S) — clamp floor 64px давит */
+  .box-bottom .size,
+  .box-card .size {
+    font-size: clamp(44px, 14vw, 80px) !important;
+  }
+
+  /* pick.large на узких карточках */
+  .pick.large h4 {
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .pick.large h4 {
+    font-size: 24px;
+  }
+}
+
+
+/* =========================================================================
+   10. contacts.html — inline-style 48px в hero вытекает на узком
+   ========================================================================= */
+@media (max-width: 480px) {
+  /* inline <p style="font-size:48px"> — переопределяем через тэг p внутри hero */
+  .hero .live-pill ~ p[style*="font-size"] {
+    font-size: clamp(28px, 8vw, 44px) !important;
+  }
+
+  /* form в dark-card — padding 36px на узком слишком большой */
+  .form {
+    padding: 24px !important;
+  }
+
+  /* fp (fastpath rows) — длинный h5 + arrow перекрываются */
+  .fp {
+    flex-wrap: wrap;
+  }
+  .fp h5 {
+    font-size: 16px !important;
+  }
+}
+
+
+/* =========================================================================
+   11. about.html — компаре-кардочки + steps + warehouse
+   ========================================================================= */
+@media (max-width: 480px) {
+  /* steps .icon (top:36;right:24) налезает на цифру */
+  .step .icon {
+    display: none;
+  }
+
+  /* about timeline на ≤680px — column, потом ≤480 уже в общем патче */
+  .tl-track {
+    grid-template-columns: 1fr;
+  }
+  .tl-mark {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .tl-track {
+    grid-template-columns: 1fr !important;
+  }
+  .tl-mark {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line, rgba(26, 20, 16, .14));
+  }
+  .tl-mark:last-child {
+    border-bottom: 0;
+  }
+}
+
+
+/* =========================================================================
+   12. Touch-only — :hover на тач-устройствах залипает после tap
+   ========================================================================= */
+@media (hover: none) {
+  .principle:hover,
+  .fp:hover,
+  .ch-card:hover,
+  .pick:hover,
+  .flower:hover,
+  .fl-card:hover,
+  .member:hover,
+  .step:hover,
+  .stat:hover,
+  .type:hover,
+  .slot:hover,
+  .pay-card:hover,
+  .info-card:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: none !important;
+    padding-left: revert !important;
+  }
+}
+
+
+/* =========================================================================
+   13. Universal: предотвращаем horizontal scroll на корне
+   Если что-то всё-таки вылезло — overflow-x:clip на html (НЕ hidden!),
+   чтобы не ломать sticky-summary aside (тот же баг что мы фиксили в K)
+   ========================================================================= */
+@media (max-width: 768px) {
+  html {
+    overflow-x: clip;
+  }
+}
+
+
+/* =========================================================================
+   14. Cookie-banner и тосты — не должны перекрываться mobile-menu / FAB
+   ========================================================================= */
+@media (max-width: 680px) {
+  .sob-toast-container,
+  .cookie-banner {
+    z-index: 120;  /* ниже mobile-menu overlay (z-index 200), выше FAB (60) */
+  }
+}
