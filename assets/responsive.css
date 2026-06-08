@@ -361,6 +361,92 @@
 
 
 /* =========================================================================
+   14a. index.html секция «Допы» (.addons)
+   На ≤680px остаётся repeat(2,1fr) (≈150px карточка), но:
+   - `.addon.intro .h2` font 36px не помещается, italic «по желанию» обрезается
+   - `.addon h5` 24px не влезает в 1 строку для «Декоративная зелень» /
+     «Подкормка для цветов» / «Классическая ваза»
+   - aspect-ratio 3/4 делает карточку 150×200px на 320-380px viewport
+   - на ≤480px вообще лучше колонка
+   ========================================================================= */
+@media (max-width: 480px) {
+  .addons {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  /* Горизонтальная карточка вместо 3/4 — текст в 18-22px спокойно входит в ширину */
+  .addon {
+    aspect-ratio: 16 / 10 !important;
+  }
+  /* intro («К боксу — по желанию») — italic h2 на 280px ширины ужать */
+  .addon.intro {
+    padding: 22px 22px 24px !important;
+    aspect-ratio: 16 / 10 !important;
+  }
+  .addon.intro .h2 {
+    font-size: clamp(24px, 7vw, 34px) !important;
+    line-height: 1.05 !important;
+    word-break: break-word;
+  }
+  .addon.intro p {
+    font-size: 13px !important;
+    max-width: 100% !important;
+  }
+  .addon.intro .arrow {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 18px !important;
+  }
+  /* H5 в обычных карточках («Классическая ваза» и т.д.) */
+  .addon h5 {
+    font-size: 18px !important;
+    line-height: 1.15;
+    word-break: break-word;
+  }
+  .addon .price {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+  }
+  .addon .body {
+    padding: 14px 16px 16px !important;
+    gap: 10px !important;
+  }
+}
+
+/* 481-680px: 2 колонки сохраняем, но шрифты ужимаем чтобы текст не вылезал */
+@media (min-width: 481px) and (max-width: 680px) {
+  .addons {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px;
+  }
+  .addon.intro .h2 {
+    font-size: clamp(22px, 5vw, 32px) !important;
+    line-height: 1.05;
+    word-break: break-word;
+  }
+  .addon.intro p {
+    font-size: 13px !important;
+  }
+  .addon.intro {
+    padding: 22px 20px 22px !important;
+  }
+  .addon h5 {
+    font-size: 18px !important;
+    line-height: 1.15;
+    word-break: break-word;
+  }
+  .addon .price {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+  }
+  .addon .body {
+    padding: 14px 16px 14px !important;
+    gap: 10px !important;
+  }
+}
+
+
+/* =========================================================================
    14. Cookie-banner и тосты — не должны перекрываться mobile-menu / FAB
    ========================================================================= */
 @media (max-width: 680px) {
